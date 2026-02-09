@@ -31,6 +31,7 @@ set(SOURCES
     src/main.cpp
     src/grid.cpp
     src/solverCPU.cpp
+    src/boundaryConditions.cpp
 )
 
 add_executable(heat3d ${SOURCES})
