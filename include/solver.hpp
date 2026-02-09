@@ -10,4 +10,4 @@ class HeatSolver {
 
         virtual const char* name() const = 0;
 
-}
+};
