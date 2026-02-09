@@ -1,3 +1,0 @@
-/home/deepinder/CUDA/HeatTransfer/build/CMakeFiles/heat3d.dir
-/home/deepinder/CUDA/HeatTransfer/build/CMakeFiles/edit_cache.dir
-/home/deepinder/CUDA/HeatTransfer/build/CMakeFiles/rebuild_cache.dir
