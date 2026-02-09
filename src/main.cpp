@@ -1,6 +1,7 @@
 #include "grid.hpp"
 #include "solverCPU.hpp"
 #include <iostream>
+#include "boundaryConditions.hpp"
 
 int main (){
 
@@ -22,11 +23,25 @@ int main (){
 
     HeatSolverCPU solver(alpha,dx,dt);
 
+    std::array<BCType,6> types = {
+                                    BCType::Dirichlet, BCType::Dirichlet, //xmin,max
+                                    BCType::Dirichlet, BCType::Dirichlet,    //ymin,max
+                                    BCType::Dirichlet, BCType::Dirichlet    //zmin,max
+                                }
+
+    std::array<BCType,6> values = {
+                                    100,50,
+                                    50,100,
+                                    100,50
+    
+    
+    BoundaryConditions bc(types,values);
+                                }
     int steps = 5;
 
     for (int t = 0; t<steps; ++t){
         solver.step(current, next);
-        
+        bc.apply(next;)
         std::swap(current,next);
 
         std::cout << "Step "<<t+1<<": center "<< current(nx/2,ny/2,nx/2)<< std::endl;

@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/heat3d.dir/src/main.cpp.o CMakeFiles/heat3d.dir/src/grid.cpp.o CMakeFiles/heat3d.dir/src/solverCPU.cpp.o -o heat3d 
