@@ -2,6 +2,7 @@
 #include "solverCPU.hpp"
 #include <iostream>
 #include "boundaryConditions.hpp"
+#include "outputWriter.hpp"
 
 int main (){
 
@@ -36,12 +37,16 @@ int main (){
     
     
     BoundaryConditions bc(types,values);
+
+    BinaryWriter writer("temperature");
                                 
-    int steps = 5;
+    int steps = 50;
+    int writeInterval = 1;
 
     for (int t = 0; t<steps; ++t){
         solver.step(current, next);
         bc.apply(next);
+        if (t%writeInterval == 0){writer.write(next,t);}
         std::swap(current,next);
 
         std::cout << "Step "<<t+1<<": center "<< current(nx/2,ny/2,nx/2)<< std::endl;
