@@ -1,10 +1,10 @@
 #include "boundaryConditions.hpp"
 
-BoundaryConditions(std::array<BCType,6>types,std::array<double,6>values)
+BoundaryConditions::BoundaryConditions(std::array<BCType,6>types,std::array<double,6>values)
            :types_(types),values_(values){};
 
 
-BoundaryConditions::apply(Grid3D& grid) const{
+void BoundaryConditions::apply(Grid3D& grid) const{
     const size_type nx = grid.nx();
     const size_type ny = grid.ny();
     const size_type nz = grid.nz();

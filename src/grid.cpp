@@ -24,7 +24,7 @@ void Grid3D::fill(value_type value)
         std::fill(data_.begin(),data_.end(),value);
     }
 
-Grid3D::size_type Grid3D::index(size_type i, size_type j, size_type k) const noexcept
+size_type Grid3D::index(size_type i, size_type j, size_type k) const noexcept
     {
         return i+ nx_*(j+ ny_*k);
     }
