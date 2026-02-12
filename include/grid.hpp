@@ -7,8 +7,6 @@ using size_type = std::size_t;
 class Grid3D{
     public:
         using value_type = double;
-        
-
 
         Grid3D(size_type nx, size_type ny, size_type nz);
 

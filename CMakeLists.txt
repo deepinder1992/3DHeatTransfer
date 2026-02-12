@@ -32,7 +32,7 @@ set(SOURCES
     src/grid.cpp
     src/solverCPU.cpp
     src/boundaryConditions.cpp
-    src/binaryWriter.cpp
+    src/outputWriter.cpp
 )
 
 add_executable(heat3d ${SOURCES})

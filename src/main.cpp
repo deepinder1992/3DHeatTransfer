@@ -6,9 +6,9 @@
 
 int main (){
 
-    std::size_t nx = 10;
-    std::size_t ny = 10;
-    std::size_t nz = 10;
+    std::size_t nx = 50;
+    std::size_t ny = 50;
+    std::size_t nz = 50;
 
 
     double alpha = 0.01;
@@ -38,15 +38,19 @@ int main (){
     
     BoundaryConditions bc(types,values);
 
-    BinaryWriter writer("temperature");
+    BinaryWriter binWriter("../BinaryOutput","temperature");
+    VTKWriter vtkWriter("../VTKOutput","temperature");
                                 
-    int steps = 50;
-    int writeInterval = 1;
+    int steps = 10000;
+    int writeInterval = 100;
 
     for (int t = 0; t<steps; ++t){
         solver.step(current, next);
         bc.apply(next);
-        if (t%writeInterval == 0){writer.write(next,t);}
+        if (t%writeInterval == 0){
+            binWriter.write(next,t);
+            vtkWriter.write(next,t);
+        }
         std::swap(current,next);
 
         std::cout << "Step "<<t+1<<": center "<< current(nx/2,ny/2,nx/2)<< std::endl;
