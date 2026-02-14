@@ -11,14 +11,14 @@ int main (){
     std::size_t nz = 50;
 
 
-    double alpha = 0.01;
+    double alpha = 0.1;
     double dx = 1.0;
-    double dt = 0.1;
+    double dt = 1.0;
 
     Grid3D current(nx,ny,nz);
     Grid3D next(nx,ny,nz);
 
-    current.fill(0.0);
+    current.fill(75);
 
     current(nx/2,ny/2,nz/2) = 100;
 
@@ -41,12 +41,12 @@ int main (){
     BinaryWriter binWriter("../BinaryOutput","temperature");
     VTKWriter vtkWriter("../VTKOutput","temperature");
                                 
-    int steps = 10000;
-    int writeInterval = 100;
+    int steps = 20000;
+    int writeInterval = 1000;
 
     for (int t = 0; t<steps; ++t){
         solver.step(current, next);
-        bc.apply(next);
+        bc.apply(next, t);
         if (t%writeInterval == 0){
             binWriter.write(next,t);
             vtkWriter.write(next,t);
