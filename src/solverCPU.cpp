@@ -1,7 +1,9 @@
 #include "solverCPU.hpp"
 #include <cassert>
+#include "linearAlgebra.hpp"
+#include "heatMatrixBuilder.hpp"
 
-HeatSolverCPU::HeatSolverCPU(double alpha, double dx, double dt)
+HeatSolverCPUStencil::HeatSolverCPUStencil(double alpha, double dx, double dt)
 : alpha_(alpha), dx_(dx), dt_(dt)   
 {
     
@@ -13,7 +15,7 @@ HeatSolverCPU::HeatSolverCPU(double alpha, double dx, double dt)
 }
 
 
-void HeatSolverCPU::step(const Grid3D& current, Grid3D& next){
+void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs){
 
     assert(current.nx() == next.nx());
     assert(current.ny() == next.ny());
@@ -37,6 +39,34 @@ void HeatSolverCPU::step(const Grid3D& current, Grid3D& next){
                 next(i,j,k) = center + coeff_*laplacian;
             }
         }        
+    }
+
+}
+
+
+//Implict Matrix Solver
+HeatSolverCPUMatrix::HeatSolverCPUMatrix(size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt):A_(nx*ny*nz){
+    assert(alpha> 0.0);
+    assert(dx > 0.0);
+    assert (dt > 0.0);
+
+    double coeff = alpha*dt/(dx*dx);
+
+    A_ = implicitMatrix(nx ,ny ,nz ,coeff);
+}
+
+
+void HeatSolverCPUMatrix::step(const Grid3D& current, Grid3D& next,const SimulationGlobals& globs){
+
+    size_type N = current.size();
+
+    std::vector<double> b(current.data(),current.data()+N);
+    std::vector<double> x(N,0.0);
+    
+    conjugateGradient(A_ ,b ,x , 50, 1e-6, globs);
+
+    for (size_type i = 0; i < N ; ++i){
+        next.data()[i] = x[i];
     }
 
 }

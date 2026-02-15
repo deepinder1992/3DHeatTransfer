@@ -1,14 +1,14 @@
 #include "outputWriter.hpp"
 
-void BinaryWriter::write(const Grid3D& grid, int step){
-    std::ofstream out(directory_+"/"+ prefix_ +"_"+ std::to_string(step) + ".bin", std::ios::binary);
+void BinaryWriter::write(const Grid3D& grid, const int& t){
+    std::ofstream out(directory_+"/"+ prefix_ +"_"+ std::to_string(t) + ".bin", std::ios::binary);
     out.write(reinterpret_cast<const char*>(grid.data()), grid.size()*sizeof(double));
 }
 
-void VTKWriter::write(const Grid3D& grid, int step){
+void VTKWriter::write(const Grid3D& grid, const int& t){
     std::ofstream file;
     std::stringstream filename;
-    filename <<directory_<<"/"<<prefix_<<"_step_"<<step <<".vti";
+    filename <<directory_<<"/"<<prefix_<<"_step_"<<t <<".vti";
     file.open(filename.str());
     
     if (!file.is_open()){

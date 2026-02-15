@@ -8,7 +8,7 @@
 class OutputWriter{
     public:
         virtual ~OutputWriter() =default;
-        virtual void write(const Grid3D& grid, int step)= 0;
+        virtual void write(const Grid3D& grid, const int& t)= 0;
 };
 
 class BinaryWriter: public OutputWriter{
@@ -16,7 +16,7 @@ class BinaryWriter: public OutputWriter{
         BinaryWriter(const std::string directory,const std::string& prefix):directory_(directory),prefix_(prefix)
                     {std::filesystem::create_directories(directory_);}
         
-        void write(const Grid3D& grid, int step) override;
+        void write(const Grid3D& grid, const int& t) override;
     
     private:
         std::string prefix_,directory_;
@@ -26,7 +26,7 @@ class VTKWriter: public OutputWriter{
     public:
     VTKWriter(const std::string directory,const std::string& prefix):directory_(directory),prefix_(prefix)
              {std::filesystem::create_directories(directory_);}
-    void write(const Grid3D& grid, int step) override;
+    void write(const Grid3D& grid, const int& t) override;
 
     private:
         std::string prefix_,directory_;
