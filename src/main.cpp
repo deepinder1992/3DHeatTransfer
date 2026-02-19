@@ -8,48 +8,34 @@
 
 int main (){
 
-    std::size_t nx = 50;
-    std::size_t ny = 50;
-    std::size_t nz = 50;
+    std::size_t nx = 31;
+    std::size_t ny = 31;
+    std::size_t nz = 31;
 
      
     SimulationGlobals globs;
-    globs.writeInterval = 1000;
-    globs.steps = 10000;
-    globs.verbosity = SimulationGlobals::VERB_HIGH;
 
     Grid3D current(nx,ny,nz);
     Grid3D next(nx,ny,nz);
 
     current.fill(75.0);
 
-    current(nx/2,ny/2,nz/2) = 100;
+    //current(nx/2,ny/2,nz/2) = 90;
 
-    //HeatSolverCPUStencil solver(alpha,dx,dt);
-    HeatSolverCPUMatrix solver(nx,ny,nz,globs.alpha,globs.dx,globs.dt);
+   //HeatSolverCPUStencil solver(globs.alpha,globs.dx,globs.dt);
+   HeatSolverCPUMatrix solver(nx,ny,nz,globs);
    
-    std::array<BCType,6> types = {
-                                    BCType::Dirichlet, BCType::Dirichlet, //xmin,max
-                                    BCType::Dirichlet, BCType::Dirichlet,    //ymin,max
-                                    BCType::Dirichlet, BCType::Dirichlet    //zmin,max
-                                };
 
-    std::array<double,6> values = {
-                                    100,50,
-                                    50,100,
-                                    100,50};
     
-    
-    BoundaryConditions bc(types,values);
+    BoundaryConditions bc(globs.types,globs.values);
 
     BinaryWriter binWriter("../BinaryOutput","temperature");
     VTKWriter vtkWriter("../VTKOutput","temperature");
                                 
 
-
     for (globs.t = 0; globs.t<globs.steps; ++globs.t){
-        solver.step(current, next,globs);
-        bc.apply(next, globs.t);
+        bc.apply(current, globs.t, globs.dx, globs.k);
+        solver.step(current, next,globs);        
         if (globs.t%globs.writeInterval == 0){
             binWriter.write(next,globs.t);
             vtkWriter.write(next,globs.t);

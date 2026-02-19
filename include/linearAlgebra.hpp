@@ -30,8 +30,7 @@ void SparseMultiply (const SparseMatrix& A, const double* x, double* y){
 void conjugateGradient(const SparseMatrix& A,
                        const std::vector<double>& b,
                        std::vector<double>& x,
-                       int maxIters,
-                       double tol, const SimulationGlobals& globs)
+                         const SimulationGlobals& globs)
 {
     int N = b.size();
     std::vector<double> r(N), p(N), Ap(N);
@@ -43,7 +42,7 @@ void conjugateGradient(const SparseMatrix& A,
     p = r;
     double rsold = dot(r, r);
 
-    for (int iter = 0; iter < maxIters; ++iter)
+    for (int iter = 0; iter < globs.maxIters; ++iter)
     {
         SparseMultiply(A, p.data(), Ap.data());
         double alpha = rsold / dot(p, Ap);
@@ -57,7 +56,7 @@ void conjugateGradient(const SparseMatrix& A,
         double sqrtRsnew = std::sqrt(rsnew);
         if (globs.verbosity & SimulationGlobals::VERB_HIGH){
             std::cout << "     Step:: "<<globs.t+1<<" Iter:  "<< iter<< "  Err:  "<<sqrtRsnew << std::endl;}
-        if (std::sqrt(rsnew) < tol) break;
+        if (sqrtRsnew < globs.tol) break;
 
         for (int i = 0; i < N; ++i)
             p[i] = r[i] + (rsnew / rsold) * p[i];

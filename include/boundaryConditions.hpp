@@ -7,7 +7,7 @@ class BoundaryConditions{
     public:
         BoundaryConditions(std::array<BCType,6>types,std::array<double,6>values);
           //  :types_(types),values_(values);
-        void apply(Grid3D& grid, int t) const;
+        void apply(Grid3D& grid, int t, double dx, double cond) const;
     private:
         std::array<BCType,6> types_;
         std::array<double,6> values_;

@@ -20,7 +20,7 @@ class HeatSolverCPUStencil final : public HeatSolver {
 class HeatSolverCPUMatrix final : public HeatSolver{
 
     public:
-        HeatSolverCPUMatrix(size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt);
+        HeatSolverCPUMatrix(size_type nx, size_type ny, size_type nz, const SimulationGlobals& globs);
         
         void step(const Grid3D& current, Grid3D & next,const SimulationGlobals& globs) override;
         const char* name() const override {return "CPU Impict Matrix";}
