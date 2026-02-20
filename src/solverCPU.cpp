@@ -73,7 +73,7 @@ void HeatSolverCPUMatrix::step(const Grid3D& current, Grid3D& next,const Simulat
     size_type N = current.size();
 
     std::vector<double> b(current.data(),current.data()+N);
-    applyBoundaryConditions(current.nx(),
+    applyBoundaryConditionsRHSMatrix(current.nx(),
                              current.ny(),
                               current.nz(),
                                 globs,

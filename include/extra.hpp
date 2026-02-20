@@ -3,77 +3,32 @@
 #include <array>
 #include "bcType.hpp"
 
-void applyBoundaryConditions(size_type nx,
+void applyBoundaryConditionsRHSMatrix(size_type nx,
                              size_type ny,
                              size_type nz,
                              const SimulationGlobals& globs,
                              std::vector<double>& b)
 {   
     double coeff = globs.alpha*globs.dt/(globs.dx*globs.dx);
-    for (size_type k=0;k<nz;++k)
-    for (size_type j=0;j<ny;++j)
-    for (size_type i=0;i<nx;++i)
+    auto applyBC = [&](size_type faceInx, size_type row, int factor){
+                    if(globs.types[faceInx]==BCType::Dirichlet)b[row] += 2.0*coeff*globs.values[faceInx];
+                    else if(globs.types[faceInx]==BCType::Neumann)b[row] += (factor*2.0*coeff*globs.dx/globs.k)*globs.values[faceInx]; };
+
+    // for (size_type k :{size_type(0), nz-1})
+    // for (size_type j :{size_type(0), ny-1})
+    // for (size_type i :{size_type(0), nx-1})
+    for (size_type k =0 ; k< nz; ++k)
+    for (size_type j =0 ; j< ny; ++j)
+    for (size_type i =0 ; i< nx; ++i)
     {
         size_type row = i + nx*(j+ny*k);
 
-        // ----- X- -----
-        if(i==0)
-        {
-            if(globs.types[0]==BCType::Dirichlet)
-                b[row] += 2.0*coeff*globs.values[0];
+        if(i==0) applyBC(0, row, -1);// ----- X- -----
+        if(i==nx-1) applyBC(1,row,1); // ----- X+ -----
+        if(j==0) applyBC(2,row,-1); // ----- X- -----       
+        if(j==ny-1) applyBC(3,row,1);// ----- Y+ -----        
+        if(k==0)applyBC(4,row,-1);// ----- Z- -----       
+        if(k==nz-1)applyBC(5,row,1);// ----- Z+ -----
 
-            else if(globs.types[0]==BCType::Neumann)
-                b[row] -= (2.0*coeff*globs.dx/globs.k)*globs.values[0];
-        }
-
-        // ----- X+ -----
-        if(i==nx-1)
-        {
-            if(globs.types[1]==BCType::Dirichlet)
-                b[row] += 2.0*coeff*globs.values[1];
-
-            else if(globs.types[1]==BCType::Neumann)
-                b[row] += (2.0*coeff*globs.dx/globs.k)*globs.values[1];
-        }
-
-        // ----- Y- -----
-        if(j==0)
-        {
-            if(globs.types[2]==BCType::Dirichlet)
-                b[row] += 2.0*coeff*globs.values[2];
-
-            else if(globs.types[2]==BCType::Neumann)
-                b[row] -= (2.0*coeff*globs.dx/globs.k)*globs.values[2];
-        }
-
-        // ----- Y+ -----
-        if(j==ny-1)
-        {
-            if(globs.types[3]==BCType::Dirichlet)
-                b[row] += 2.0*coeff*globs.values[3];
-
-            else if(globs.types[3]==BCType::Neumann)
-                b[row] += (2.0*coeff*globs.dx/globs.k)*globs.values[3];
-        }
-
-        // ----- Z- -----
-        if(k==0)
-        {
-            if(globs.types[4]==BCType::Dirichlet)
-                b[row] += 2.0*coeff*globs.values[4];
-
-            else if(globs.types[4]==BCType::Neumann)
-                b[row] -= (2.0*coeff*globs.dx/globs.k)*globs.values[4];
-        }
-
-        // ----- Z+ -----
-        if(k==nz-1)
-        {
-            if(globs.types[5]==BCType::Dirichlet)
-                b[row] += 2.0*coeff*globs.values[5];
-
-            else if(globs.types[5]==BCType::Neumann)
-                b[row] += (2.0*coeff*globs.dx/globs.k)*globs.values[5];
-        }
     }
 }
