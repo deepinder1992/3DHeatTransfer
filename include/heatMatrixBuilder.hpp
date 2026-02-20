@@ -3,7 +3,7 @@
 #include <array>
 #include "bcType.hpp"
 
-SparseMatrix implicitMatrix( size_type nx, size_type ny, size_type nz,const SimulationGlobals& globs){
+SparseMatrix implicitMatrix( size_type nx, size_type ny, size_type nz, double coeff, const BoundaryConditions& bc){
         size_type N = nx*ny*nz;
         SparseMatrix A(N);
 
@@ -11,7 +11,6 @@ SparseMatrix implicitMatrix( size_type nx, size_type ny, size_type nz,const Simu
         auto& cols   = A.colIndex();
         auto& rowPtr = A.rowPtr();
 
-        double coeff = globs.alpha*globs.dt/(globs.dx*globs.dx);
 
         rowPtr[0] =0;
         auto addNeighbor = [&](size_type ni,size_type nj, size_type nk,double val){
@@ -20,8 +19,8 @@ SparseMatrix implicitMatrix( size_type nx, size_type ny, size_type nz,const Simu
                 cols.push_back(col);
             };
         auto applyBC = [&](size_type faceInx,size_type ni, size_type nj, size_type nk, double& diagVal){
-                if (globs.types[faceInx]==BCType::Dirichlet)diagVal+=coeff;
-                else if (globs.types[faceInx]==BCType::Neumann)addNeighbor(ni,nj,nk,-coeff);
+                if (bc.types()[faceInx]==BCType::Dirichlet)diagVal+=coeff;
+                else if (bc.types()[faceInx]==BCType::Neumann)addNeighbor(ni,nj,nk,-coeff);
                 else diagVal+=coeff;
         };         
 

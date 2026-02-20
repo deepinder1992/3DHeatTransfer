@@ -3,12 +3,6 @@
 #include "linearAlgebra.hpp"
 #include "heatMatrixBuilder.hpp"
 
-
-/////////////////////////
-//////////////////////////
-//////////////////////
-#include "extra.hpp"
-
 HeatSolverCPUStencil::HeatSolverCPUStencil(double alpha, double dx, double dt)
 : alpha_(alpha), dx_(dx), dt_(dt)   
 {
@@ -21,7 +15,7 @@ HeatSolverCPUStencil::HeatSolverCPUStencil(double alpha, double dx, double dt)
 }
 
 
-void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs){
+void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs, const BoundaryConditions& bc){
 
     assert(current.nx() == next.nx());
     assert(current.ny() == next.ny());
@@ -53,35 +47,41 @@ void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const Simul
             std::cout << "     Step:: "<<globs.t+1<<" Iter:  "<< iter<< "  Err:  "<<maxErr<< std::endl;}
         if (maxErr<globs.tol)break;
     }
+    bc.applyBCsToStencil(next, globs.dx, globs.k);
+    
 }   
 
 
 //Implict Matrix Solver
-HeatSolverCPUMatrix::HeatSolverCPUMatrix(size_type nx, size_type ny, size_type nz, const SimulationGlobals& globs):A_(nx*ny*nz){
-    assert(globs.alpha> 0.0);
-    assert(globs.dx > 0.0);
-    assert (globs.dt > 0.0);
+HeatSolverCPUMatrix::HeatSolverCPUMatrix(size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k,
+     const BoundaryConditions& bc):A_(nx*ny*nz), alpha_(alpha), dx_(dx), dt_(dt), cond_(k){
+    assert(alpha> 0.0);
+    assert(dx > 0.0);
+    assert (dt > 0.0);
+    coeff_ = alpha_*dt_/(dx_*dx_);
 
-    A_ = implicitMatrix(nx ,ny ,nz ,globs);
+    A_ = implicitMatrix(nx, ny, nz, coeff_, bc);
 }
 
 
-void HeatSolverCPUMatrix::step(const Grid3D& current, Grid3D& next,const SimulationGlobals& globs){
+void HeatSolverCPUMatrix::step(const Grid3D& current, Grid3D& next,const SimulationGlobals& globs,const BoundaryConditions& bc){
     assert(current.nx() == next.nx());
     assert(current.ny() == next.ny());
     assert(current.nz() == next.nz());
     size_type N = current.size();
 
-    std::vector<double> b(current.data(),current.data()+N);
-    applyBoundaryConditionsRHSMatrix(current.nx(),
+    std::vector<double> b(current.data(), current.data()+N);
+    bc.applyBCsToRhsMatrix(current.nx(),
                              current.ny(),
                               current.nz(),
-                                globs,
-                             b);
+                                dx_,
+                                 coeff_,
+                                  cond_,
+                                    b);
                              
     std::vector<double> x(N,0.0);
     
-    conjugateGradient(A_ ,b ,x ,globs);
+    conjugateGradient(A_, b, x, globs);
 
     for (size_type i = 0; i < N ; ++i){
         next.data()[i] = x[i];

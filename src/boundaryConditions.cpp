@@ -4,7 +4,7 @@ BoundaryConditions::BoundaryConditions(std::array<BCType,6>types,std::array<doub
            :types_(types),values_(values){};
 
 
-void BoundaryConditions::apply(Grid3D& grid, int t,double dx, double cond) const{
+void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) const{
     const size_type nx = grid.nx();
     const size_type ny = grid.ny();
     const size_type nz = grid.nz();
@@ -50,4 +50,36 @@ void BoundaryConditions::apply(Grid3D& grid, int t,double dx, double cond) const
 
 
 
+}
+
+void BoundaryConditions::applyBCsToRhsMatrix(size_type nx,
+                                              size_type ny,
+                                               size_type nz, 
+                                                double dx,
+                                                 double coeff,
+                                                  double cond,
+                                                   std::vector<double>& b) const
+{   
+ 
+    auto applyBC = [&](size_type faceInx, size_type row, int factor){
+                    if(types_[faceInx]==BCType::Dirichlet)b[row] += 2.0*coeff*values_[faceInx];
+                    else if(types_[faceInx]==BCType::Neumann)b[row] += (factor*2.0*coeff*dx/cond)*values_[faceInx]; };
+
+    // for (size_type k :{size_type(0), nz-1})
+    // for (size_type j :{size_type(0), ny-1})
+    // for (size_type i :{size_type(0), nx-1})
+    for (size_type k =0 ; k< nz; ++k)
+    for (size_type j =0 ; j< ny; ++j)
+    for (size_type i =0 ; i< nx; ++i)
+    {
+        size_type row = i + nx*(j+ny*k);
+
+        if(i==0) applyBC(0, row, -1);// ----- X- -----
+        if(i==nx-1) applyBC(1,row,1); // ----- X+ -----
+        if(j==0) applyBC(2,row,-1); // ----- X- -----       
+        if(j==ny-1) applyBC(3,row,1);// ----- Y+ -----        
+        if(k==0)applyBC(4,row,-1);// ----- Z- -----       
+        if(k==nz-1)applyBC(5,row,1);// ----- Z+ -----
+
+    }
 }

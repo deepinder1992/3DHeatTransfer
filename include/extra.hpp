@@ -3,16 +3,16 @@
 #include <array>
 #include "bcType.hpp"
 
-void applyBoundaryConditionsRHSMatrix(size_type nx,
+std::vector<double>& applyBoundaryConditionsRHSMatrix(size_type nx,
                              size_type ny,
                              size_type nz,
-                             const SimulationGlobals& globs,
+                             double coeff,
                              std::vector<double>& b)
 {   
-    double coeff = globs.alpha*globs.dt/(globs.dx*globs.dx);
+ 
     auto applyBC = [&](size_type faceInx, size_type row, int factor){
-                    if(globs.types[faceInx]==BCType::Dirichlet)b[row] += 2.0*coeff*globs.values[faceInx];
-                    else if(globs.types[faceInx]==BCType::Neumann)b[row] += (factor*2.0*coeff*globs.dx/globs.k)*globs.values[faceInx]; };
+                    if(types_[faceInx]==BCType::Dirichlet)b[row] += 2.0*coeff*values_[faceInx];
+                    else if(types_[faceInx]==BCType::Neumann)b[row] += (factor*2.0*coeff*globs.dx/globs.k)*globs.values[faceInx]; };
 
     // for (size_type k :{size_type(0), nz-1})
     // for (size_type j :{size_type(0), ny-1})
