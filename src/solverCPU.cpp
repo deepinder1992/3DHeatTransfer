@@ -25,29 +25,63 @@ void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const Simul
     const std::size_t ny = current.ny();
     const std::size_t nz = current.nz();
 
+    Grid3D bufferGrid(nx,ny,nz);
+    //bufferGrid.fill(0.0);
+
+    // old/ new here just mean the internal prev and next itertions of this time step in for loop below,
+    // current and next signify timesteps
+    Grid3D* oldGrid = &bufferGrid;
+    Grid3D* newGrid = &next;
+
+    *oldGrid = next;
+
+    // std::cout<< "Next1"<<next.data()<< std::endl;
+    //         for (size_type k = 1; k < nz-1; ++k){
+    //         for (size_type j = 1; j < ny-1; ++j ){
+    //             for (size_type i = 1; i < nx-1 ; ++i){
+    //                 std::cout << next(i,j,k) << " ";
+    //             }}}
+    
     for (int iter = 0; iter<=globs.maxIters;++iter){
         double maxErr = 0.0;
-        for (int k = 1; k < nz-1; ++k){
-            for (int j = 1; j < ny-1; ++j ){
-                for (int i = 1; i < nx-1 ; ++i){
+        #pragma omp parallel for collapse(3) reduction(max:maxErr)
+        for (size_type k = 1; k < nz-1; ++k){
+            for (size_type j = 1; j < ny-1; ++j ){
+                for (size_type i = 1; i < nx-1 ; ++i){
                     const double rhs  = current(i,j,k);
 
-                    const double sum = next(i+1,j,k)+next(i-1,j,k)
-                                                + next(i,j+1,k)+ next(i,j-1,k)
-                                                    + next(i,j,k+1)+ next(i,j,k-1);
+                    const double sum = (*oldGrid)(i+1,j,k)+ (*oldGrid)(i-1,j,k)
+                                                + (*oldGrid)(i,j+1,k)+ (*oldGrid)(i,j-1,k)
+                                                    + (*oldGrid)(i,j,k+1)+ (*oldGrid)(i,j,k-1);
                     
                     const double newVal = (rhs + coeff_*sum)/(1+6*coeff_);
                     
-                    maxErr = std::max(maxErr, std::abs(newVal-next(i,j,k)));
-                    next(i,j,k) = newVal;
+                    maxErr = std::max(maxErr, std::abs(newVal-(*oldGrid)(i,j,k)));
+                    (*newGrid)(i,j,k) = newVal;
                 }
             }        
         }
         if (globs.verbosity & SimulationGlobals::VERB_HIGH){
+            #pragma omp critical
             std::cout << "     Step:: "<<globs.t+1<<" Iter:  "<< iter<< "  Err:  "<<maxErr<< std::endl;}
         if (maxErr<globs.tol)break;
+        std::swap(oldGrid,newGrid);
     }
+    if (newGrid !=&next) next = *newGrid;
+    //     std::cout<< "Next2"<<next.data()<< std::endl;
+    //         for (size_type k = 1; k < nz-1; ++k){
+    //         for (size_type j = 1; j < ny-1; ++j ){
+    //             for (size_type i = 1; i < nx-1 ; ++i){
+    //                 std::cout << next(i,j,k) << " ";
+    //             }}}
+    
     bc.applyBCsToStencil(next, globs.dx, globs.k);
+        // std::cout<< "Next3"<<next.data()<< std::endl;
+        //     for (size_type k = 1; k < nz-1; ++k){
+        //     for (size_type j = 1; j < ny-1; ++j ){
+        //         for (size_type i = 1; i < nx-1 ; ++i){
+        //             std::cout << next(i,j,k) << " ";
+        //         }}}
     
 }   
 

@@ -2,6 +2,8 @@
 #include "grid.hpp"
 #include "simGlobals.hpp"
 #include "boundaryConditions.hpp"
+#include <iostream>
+
 class HeatSolver {
     public:
         virtual ~HeatSolver() = default;

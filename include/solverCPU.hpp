@@ -8,9 +8,9 @@ class HeatSolverCPUStencil final : public HeatSolver {
     public:
         HeatSolverCPUStencil(double alpha, double dx, double dt);
 
-        void step(const Grid3D& current, Grid3D& next,const SimulationGlobals& globs, const BoundaryConditions& bc) override;
+        void step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs, const BoundaryConditions& bc) override;
 
-        const char* name() const override {return "CPU Explicit Stencil";}
+        const char* name() const override {return "CPU Implicit Stencil";}
 
     private:
         double alpha_, dx_, dt_, coeff_;

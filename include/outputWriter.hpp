@@ -19,7 +19,7 @@ class BinaryWriter: public OutputWriter{
         void write(const Grid3D& grid, const int& t) override;
     
     private:
-        std::string prefix_,directory_;
+        std::string directory_,prefix_;
 };
 
 class VTKWriter: public OutputWriter{
@@ -29,5 +29,5 @@ class VTKWriter: public OutputWriter{
     void write(const Grid3D& grid, const int& t) override;
 
     private:
-        std::string prefix_,directory_;
+        std::string directory_,prefix_;
 };
