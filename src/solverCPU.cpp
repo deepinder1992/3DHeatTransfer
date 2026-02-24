@@ -34,13 +34,6 @@ void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const Simul
     Grid3D* newGrid = &next;
 
     *oldGrid = next;
-
-    // std::cout<< "Next1"<<next.data()<< std::endl;
-    //         for (size_type k = 1; k < nz-1; ++k){
-    //         for (size_type j = 1; j < ny-1; ++j ){
-    //             for (size_type i = 1; i < nx-1 ; ++i){
-    //                 std::cout << next(i,j,k) << " ";
-    //             }}}
     
     for (int iter = 0; iter<=globs.maxIters;++iter){
         double maxErr = 0.0;
@@ -63,26 +56,14 @@ void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const Simul
         }
         if (globs.verbosity & SimulationGlobals::VERB_HIGH){
             #pragma omp critical
-            std::cout << "     Step:: "<<globs.t+1<<" Iter:  "<< iter<< "  Err:  "<<maxErr<< std::endl;}
+            std::cout << "     Step:: "<<globs.t+1<<" Iter:  "<< iter<< "  Err:  "<<maxErr<< std::endl;
+            ++globs.totalIters;    }
         if (maxErr<globs.tol)break;
         std::swap(oldGrid,newGrid);
     }
     if (newGrid !=&next) next = *newGrid;
-    //     std::cout<< "Next2"<<next.data()<< std::endl;
-    //         for (size_type k = 1; k < nz-1; ++k){
-    //         for (size_type j = 1; j < ny-1; ++j ){
-    //             for (size_type i = 1; i < nx-1 ; ++i){
-    //                 std::cout << next(i,j,k) << " ";
-    //             }}}
     
-    bc.applyBCsToStencil(next, globs.dx, globs.k);
-        // std::cout<< "Next3"<<next.data()<< std::endl;
-        //     for (size_type k = 1; k < nz-1; ++k){
-        //     for (size_type j = 1; j < ny-1; ++j ){
-        //         for (size_type i = 1; i < nx-1 ; ++i){
-        //             std::cout << next(i,j,k) << " ";
-        //         }}}
-    
+    bc.applyBCsToStencil(next, globs.dx, globs.k);    
 }   
 
 

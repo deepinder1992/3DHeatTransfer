@@ -20,11 +20,10 @@ int main (){
 
     current.fill(75.0);
 
-    
     BoundaryConditions bc(globs.types, globs.values);
     bc.applyBCsToStencil(current, globs.dx, globs.k);
 
- // HeatSolverCPUStencil solver(globs.alpha, globs.dx, globs.dt);
+  //  HeatSolverCPUStencil solver(globs.alpha, globs.dx, globs.dt);
     //HeatSolverCPUMatrix solver(nx, ny, nz, globs.alpha, globs.dx, globs.dt, globs.k, bc);
     HeatSolverCUDAStencil solver(globs.alpha, globs.dx, globs.dt);
 
@@ -49,6 +48,9 @@ int main (){
     std::chrono::duration<double>(end - start).count();
     std::cout <<solver.name()<< " Total simulation time "
           << elapsed << " seconds" << std::endl;
+    if (globs.verbosity & SimulationGlobals::VERB_HIGH){
+    std::cout <<solver.name()<< " Totat Internal Iters "
+        << globs.totalIters<< std::endl;}
 
     return 0;
 }
