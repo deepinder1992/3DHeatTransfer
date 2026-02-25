@@ -55,7 +55,8 @@ void conjugateGradient(const SparseMatrix& A,
         double rsnew = dot(r, r);
         double sqrtRsnew = std::sqrt(rsnew);
         if (globs.verbosity & SimulationGlobals::VERB_HIGH){
-            std::cout << "     Step:: "<<globs.t+1<<" Iter:  "<< iter<< "  Err:  "<<sqrtRsnew << std::endl;}
+            std::cout << "     Step:: "<<globs.t+1<<" Iter:  "<< iter<< "  Err:  "<<sqrtRsnew << std::endl;
+            ++globs.totalIters;}
         if (sqrtRsnew < globs.tol) break;
 
         for (int i = 0; i < N; ++i)
