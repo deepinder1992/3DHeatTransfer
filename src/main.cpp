@@ -24,8 +24,8 @@ int main (){
     bc.applyBCsToStencil(current, globs.dx, globs.k);
 
   // HeatSolverCPUStencil solver(globs.alpha, globs.dx, globs.dt);
-  //  HeatSolverCPUMatrix solver(nx, ny, nz, globs.alpha, globs.dx, globs.dt, globs.k, bc);
-  HeatSolverCUDAStencil solver(globs.alpha, globs.dx, globs.dt);
+   HeatSolverCPUMatrix solver(nx, ny, nz, globs.alpha, globs.dx, globs.dt, globs.k, bc);
+  //HeatSolverCUDAStencil solver(globs.alpha, globs.dx, globs.dt);
 
     BinaryWriter binWriter("../BinaryOutput", "temperature");
     VTKWriter vtkWriter("../VTKOutput", "temperature");

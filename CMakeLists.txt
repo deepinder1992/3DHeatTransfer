@@ -31,9 +31,10 @@ set(SOURCES
     src/main.cpp
     src/grid.cpp
     src/solverCPU.cpp
+    src/solverCUDA.cpp
     src/boundaryConditions.cpp
     src/outputWriter.cpp
-    src/solverCUDA.cu
+    src/kernel.cu
 )
 
 # Create executable

@@ -1,59 +1,6 @@
 #include "solverCUDA.hpp"
 #include <stdexcept>
-
-
-template<typename T>
-inline void allocateMemory(T*& ptr, size_type& allocatedSize, size_type N){
-    if (N != allocatedSize){
-        if (ptr) cudaFree(ptr);
-        if (cudaMalloc(&ptr, N*sizeof(T))!= cudaSuccess)
-            throw std::runtime_error("cudaMalloc Failed");
-        allocatedSize = N;
-    }
-}
-
-__global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, int nx, int ny, int nz, double coeff_)
-    {
-        std::size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-        std::size_t j = blockIdx.y * blockDim.y + threadIdx.y;
-        std::size_t k = blockIdx.z * blockDim.z + threadIdx.z;
-
-        if(i>0 && i<nx-1 && j>0 && j<ny-1 && k>0 && k<nz-1 ){
-            size_t idx = i + j*nx + k*nx*ny;
-            double rhs = currentVal[idx];
-
-            double sum = oldVal[(i-1) + j*nx +k*nx*ny] + oldVal[(i+1)+j*nx +k*nx*ny]
-                       + oldVal[i + (j-1)*nx +k*nx*ny] + oldVal[i+(j+1)*nx +k*nx*ny]
-                       + oldVal[i + j*nx +(k-1)*nx*ny] + oldVal[i+j*nx +(k+1)*nx*ny];
-            
-            newVal[idx] = (rhs + coeff_*sum)/(1+6*coeff_);        
-        }
-
-    }
-
-__global__ void maxError( double* oldVal, double* newVal, double* maxBlockError, int N, int nx, int ny){
-        extern __shared__ double sData[];
-
-        std::size_t tid = threadIdx.x + threadIdx.y * blockDim.x + threadIdx.z*blockDim.x*blockDim.y;
-        std::size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-        std::size_t j = blockIdx.y * blockDim.y + threadIdx.y;
-        std::size_t k = blockIdx.z * blockDim.z + threadIdx.z;
-        std::size_t gTid = i + j*nx + k*nx*ny;
-
-
-        if (gTid < N)sData[tid] = fabs(oldVal[gTid]-newVal[gTid]);
-        else sData[tid] = 0.0;
-        __syncthreads();
-
-        for (unsigned int s = blockDim.x*blockDim.y*blockDim.z/2; s>0; s>>=1){
-            if(tid<s) sData[tid] = fmax(sData[tid], sData[tid+s]);
-            __syncthreads();
-        }
-
-        if (tid == 0) maxBlockError[blockIdx.x + blockIdx.y*gridDim.x + blockIdx.z*gridDim.x*gridDim.y] = sData[0];
-
-}
-
+#include "kernel.cuh"
 
 void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs, const BoundaryConditions& bc){
 
@@ -81,8 +28,9 @@ void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const Simu
     ::allocateMemory(devMaxBlockError, devMemBlockErrorSize, numBlocks);
     
     for (int iter = 0; iter<=globs.maxIters;++iter){
-        implicitJacobiKernel<<<gridDims, blockDims>>>(devOld, devNext, devCurrent, nx, ny, nz, coeff_);
-        cudaDeviceSynchronize();
+        // implicitJacobiKernel<<<gridDims, blockDims>>>(devOld, devNext, devCurrent, nx, ny, nz, coeff_);
+        // cudaDeviceSynchronize();
+        launchImplicitJacobi(devOld, devNext, devCurrent, nx, ny, nz, coeff_, gridDims, blockDims);
         
         if (globs.verbosity & SimulationGlobals::VERB_MEDIUM){
             cudaError_t err = cudaGetLastError();
@@ -91,7 +39,8 @@ void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const Simu
             }
         }
         long int sharedMemSize = blockDims.x*blockDims.y*blockDims.z*sizeof(double);
-        maxError<<<gridDims, blockDims,sharedMemSize>>>(devOld, devNext, devMaxBlockError, N, nx, ny);
+        // maxError<<<gridDims, blockDims,sharedMemSize>>>(devOld, devNext, devMaxBlockError, N, nx, ny);
+        launchMaxError(devOld, devNext, devMaxBlockError, N, nx, ny, gridDims, blockDims, sharedMemSize);
         if (globs.verbosity & SimulationGlobals::VERB_MEDIUM){
             cudaError_t err = cudaGetLastError();
             if (err != cudaSuccess) {
@@ -103,7 +52,7 @@ void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const Simu
         cudaMemcpy(hostMaxBlockError, devMaxBlockError, numBlocks*sizeof(double), cudaMemcpyDeviceToHost);
 
         double maxErr = 0.0;
-        for (int b = 0; b < numBlocks; ++b)
+        for (std::size_t b = 0; b < numBlocks; ++b)
             maxErr = std::max(maxErr, hostMaxBlockError[b]);
         if (globs.verbosity & SimulationGlobals::VERB_HIGH){
             std::cout << "     Step:: "<<globs.t+1<<" Iter:  "<< iter<< "  Err:  "<<maxErr<< std::endl;

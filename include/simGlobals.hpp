@@ -18,7 +18,7 @@ struct SimulationGlobals {
     //double lz = 0.1; // 10 cm
 
  
-    size_type nx = 150;
+    size_type nx = 30   ;
     size_type ny = nx;
     size_type nz = nx;
 

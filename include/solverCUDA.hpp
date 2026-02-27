@@ -35,3 +35,27 @@ class HeatSolverCUDAStencil final: public HeatSolver{
         size_type devMemBlockErrorSize = 0;
 
 };
+
+
+// class HeatSolverCUDAMatrix final: public HeatSolver{
+//     public:
+//         HeatSolverCUDAMatrix(double alpha, double dx, double dt):alpha_(alpha), dx_(dx),dt_(dt)
+//                             {  assert(alpha> 0.0);
+//                                assert(dx > 0.0);
+//                                assert (dt > 0.0);
+//                                coeff_ = alpha_*dt_/(dx_*dx_);
+//                         };
+//         ~HeatSolverCUDAStencil();
+
+//         void step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs, const BoundaryConditions& bc) override;
+
+//         const char* name() const override {return "CUDA Implicit Matrix";}
+
+//     private:
+//         double alpha_, dx_,dt_,coeff_;
+//         double* devCurrent = nullptr;
+
+//         size_type devMemCurrGrdSize = 0;
+
+// };
+

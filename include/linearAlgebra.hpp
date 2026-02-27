@@ -18,8 +18,7 @@ void SparseMultiply (const SparseMatrix& A, const double* x, double* y){
     const auto& rowPtr = A.rowPtr();
 
     for (size_type row = 0; row < A.rows(); ++row){
-        double sum = 0.0;
-        
+        double sum = 0.0;       
         for (size_type idx = rowPtr[row]; idx <rowPtr[row+1]; ++idx){
             sum+=values[idx]*x[cols[idx]];
         }
@@ -47,10 +46,9 @@ void conjugateGradient(const SparseMatrix& A,
         SparseMultiply(A, p.data(), Ap.data());
         double alpha = rsold / dot(p, Ap);
 
-        for (int i = 0; i < N; ++i)
+        for (int i = 0; i < N; ++i){
             x[i] += alpha * p[i];
-        for (int i = 0; i < N; ++i)
-            r[i] -= alpha * Ap[i];
+            r[i] -= alpha * Ap[i];}
 
         double rsnew = dot(r, r);
         double sqrtRsnew = std::sqrt(rsnew);
