@@ -1,5 +1,6 @@
 #include "solverCUDA.hpp"
 #include <stdexcept>
+#include <cuda_runtime.h>
 #include "kernel.cuh"
 
 void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs, const BoundaryConditions& bc){
@@ -18,19 +19,19 @@ void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const Simu
     cudaMemcpy(devNext, next.data(), N*sizeof(double), cudaMemcpyHostToDevice);
 
     
-    dim3 blockDims(globs.blockDimX,globs.blockDimY, globs.blockDimZ);
+    dim3 blockDims(globs.blockDimX,globs.blockDimY,globs.blockDimZ);
     dim3 gridDims((nx+globs.blockDimX-1)/globs.blockDimX,
-                     (ny+globs.blockDimY-1)/globs.blockDimY,
-                        (nz+globs.blockDimZ-1)/globs.blockDimZ);
+                    (ny+globs.blockDimY-1)/globs.blockDimY,
+                    (nz+globs.blockDimZ-1)/globs.blockDimZ);
+
 
     size_type numBlocks = gridDims.x*gridDims.y*gridDims.z;
 
     ::allocateMemory(devMaxBlockError, devMemBlockErrorSize, numBlocks);
     
     for (int iter = 0; iter<=globs.maxIters;++iter){
-        // implicitJacobiKernel<<<gridDims, blockDims>>>(devOld, devNext, devCurrent, nx, ny, nz, coeff_);
-        // cudaDeviceSynchronize();
-        launchImplicitJacobi(devOld, devNext, devCurrent, nx, ny, nz, coeff_, gridDims, blockDims);
+
+        linAlgebra_.implicitJacobiCUDA(devOld, devNext, devCurrent, nx, ny, nz, coeff_, gridDims, blockDims);
         
         if (globs.verbosity & SimulationGlobals::VERB_MEDIUM){
             cudaError_t err = cudaGetLastError();
@@ -39,8 +40,7 @@ void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const Simu
             }
         }
         long int sharedMemSize = blockDims.x*blockDims.y*blockDims.z*sizeof(double);
-        // maxError<<<gridDims, blockDims,sharedMemSize>>>(devOld, devNext, devMaxBlockError, N, nx, ny);
-        launchMaxError(devOld, devNext, devMaxBlockError, N, nx, ny, gridDims, blockDims, sharedMemSize);
+        linAlgebra_.maxErrorCUDA(devOld, devNext, devMaxBlockError, N, nx, ny, gridDims, blockDims, sharedMemSize);
         if (globs.verbosity & SimulationGlobals::VERB_MEDIUM){
             cudaError_t err = cudaGetLastError();
             if (err != cudaSuccess) {

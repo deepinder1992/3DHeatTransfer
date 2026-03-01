@@ -32,8 +32,10 @@ set(SOURCES
     src/grid.cpp
     src/solverCPU.cpp
     src/solverCUDA.cpp
+    src/linearAlgebraCPU.cpp
     src/boundaryConditions.cpp
     src/outputWriter.cpp
+    src/linearAlgebraGPU.cu
     src/kernel.cu
 )
 

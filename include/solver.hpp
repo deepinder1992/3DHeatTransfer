@@ -2,6 +2,7 @@
 #include "grid.hpp"
 #include "simGlobals.hpp"
 #include "boundaryConditions.hpp"
+#include "linearAlgebra.hpp"
 #include <iostream>
 
 class HeatSolver {

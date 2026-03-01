@@ -22,10 +22,13 @@ int main (){
 
     BoundaryConditions bc(globs.types, globs.values);
     bc.applyBCsToStencil(current, globs.dx, globs.k);
+    
+    LinearAlgebra linAlgebra;
+    HeatSolverCPUStencil solver(globs.alpha, globs.dx, globs.dt,linAlgebra);
 
-  // HeatSolverCPUStencil solver(globs.alpha, globs.dx, globs.dt);
-   HeatSolverCPUMatrix solver(nx, ny, nz, globs.alpha, globs.dx, globs.dt, globs.k, bc);
-  //HeatSolverCUDAStencil solver(globs.alpha, globs.dx, globs.dt);
+
+   // HeatSolverCPUMatrix solver(nx, ny, nz, globs.alpha, globs.dx, globs.dt, globs.k, bc, linAlgebra);
+   //HeatSolverCUDAStencil solver(globs.alpha, globs.dx, globs.dt, linAlgebra);
 
     BinaryWriter binWriter("../BinaryOutput", "temperature");
     VTKWriter vtkWriter("../VTKOutput", "temperature");

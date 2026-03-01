@@ -4,7 +4,8 @@
 
 class HeatSolverCUDAStencil final: public HeatSolver{
     public:
-        HeatSolverCUDAStencil(double alpha, double dx, double dt):alpha_(alpha), dx_(dx),dt_(dt)
+        HeatSolverCUDAStencil(double alpha, double dx, double dt, const LinearAlgebra& linAlgebra):
+                                alpha_(alpha), dx_(dx),dt_(dt),linAlgebra_(linAlgebra)
                             {  assert(alpha> 0.0);
                                assert(dx > 0.0);
                                assert (dt > 0.0);
@@ -24,6 +25,7 @@ class HeatSolverCUDAStencil final: public HeatSolver{
 
     private:
         double alpha_, dx_,dt_,coeff_;
+        LinearAlgebra linAlgebra_;
         double* devCurrent = nullptr;
         double* devNext = nullptr;
         double* devOld = nullptr;

@@ -1,4 +1,9 @@
 #include "kernel.cuh"
+#include <stdexcept>
+#include <cstddef>
+#include <cmath>
+
+
 
 __global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, int nx, int ny, int nz, double coeff_)
     {
@@ -6,8 +11,8 @@ __global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* cu
         std::size_t j = blockIdx.y * blockDim.y + threadIdx.y;
         std::size_t k = blockIdx.z * blockDim.z + threadIdx.z;
 
-        if(i>0 && i<nx-1 && j>0 && j<ny-1 && k>0 && k<nz-1 ){
-            size_t idx = i + j*nx + k*nx*ny;
+        if(i>0 & i<nx-1 && j>0 && j<ny-1 && k>0 && k<nz-1 ){
+            std::size_t idx = i + j*nx + k*nx*ny;
             double rhs = currentVal[idx];
 
             double sum = oldVal[(i-1) + j*nx +k*nx*ny] + oldVal[(i+1)+j*nx +k*nx*ny]
@@ -17,6 +22,18 @@ __global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* cu
             newVal[idx] = (rhs + coeff_*sum)/(1+6*coeff_);        
         }
 
+    }
+
+__global__ void subtract(double*a , double* b , double* c, int N){
+            std::size_t stride = blockDim.x*gridDim.x;
+            std::size_t gTid = blockDim.x*blockIdx.x + threadIdx.x;
+            for (std::size_t i = gTid; i< N; i+=stride) {c[i] = a[i]-b[i];}        
+    }
+
+__global__ void add(double*a , double* b , double* c, int N){
+            std::size_t stride = blockDim.x*gridDim.x;
+            std::size_t gTid = blockDim.x*blockIdx.x + threadIdx.x;
+            for (std::size_t i = gTid; i< N; i+=stride) {c[i] = a[i]+b[i];}           
     }
 
 __global__ void dotBlock (double* a, double* b, double* blockSum, int N){
@@ -34,15 +51,15 @@ __global__ void dotBlock (double* a, double* b, double* blockSum, int N){
 
 __global__ void sparseMultiply (const double* values, const std::size_t* cols, const std::size_t* rowPtr, const double*x, double* y, int N){
             std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;
-            if(gTid<N){
+            std::size_t stride = blockDim.x*gridDim.x;
+            for(std::size_t i = gTid; i<N; i+=stride){
                 double temp = 0.0;
-                for (std::size_t idx = rowPtr[gTid]; idx <rowPtr[gTid+1];++idx){
+                for (std::size_t idx = rowPtr[i]; idx <rowPtr[i+1];++idx){
                     temp+=values[idx]*x[cols[idx]];
                 }
-                y[gTid]= temp;
-            }
-            
-}
+                y[i]= temp;
+            }            
+    }
 
 __global__ void maxError( double* oldVal, double* newVal, double* maxBlockError, int N, int nx, int ny){
         extern __shared__ double sData[];
@@ -68,35 +85,47 @@ __global__ void maxError( double* oldVal, double* newVal, double* maxBlockError,
 }
 
 
-void launchImplicitJacobi(double* oldVal,
-                          double* newVal,
-                          double* currentVal,
-                          int nx, int ny, int nz,
-                          double coeff_,
-                          dim3 grid,
-                          dim3 block)
-{
-    implicitJacobiKernel<<<grid, block>>>(
-        oldVal, newVal, currentVal,
-        nx, ny, nz, coeff_);
-    cudaDeviceSynchronize();
-}
 
-void launchMaxError(double* oldVal,
-                    double* newVal,
-                    double* maxBlockError,
-                    int N,
-                    int nx,
-                    int ny,
-                    dim3 grid,
-                    dim3 block,
-                    size_t sharedMemSize)
-{
-    maxError<<<grid, block, sharedMemSize>>>(
-        oldVal, newVal, maxBlockError,
-        N, nx, ny);
-}
 
+
+
+// void conjugateGradientCUDA(const SparseMatrix& A,
+//                        const std::vector<double>& b,
+//                        std::vector<double>& x,
+//                          const SimulationGlobals& globs)
+// {
+//     int N = b.size();
+//     std::vector<double> r(N), p(N), Ap(N);
+
+//     sparseMultiply<<<globs.gridDim1D, globs.blockDim1D>>>(A, A.colIndex(), A.rowPtr(), x.data(), Ap.data(), N);
+//     for (int i = 0; i < N; ++i)
+//         r[i] = b[i] - Ap[i];
+
+//     p = r;
+//     double rsold = dot(r, r);
+//         for (int iter = 0; iter < globs.maxIters; ++iter)
+//     {   
+//         sparseMultiply<<<globs.gridDim1D, globs.blockDim1D>>>(A, A.colIndex(), A.rowPtr(), p.data(), Ap.data(), N);
+
+//         double alpha = rsold / dot(p, Ap);
+
+//         for (int i = 0; i < N; ++i){
+//             x[i] += alpha * p[i];
+//             r[i] -= alpha * Ap[i];}
+
+//         double rsnew = dot(r, r);
+//         double sqrtRsnew = std::sqrt(rsnew);
+//         if (globs.verbosity & SimulationGlobals::VERB_HIGH){
+//             std::cout << "     Step:: "<<globs.t+1<<" Iter:  "<< iter<< "  Err:  "<<sqrtRsnew << std::endl;
+//             ++globs.totalIters;}
+//         if (sqrtRsnew < globs.tol) break;
+
+//         for (int i = 0; i < N; ++i)
+//             p[i] = r[i] + (rsnew / rsold) * p[i];
+
+//         rsold = rsnew;
+//     }
+// }
 // void launchdotBlock(double* a, double* b, double* blockSum, int N)
 // {
 //     dotBlock (a, b, blockSum, N);

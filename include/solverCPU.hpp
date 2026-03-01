@@ -1,12 +1,13 @@
 #pragma once
 #include "solver.hpp"
 #include "sparseMatrix.hpp"
+#include "linearAlgebra.hpp"
 
 
 class HeatSolverCPUStencil final : public HeatSolver {
 
     public:
-        HeatSolverCPUStencil(double alpha, double dx, double dt);
+        HeatSolverCPUStencil(double alpha, double dx, double dt, const LinearAlgebra& linAlgebra);
 
         void step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs, const BoundaryConditions& bc) override;
 
@@ -14,13 +15,14 @@ class HeatSolverCPUStencil final : public HeatSolver {
 
     private:
         double alpha_, dx_, dt_, coeff_;
+        LinearAlgebra linAlgebra_;
 
 };
 
 class HeatSolverCPUMatrix final : public HeatSolver{
 
     public:
-        HeatSolverCPUMatrix(size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k, const BoundaryConditions& bc);
+        HeatSolverCPUMatrix(size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k, const BoundaryConditions& bc, const LinearAlgebra& linAlgebra);
         
         void step(const Grid3D& current, Grid3D & next,const SimulationGlobals& globs, const BoundaryConditions& bc) override;
         const char* name() const override {return "CPU Impict Matrix";}
@@ -28,5 +30,5 @@ class HeatSolverCPUMatrix final : public HeatSolver{
     private:
         SparseMatrix A_;
         double alpha_, dx_, dt_, coeff_, cond_;
-
+        LinearAlgebra linAlgebra_;
 };

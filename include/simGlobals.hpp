@@ -50,7 +50,9 @@ struct SimulationGlobals {
     size_type blockDimX = 8;
     size_type blockDimY = 8;
     size_type blockDimZ = 8;
-
+   // size_type blockDim1D = blockDimX*blockDimY*blockDimZ;
+    int numSMs = 16; // can vary based on GPU model
+   // size_type gridDim1D = 6*numSMs;
     //debugging
     mutable int totalIters = 0;
     
