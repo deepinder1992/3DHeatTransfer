@@ -31,7 +31,8 @@ set(SOURCES
     src/main.cpp
     src/grid.cpp
     src/solverCPU.cpp
-    src/solverCUDA.cpp
+    src/solverCUDAStencil.cpp
+    src/solverCUDAMatrix.cpp
     src/linearAlgebraCPU.cpp
     src/boundaryConditions.cpp
     src/outputWriter.cpp

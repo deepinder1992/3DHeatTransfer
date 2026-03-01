@@ -24,16 +24,11 @@ __global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* cu
 
     }
 
-__global__ void subtract(double*a , double* b , double* c, int N){
-            std::size_t stride = blockDim.x*gridDim.x;
-            std::size_t gTid = blockDim.x*blockIdx.x + threadIdx.x;
-            for (std::size_t i = gTid; i< N; i+=stride) {c[i] = a[i]-b[i];}        
-    }
 
-__global__ void add(double*a , double* b , double* c, int N){
+__global__ void addSubtract(double*a , double* b , double*c, double alpha, int N, double sign){
             std::size_t stride = blockDim.x*gridDim.x;
             std::size_t gTid = blockDim.x*blockIdx.x + threadIdx.x;
-            for (std::size_t i = gTid; i< N; i+=stride) {c[i] = a[i]+b[i];}           
+            for (std::size_t i = gTid; i< N; i+=stride) {c[i]= a[i]+sign*alpha*b[i];}           
     }
 
 __global__ void dotBlock (double* a, double* b, double* blockSum, int N){
@@ -47,7 +42,41 @@ __global__ void dotBlock (double* a, double* b, double* blockSum, int N){
                 __syncthreads();
             }
             if(tid==0) blockSum[blockIdx.x] = sData[0];
+        } 
+
+__global__ void arraySumReduction (double* a, double* blockSum, int n){
+            extern __shared__ double sData[];
+            std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;
+            std::size_t tid = threadIdx.x;
+            sData[tid] = (gTid<n)?a[gTid]:0;
+            __syncthreads();
+            for (std::size_t s = blockDim.x/2; s>0; s>>=1){
+                if(tid<s) sData[tid]+=sData[tid+s];
+                __syncthreads();
+            }
+            if(tid==0)blockSum[blockIdx.x] = sData[0];
         }   
+
+__global__ void arrayAtomicAdd (double* a, double* result, int n){
+            extern __shared__ double sData[];
+            std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;
+            std::size_t tid = threadIdx.x;
+            std::size_t stride = gridDim.x*blockDim.x;
+            double temp = 0.0;
+            for (std::size_t i = gTid; i<n; i+=stride){
+                temp+=a[i];
+            }
+            sData[tid] = temp;
+            __syncthreads();
+
+            for (std::size_t s = blockDim.x/2; s>0; s>>=1){
+                if(tid<s) sData[tid]+=sData[tid+s];
+                __syncthreads();
+            }
+            if(tid==0)atomicAdd(result,sData[0]);
+}   
+
+
 
 __global__ void sparseMultiply (const double* values, const std::size_t* cols, const std::size_t* rowPtr, const double*x, double* y, int N){
             std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;
@@ -83,50 +112,3 @@ __global__ void maxError( double* oldVal, double* newVal, double* maxBlockError,
         if (tid == 0) maxBlockError[blockIdx.x + blockIdx.y*gridDim.x + blockIdx.z*gridDim.x*gridDim.y] = sData[0];
 
 }
-
-
-
-
-
-
-// void conjugateGradientCUDA(const SparseMatrix& A,
-//                        const std::vector<double>& b,
-//                        std::vector<double>& x,
-//                          const SimulationGlobals& globs)
-// {
-//     int N = b.size();
-//     std::vector<double> r(N), p(N), Ap(N);
-
-//     sparseMultiply<<<globs.gridDim1D, globs.blockDim1D>>>(A, A.colIndex(), A.rowPtr(), x.data(), Ap.data(), N);
-//     for (int i = 0; i < N; ++i)
-//         r[i] = b[i] - Ap[i];
-
-//     p = r;
-//     double rsold = dot(r, r);
-//         for (int iter = 0; iter < globs.maxIters; ++iter)
-//     {   
-//         sparseMultiply<<<globs.gridDim1D, globs.blockDim1D>>>(A, A.colIndex(), A.rowPtr(), p.data(), Ap.data(), N);
-
-//         double alpha = rsold / dot(p, Ap);
-
-//         for (int i = 0; i < N; ++i){
-//             x[i] += alpha * p[i];
-//             r[i] -= alpha * Ap[i];}
-
-//         double rsnew = dot(r, r);
-//         double sqrtRsnew = std::sqrt(rsnew);
-//         if (globs.verbosity & SimulationGlobals::VERB_HIGH){
-//             std::cout << "     Step:: "<<globs.t+1<<" Iter:  "<< iter<< "  Err:  "<<sqrtRsnew << std::endl;
-//             ++globs.totalIters;}
-//         if (sqrtRsnew < globs.tol) break;
-
-//         for (int i = 0; i < N; ++i)
-//             p[i] = r[i] + (rsnew / rsold) * p[i];
-
-//         rsold = rsnew;
-//     }
-// }
-// void launchdotBlock(double* a, double* b, double* blockSum, int N)
-// {
-//     dotBlock (a, b, blockSum, N);
-// }
