@@ -22,7 +22,7 @@ inline void allocateMemory(T*& ptr,
 __global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, int nx, int ny, int nz, double coeff_);
 
 
-__global__ void addSubtract(double*a , double* b , double alpha, int N, double sign);
+__global__ void addSubtract(double*a , double* b , double* c , double alpha, int N, double sign);
 
 
 __global__ void dotBlock (double* a, double* b, double* blockSum, int N);

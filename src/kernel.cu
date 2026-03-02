@@ -25,10 +25,10 @@ __global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* cu
     }
 
 
-__global__ void addSubtract(double*a , double* b , double*c, double alpha, int N, double sign){
+__global__ void addSubtract(double* a , double* b , double* c, double fac, int N, double sign){
             std::size_t stride = blockDim.x*gridDim.x;
             std::size_t gTid = blockDim.x*blockIdx.x + threadIdx.x;
-            for (std::size_t i = gTid; i< N; i+=stride) {c[i]= a[i]+sign*alpha*b[i];}           
+            for (std::size_t i = gTid; i< N; i+=stride) {c[i]= a[i]+sign*fac*b[i];}           
     }
 
 __global__ void dotBlock (double* a, double* b, double* blockSum, int N){

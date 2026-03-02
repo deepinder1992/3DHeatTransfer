@@ -3,7 +3,7 @@
 #include <array>
 #include "bcType.hpp"
 
-SparseMatrix implicitMatrix( size_type nx, size_type ny, size_type nz, double coeff, const BoundaryConditions& bc){
+inline SparseMatrix implicitMatrix( size_type nx, size_type ny, size_type nz, double coeff, const BoundaryConditions& bc){
         size_type N = nx*ny*nz;
         SparseMatrix A(N);
 

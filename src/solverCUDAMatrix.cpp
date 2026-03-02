@@ -2,9 +2,11 @@
 #include <stdexcept>
 #include <cuda_runtime.h>
 #include "kernel.cuh"
+#include "heatMatrixBuilder.hpp"
+
 
 //Implict Matrix Solver
-HeatSolverCPUMatrix::HeatSolverCPUMatrix(size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k,
+HeatSolverCUDAMatrix::HeatSolverCUDAMatrix(size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k,
                                             const BoundaryConditions& bc, const LinearAlgebra& linAlgebra):
                                             A_(nx*ny*nz), alpha_(alpha), dx_(dx), dt_(dt), cond_(k),
                                             linAlgebra_(linAlgebra){
@@ -17,7 +19,7 @@ HeatSolverCPUMatrix::HeatSolverCPUMatrix(size_type nx, size_type ny, size_type n
 }
 
 
-void HeatSolverCPUMatrix::step(const Grid3D& current, Grid3D& next,const SimulationGlobals& globs,const BoundaryConditions& bc){
+void HeatSolverCUDAMatrix::step(const Grid3D& current, Grid3D& next,const SimulationGlobals& globs,const BoundaryConditions& bc){
     assert(current.nx() == next.nx());
     assert(current.ny() == next.ny());
     assert(current.nz() == next.nz());
@@ -34,7 +36,7 @@ void HeatSolverCPUMatrix::step(const Grid3D& current, Grid3D& next,const Simulat
                              
     std::vector<double> x(N,0.0);
     
-    linAlgebra_.conjugateGradient(A_, b, x, globs);
+    linAlgebra_.conjugateGradientCUDA(A_, b, x, globs);
 
     for (size_type i = 0; i < N ; ++i){
         next.data()[i] = x[i];

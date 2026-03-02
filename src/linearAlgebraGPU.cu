@@ -17,7 +17,7 @@ void LinearAlgebra::maxErrorCUDA(double* oldVal, double* newVal,  double* maxBlo
 
 
 
-void conjugateGradientCUDA(const SparseMatrix& A, const std::vector<double>& b,
+void LinearAlgebra::conjugateGradientCUDA(const SparseMatrix& A, const std::vector<double>& b,
                             std::vector<double>& x, const SimulationGlobals& globs)
 {
     int N = b.size();
@@ -27,13 +27,15 @@ void conjugateGradientCUDA(const SparseMatrix& A, const std::vector<double>& b,
     std::size_t aRowPtrSize = A.rowPtr().size();
     std::size_t aColIdxSize = A.colIndex().size();
     dim3 blockDim1D(globs.blockDimX*globs.blockDimY*globs.blockDimZ);
-    dim3 gridDims1D((N+globs.blockDimX*globs.blockDimY*globs.blockDimZ-1)
+    dim3 gridDim1D((N+globs.blockDimX*globs.blockDimY*globs.blockDimZ-1)
                         /(globs.blockDimX*globs.blockDimY*globs.blockDimZ));
 
     double* hostSum = new double;
     double* hostSum2 = new double;
-    double alpha  = 1.0;
-
+    double fac  = 1.0;
+    std::size_t sz = 1;
+    long int sharedMemSizeDot = blockDim1D.x*sizeof(double);
+    long int sharedMemSizeSum = blockDim1D.x*sizeof(double);
 
     ::allocateMemory(devSparseMatValues, devMemSpMatVals, aValSize);
     ::allocateMemory(devSparseMatRowPtr, devMemSpMatRowPtr, aRowPtrSize);
@@ -42,50 +44,45 @@ void conjugateGradientCUDA(const SparseMatrix& A, const std::vector<double>& b,
     ::allocateMemory(devXVector, devMemXVector, N);
     ::allocateMemory(devApVector, devMemApVector, N);
     ::allocateMemory(devRVector, devMemRVector, N);
-    ::allocateMemory(devBlockSums, devMemBlockSums, gridDims1D.x);
-    ::allocateMemory(devSum, devMemSum, 1);
-    ::allocateMemory(devSum2, devMemSum2, 1);
+    ::allocateMemory(devPVector, devMemPVector, N);
+    ::allocateMemory(devBlockSums, devMemBlockSums, gridDim1D.x);
+    ::allocateMemory(devSum, devMemSum, sz);
+    ::allocateMemory(devSum2, devMemSum2, sz);
 
 
-    cudaMemcpy(devSparseMatValues, A.values(), aValSize*sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(devSparseMatRowPtr, A.rowPtr(), aRowPtrSize*sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(devSparseMatCols, A.colIndex(), aColIdxSize*sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(devSparseMatValues, A.values().data(), aValSize*sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(devSparseMatRowPtr, A.rowPtr().data(), aRowPtrSize*sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(devSparseMatCols, A.colIndex().data(), aColIdxSize*sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(devBVector, b.data(), N*sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(devXVector, x.data(), N*sizeof(double), cudaMemcpyHostToDevice);
 
 
 
     sparseMultiply<<<gridDim1D, blockDim1D>>>(devSparseMatValues, devSparseMatCols, devSparseMatRowPtr, devXVector, devApVector, N);
-    subtract<<<gridDim1D, blockDim1D>>>(devBVector, devApVector, devRVector, N);
+    addSubtract<<<gridDim1D, blockDim1D>>>(devBVector, devApVector, devRVector, 1.0, N, -1.0);
 
-    long int sharedMemSizeDot = blockDims1D.x;
     dotBlock<<<gridDim1D, blockDim1D, sharedMemSizeDot>>>(devRVector, devRVector, devBlockSums, N);
-
-    long int sharedMemSizeSum = blockDims1D.x*sizeof(double);
-    
-    arrayAtomicAdd <<<gridDim1D, blockDim1D,sharedMemSizeSum>>>(devBlockSums, devSum, gridDims1D.x);
+    arrayAtomicAdd <<<gridDim1D, blockDim1D,sharedMemSizeSum>>>(devBlockSums, devSum, gridDim1D.x);
     cudaMemcpy(hostSum, devSum , sizeof(double), cudaMemcpyDeviceToHost);
-
+    *devPVector = *devRVector;
 
     for (int iter = 0; iter < globs.maxIters; ++iter)
     {
         sparseMultiply<<<gridDim1D, blockDim1D>>>(devSparseMatValues, devSparseMatCols, devSparseMatRowPtr, devPVector, devApVector, N);
         //SparseMultiply(A, p.data(), Ap.data());
-        long int sharedMemSizeDot = blockDims1D.x;
-        dotBlock<<<gridDim1D, blockDim1D, sharedMemSizeDot>>>(devPVector, devAPVector, devBlockSums, N);
-        long int sharedMemSizeSum = blockDims1D.x*sizeof(double);
-        arrayAtomicAdd <<<gridDim1D, blockDim1D,sharedMemSizeSum>>>(devBlockSums, devSum2, gridDims1D.x);
+        
+        dotBlock<<<gridDim1D, blockDim1D, sharedMemSizeDot>>>(devPVector, devApVector, devBlockSums, N);
+        
+        arrayAtomicAdd <<<gridDim1D, blockDim1D,sharedMemSizeSum>>>(devBlockSums, devSum2, gridDim1D.x);
         cudaMemcpy(hostSum2, devSum2 , sizeof(double), cudaMemcpyDeviceToHost);
     
-        alpha = (*hostSum)/(*hostSum2);
+        fac = (*hostSum)/(*hostSum2);
 
-        addSubtract<<<gridDim1D,blockDim1D>>>(devXVector , devPVector, devXVector alpha, N, 1.0);
-        addSubtract<<<gridDim1D,blockDim1D>>>(devRVector , devAPVector, devRVector alpha, N, -1.0);
+        addSubtract<<<gridDim1D,blockDim1D>>>(devXVector , devPVector, devXVector, fac, N, 1.0);
+        addSubtract<<<gridDim1D,blockDim1D>>>(devRVector , devApVector, devRVector, fac, N, -1.0);
 
-        long int sharedMemSizeDot = blockDims1D.x;
         dotBlock<<<gridDim1D, blockDim1D, sharedMemSizeDot>>>(devRVector, devRVector, devBlockSums, N);
-        long int sharedMemSizeSum = blockDims1D.x*sizeof(double);
-        arrayAtomicAdd <<<gridDim1D, blockDim1D,sharedMemSizeSum>>>(devBlockSums, devSum2, gridDims1D.x);
+        arrayAtomicAdd <<<gridDim1D, blockDim1D,sharedMemSizeSum>>>(devBlockSums, devSum2, gridDim1D.x);
         cudaMemcpy(hostSum2, devSum2 , sizeof(double), cudaMemcpyDeviceToHost);
 
         double sqrtRsnew = std::sqrt(*hostSum2);

@@ -3,6 +3,14 @@
 #include <cuda_runtime.h>
 #include "kernel.cuh"
 
+HeatSolverCUDAStencil::HeatSolverCUDAStencil(double alpha, double dx, double dt, const LinearAlgebra& linAlgebra):
+                                alpha_(alpha), dx_(dx),dt_(dt),linAlgebra_(linAlgebra)
+                            {  assert(alpha> 0.0);
+                               assert(dx > 0.0);
+                               assert (dt > 0.0);
+                               coeff_ = alpha_*dt_/(dx_*dx_);
+                        };
+
 void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs, const BoundaryConditions& bc){
 
     size_type N = current.size();

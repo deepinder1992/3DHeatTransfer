@@ -2,6 +2,7 @@
 #include <cassert>
 #include "heatMatrixBuilder.hpp"
 
+
 HeatSolverCPUStencil::HeatSolverCPUStencil(double alpha, double dx, double dt, const LinearAlgebra& linAlgebra)
 : alpha_(alpha), dx_(dx), dt_(dt), linAlgebra_(linAlgebra) 
 {

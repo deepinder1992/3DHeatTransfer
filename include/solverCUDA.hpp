@@ -1,16 +1,12 @@
 #pragma once
 #include "solver.hpp"
-
+#include "linearAlgebra.hpp"
+#include "sparseMatrix.hpp"
+#include <iostream>
 
 class HeatSolverCUDAStencil final: public HeatSolver{
     public:
-        HeatSolverCUDAStencil(double alpha, double dx, double dt, const LinearAlgebra& linAlgebra):
-                                alpha_(alpha), dx_(dx),dt_(dt),linAlgebra_(linAlgebra)
-                            {  assert(alpha> 0.0);
-                               assert(dx > 0.0);
-                               assert (dt > 0.0);
-                               coeff_ = alpha_*dt_/(dx_*dx_);
-                        };
+        HeatSolverCUDAStencil(double alpha, double dx, double dt, const LinearAlgebra& linAlgebra);
         ~HeatSolverCUDAStencil()
                         {
                             if(devCurrent) cudaFree(devCurrent);
@@ -41,23 +37,18 @@ class HeatSolverCUDAStencil final: public HeatSolver{
 
 class HeatSolverCUDAMatrix final: public HeatSolver{
     public:
-        HeatSolverCUDAMatrix(double alpha, double dx, double dt):alpha_(alpha), dx_(dx),dt_(dt)
-                            {  assert(alpha> 0.0);
-                               assert(dx > 0.0);
-                               assert (dt > 0.0);
-                               coeff_ = alpha_*dt_/(dx_*dx_);
-                        };
-        ~HeatSolverCUDAStencil();
+        HeatSolverCUDAMatrix(size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k,
+                                            const BoundaryConditions& bc, const LinearAlgebra& linAlgebra);
 
-        void step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs, const BoundaryConditions& bc) override;
+
+        void step(const Grid3D& current, Grid3D & next,const SimulationGlobals& globs, const BoundaryConditions& bc) override;
 
         const char* name() const override {return "CUDA Implicit Matrix";}
 
     private:
-        double alpha_, dx_,dt_,coeff_;
-        double* devCurrent = nullptr;
-
-        size_type devMemCurrGrdSize = 0;
+        SparseMatrix A_;
+        double alpha_, dx_, dt_, coeff_, cond_;
+        LinearAlgebra linAlgebra_;
 
 };
 
