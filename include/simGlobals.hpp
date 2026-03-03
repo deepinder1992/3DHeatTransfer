@@ -7,7 +7,7 @@ struct SimulationGlobals {
     static constexpr int VERB_HIGH   = 1 << 2;
     
     int t = 0;
-    int steps = 20000;
+    int steps = 500;
     int writeInterval = 100000;
     double globalTol = 1e-8;
     int verbosity = VERB_LOW;
@@ -18,7 +18,7 @@ struct SimulationGlobals {
     //double lz = 0.1; // 10 cm
 
  
-    size_type nx = 30   ;
+    size_type nx = 60   ;
     size_type ny = nx;
     size_type nz = nx;
 

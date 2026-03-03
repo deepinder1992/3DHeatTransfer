@@ -31,19 +31,47 @@ __global__ void addSubtract(double* a , double* b , double* c, double fac, int N
             for (std::size_t i = gTid; i< N; i+=stride) {c[i]= a[i]+sign*fac*b[i];}           
     }
 
-__global__ void dotBlock (double* a, double* b, double* blockSum, int N){
-            extern __shared__ double sData[];
-            std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;
-            std::size_t tid = threadIdx.x;
-            double temp = (gTid<N)?a[gTid]*b[gTid]:0.0;
-            sData[tid] = temp;
-            for (std::size_t s = blockDim.x/2; s>0; s>>=1){
-                if(tid<s) sData[tid]+=sData[tid+s];
-                __syncthreads();
-            }
-            if(tid==0) blockSum[blockIdx.x] = sData[0];
-        } 
+// __global__ void dotBlock (double* a, double* b, double* blockSum, int N){
+//             extern __shared__ double sData[];
+//             std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;
+//             std::size_t tid = threadIdx.x;
+//             double temp = (gTid<N)?a[gTid]*b[gTid]:0.0;
+//             sData[tid] = temp;
+//             for (std::size_t s = blockDim.x/2; s>0; s>>=1){
+//                 if(tid<s) sData[tid]+=sData[tid+s];
+//                 __syncthreads();
+//             }
+//             if(tid==0) blockSum[blockIdx.x] = sData[0];
+//         } 
+__global__ void dotBlock(const double* a, const double* b, double* blockSum, int N)
+{
+    extern __shared__ double sData[];
 
+    int tid = threadIdx.x;
+    int gTid = threadIdx.x + blockIdx.x * blockDim.x;
+    int stride = blockDim.x * gridDim.x;
+
+    double temp = 0.0;
+
+    // Each thread accumulates its stride
+    for (int i = gTid; i < N; i += stride)
+        temp += a[i] * b[i];
+
+    sData[tid] = temp;
+    __syncthreads();
+
+    // Reduction in shared memory
+    for (int s = blockDim.x / 2; s > 0; s >>= 1)
+    {
+        if (tid < s)
+            sData[tid] += sData[tid + s];
+        __syncthreads();
+    }
+
+    // First thread writes block sum
+    if (tid == 0)
+        blockSum[blockIdx.x] = sData[0];
+}
 __global__ void arraySumReduction (double* a, double* blockSum, int n){
             extern __shared__ double sData[];
             std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;

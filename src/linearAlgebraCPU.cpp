@@ -42,7 +42,7 @@ void LinearAlgebra::conjugateGradient(const SparseMatrix& A,
     {
         SparseMultiply(A, p.data(), Ap.data());
         double alpha = rsold / dot(p, Ap);
-
+        
         for (int i = 0; i < N; ++i){
             x[i] += alpha * p[i];
             r[i] -= alpha * Ap[i];}

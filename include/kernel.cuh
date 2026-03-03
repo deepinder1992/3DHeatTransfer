@@ -1,7 +1,18 @@
 #pragma once
 #include <cuda_runtime.h>
 #include <stdexcept>
+#include <iostream>
+#include <cstdlib>
 
+#define CUDA_CHECK(call)                                                \
+do {                                                                    \
+    cudaError_t err = call;                                             \
+    if (err != cudaSuccess) {                                           \
+        std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__   \
+                  << " -> " << cudaGetErrorString(err) << std::endl;    \
+        std::exit(EXIT_FAILURE);                                        \
+    }                                                                   \
+} while (0)
 
 template<typename T>
 inline void allocateMemory(T*& ptr,
@@ -19,13 +30,15 @@ inline void allocateMemory(T*& ptr,
     }
 }
 
+
+
 __global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, int nx, int ny, int nz, double coeff_);
 
 
 __global__ void addSubtract(double*a , double* b , double* c , double alpha, int N, double sign);
 
 
-__global__ void dotBlock (double* a, double* b, double* blockSum, int N);
+__global__ void dotBlock (const double* a, const double* b, double* blockSum, int N);
 
 
 __global__ void sparseMultiply (const double* values, const std::size_t* cols, const std::size_t* rowPtr, const double*x, double* y, int N);
