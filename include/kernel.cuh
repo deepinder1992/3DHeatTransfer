@@ -52,6 +52,8 @@ __global__ void arraySumReduction (double* a, double* blockSum, int n);
 
 __global__ void arrayAtomicAdd (double* a, double* result, int n);
 
+double arraySum(double* d_a, int n);
+
 
 
 

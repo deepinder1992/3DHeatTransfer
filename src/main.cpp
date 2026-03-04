@@ -27,9 +27,9 @@ int main (){
     //HeatSolverCPUStencil solver(globs.alpha, globs.dx, globs.dt,linAlgebra);
 
 
-   //HeatSolverCPUMatrix solver(nx, ny, nz, globs.alpha, globs.dx, globs.dt, globs.k, bc, linAlgebra);
-   HeatSolverCUDAStencil solver(globs.alpha, globs.dx, globs.dt, linAlgebra);
-  // HeatSolverCUDAMatrix solver(nx, ny, nz, globs.alpha, globs.dx, globs.dt, globs.k, bc, linAlgebra);
+   HeatSolverCPUMatrix solver(nx, ny, nz, globs.alpha, globs.dx, globs.dt, globs.k, bc, linAlgebra);
+   //HeatSolverCUDAStencil solver(globs.alpha, globs.dx, globs.dt, linAlgebra);
+   //HeatSolverCUDAMatrix solver(nx, ny, nz, globs.alpha, globs.dx, globs.dt, globs.k, bc, linAlgebra);
 
     BinaryWriter binWriter("../BinaryOutput", "temperature");
     VTKWriter vtkWriter("../VTKOutput", "temperature");
