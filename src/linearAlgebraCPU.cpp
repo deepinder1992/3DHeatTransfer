@@ -37,7 +37,6 @@ void LinearAlgebra::conjugateGradient(const SparseMatrix& A,
 
     p = r;
     double rsold = dot(r, r);
-
     for (int iter = 0; iter < globs.maxIters; ++iter)
     {
         SparseMultiply(A, p.data(), Ap.data());

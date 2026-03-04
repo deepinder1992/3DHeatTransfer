@@ -32,27 +32,27 @@ inline void allocateMemory(T*& ptr,
 
 
 
-__global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, int nx, int ny, int nz, double coeff_);
+__global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, std::size_t nx, std::size_t ny, std::size_t nz, double coeff_);
 
 
-__global__ void addSubtract(double*a , double* b , double* c , double alpha, int N, double sign);
+__global__ void addSubtract(double*a , double* b , double* c , double alpha, std::size_t N, double sign);
 
 
-__global__ void dotBlock (const double* a, const double* b, double* blockSum, int N);
+__global__ void dotBlock (const double* a, const double* b, double* blockSum, std::size_t N);
 
 
-__global__ void sparseMultiply (const double* values, const std::size_t* cols, const std::size_t* rowPtr, const double*x, double* y, int N);
+__global__ void sparseMultiply (const double* values, const std::size_t* cols, const std::size_t* rowPtr, const double*x, double* y, std::size_t N);
 
 
-__global__ void maxError( double* oldVal, double* newVal, double* maxBlockError, int N, int nx, int ny);
+__global__ void maxError( double* oldVal, double* newVal, double* maxBlockError, std::size_t N, std::size_t nx, std::size_t ny);
 
 
-__global__ void arraySumReduction (double* a, double* blockSum, int n);
+__global__ void arraySumReduction (double* a, double* blockSum, std::size_t n);
 
 
-__global__ void arrayAtomicAdd (double* a, double* result, int n);
+__global__ void arrayAtomicAdd (double* a, double* result, std::size_t n);
 
-double arraySum(double* d_a, int n);
+double arraySum(double* d_a, std::size_t n);
 
 
 

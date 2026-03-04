@@ -47,7 +47,7 @@ void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const Simu
                 std::cerr << "CUDA error Jacobi: " << cudaGetErrorString(err) << std::endl;
             }
         }
-        long int sharedMemSize = blockDims.x*blockDims.y*blockDims.z*sizeof(double);
+        std::size_t sharedMemSize = blockDims.x*blockDims.y*blockDims.z*sizeof(double);
         linAlgebra_.maxErrorCUDA(devOld, devNext, devMaxBlockError, N, nx, ny, gridDims, blockDims, sharedMemSize);
         if (globs.verbosity & SimulationGlobals::VERB_MEDIUM){
             cudaError_t err = cudaGetLastError();

@@ -6,7 +6,7 @@
 #include <vector>
 
 
-__global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, int nx, int ny, int nz, double coeff_)
+__global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, std::size_t nx, std::size_t ny, std::size_t nz, double coeff_)
     {
         std::size_t i = blockIdx.x * blockDim.x + threadIdx.x;
         std::size_t j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -26,13 +26,13 @@ __global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* cu
     }
 
 
-__global__ void addSubtract(double* a , double* b , double* c, double fac, int N, double sign){
+__global__ void addSubtract(double* a , double* b , double* c, double fac, std::size_t N, double sign){
             std::size_t stride = blockDim.x*gridDim.x;
             std::size_t gTid = blockDim.x*blockIdx.x + threadIdx.x;
             for (std::size_t i = gTid; i< N; i+=stride) {c[i]= a[i]+sign*fac*b[i];}           
     }
 
-// __global__ void dotBlock (const double* a, const double* b, double* blockSum, int N){
+// __global__ void dotBlock (const double* a, const double* b, double* blockSum, std::size_t N){
 //             extern __shared__ double sData[];
 //             std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;
 //             std::size_t tid = threadIdx.x;
@@ -44,25 +44,25 @@ __global__ void addSubtract(double* a , double* b , double* c, double fac, int N
 //             }
 //             if(tid==0) blockSum[blockIdx.x] = sData[0];
 //         } 
-__global__ void dotBlock(const double* a, const double* b, double* blockSum, int N)
+__global__ void dotBlock(const double* a, const double* b, double* blockSum, std::size_t N)
 {
     extern __shared__ double sData[];
 
-    int tid = threadIdx.x;
-    int gTid = threadIdx.x + blockIdx.x * blockDim.x;
-    int stride = blockDim.x * gridDim.x;
+    std::size_t tid = threadIdx.x;
+    std::size_t gTid = threadIdx.x + blockIdx.x * blockDim.x;
+    std::size_t stride = blockDim.x * gridDim.x;
 
     double temp = 0.0;
 
     // Each thread accumulates its stride
-    for (int i = gTid; i < N; i += stride)
+    for (std::size_t i = gTid; i < N; i += stride)
         temp += a[i] * b[i];
 
     sData[tid] = temp;
     __syncthreads();
 
     // Reduction in shared memory
-    for (int s = blockDim.x / 2; s > 0; s >>= 1)
+    for (std::size_t s = blockDim.x / 2; s > 0; s >>= 1)
     {
         if (tid < s)
             sData[tid] += sData[tid + s];
@@ -75,28 +75,7 @@ __global__ void dotBlock(const double* a, const double* b, double* blockSum, int
 }
  
 
-// __global__ void arrayAtomicAdd (double* a, double* result, int n){
-//             extern __shared__ double sData[];
-//             std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;
-//             std::size_t tid = threadIdx.x;
-//             std::size_t stride = gridDim.x*blockDim.x;
-//             double temp = 0.0;
-//             for (std::size_t i = gTid; i<n; i+=stride){
-//                 temp+=a[i];
-//             }
-//             sData[tid] = temp;
-//             __syncthreads();
-
-//             for (std::size_t s = blockDim.x/2; s>0; s>>=1){
-//                 if(tid<s) sData[tid]+=sData[tid+s];
-//                 __syncthreads();
-//             }
-//             if(tid==0)atomicAdd(result,sData[0]);
-// }   
-
-
-
-__global__ void sparseMultiply (const double* values, const std::size_t* cols, const std::size_t* rowPtr, const double*x, double* y, int N){
+__global__ void sparseMultiply (const double* values, const std::size_t* cols, const std::size_t* rowPtr, const double*x, double* y, std::size_t N){
             std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;
             std::size_t stride = blockDim.x*gridDim.x;
             for(std::size_t i = gTid; i<N; i+=stride){
@@ -108,7 +87,7 @@ __global__ void sparseMultiply (const double* values, const std::size_t* cols, c
             }            
     }
 
-__global__ void maxError( double* oldVal, double* newVal, double* maxBlockError, int N, int nx, int ny){
+__global__ void maxError( double* oldVal, double* newVal, double* maxBlockError, std::size_t N, std::size_t nx, std::size_t ny){
         extern __shared__ double sData[];
 
         std::size_t tid = threadIdx.x + threadIdx.y * blockDim.x + threadIdx.z*blockDim.x*blockDim.y;
@@ -131,7 +110,7 @@ __global__ void maxError( double* oldVal, double* newVal, double* maxBlockError,
 
 }
 
-__global__ void arraySumReduction (double* a, double* blockSum, int n){
+__global__ void arraySumReduction (double* a, double* blockSum, std::size_t n){
             extern __shared__ double sData[];
             std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;
             std::size_t tid = threadIdx.x;
@@ -144,7 +123,7 @@ __global__ void arraySumReduction (double* a, double* blockSum, int n){
             if(tid==0)blockSum[blockIdx.x] = sData[0];
         }  
 
-double arraySum(double* a , int n){
+double arraySum(double* a , std::size_t n){
         dim3 blockDim(256);   
         double* blockSum;
         dim3 gridDim((n+blockDim.x-1)/blockDim.x);
@@ -153,7 +132,7 @@ double arraySum(double* a , int n){
         double* d_input = a;
         while(true){ 
             gridDim = dim3((i+blockDim.x-1)/blockDim.x);
-            long int sharedMemSize = blockDim.x*sizeof(double);
+            std::size_t sharedMemSize = blockDim.x*sizeof(double);
             arraySumReduction<<<gridDim,blockDim,sharedMemSize>>>(d_input,blockSum,i);
             d_input = blockSum;
             i = gridDim.x;

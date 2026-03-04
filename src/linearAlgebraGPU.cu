@@ -1,15 +1,15 @@
 #include "linearAlgebra.hpp"
 #include "kernel.cuh"
 
-#include <numeric> 
-void LinearAlgebra::implicitJacobiCUDA(double* oldVal, double* newVal, double* currentVal, int nx, int ny, int nz,
+
+void LinearAlgebra::implicitJacobiCUDA(double* oldVal, double* newVal, double* currentVal, std::size_t nx, std::size_t ny, std::size_t nz,
                           double coeff_, dim3 grid, dim3 block)
     {         
         implicitJacobiKernel<<<grid, block>>>(oldVal, newVal, currentVal, nx, ny, nz, coeff_);
         cudaDeviceSynchronize();
     }
 
-void LinearAlgebra::maxErrorCUDA(double* oldVal, double* newVal,  double* maxBlockError, int N, int nx, int ny,
+void LinearAlgebra::maxErrorCUDA(double* oldVal, double* newVal,  double* maxBlockError, std::size_t N, std::size_t nx, std::size_t ny,
                     dim3 grid, dim3 block, size_t sharedMemSize)
     {
         maxError<<<grid, block, sharedMemSize>>>( oldVal, newVal, maxBlockError, N, nx, ny);
@@ -20,7 +20,7 @@ void LinearAlgebra::maxErrorCUDA(double* oldVal, double* newVal,  double* maxBlo
 void LinearAlgebra::conjugateGradientCUDA(const SparseMatrix& A, const std::vector<double>& b,
                             std::vector<double>& x, const SimulationGlobals& globs)
 {
-    int N = b.size();
+    std::size_t N = b.size();
     std::vector<double> r(N), p(N), Ap(N);
 
     std::size_t aValSize = A.values().size();
@@ -30,11 +30,10 @@ void LinearAlgebra::conjugateGradientCUDA(const SparseMatrix& A, const std::vect
     dim3 gridDim1D((N+globs.blockDimX*globs.blockDimY*globs.blockDimZ-1)
                         /(globs.blockDimX*globs.blockDimY*globs.blockDimZ));
 
-    double* hostSum = new double;
-    double* hostSum2 = new double;
+
     double fac  = 1.0;
     std::size_t sz = 1;
-    long int sharedMemSizeDot = blockDim1D.x*sizeof(double);
+    std::size_t sharedMemSizeDot = blockDim1D.x*sizeof(double);
     
 
     ::allocateMemory(devSparseMatValues, devMemSpMatVals, aValSize);
@@ -70,19 +69,12 @@ void LinearAlgebra::conjugateGradientCUDA(const SparseMatrix& A, const std::vect
     CUDA_CHECK(cudaGetLastError());     
     CUDA_CHECK(cudaDeviceSynchronize()); 
     
-    //std::vector<double> hosstSum(gridDim1D.x);
-    double sum = arraySum(devBlockSums, gridDim1D.x);
-    //CUDA_CHECK(cudaMemcpy(hosstSum.data(), devBlockSums , gridDim1D.x*sizeof(double), cudaMemcpyDeviceToHost));
-    //double sum = std::accumulate(hosstSum.begin(), hosstSum.end(), 0.0);
-    *hostSum = sum;
-   // arrayAtomicAdd <<<gridDim1D, blockDim1D,sharedMemSizeSum>>>(devBlockSums, devSum, gridDim1D.x);
-    //cudaDeviceSynchronize();
-    //cudaMemcpy(hostSum, devSum , sizeof(double), cudaMemcpyDeviceToHost);
-    CUDA_CHECK(cudaMemcpy(devPVector, devRVector, N * sizeof(double), cudaMemcpyDeviceToDevice));
+    double rsold = arraySum(devBlockSums, gridDim1D.x);
 
-    double rsold = sum;
+    CUDA_CHECK(cudaMemcpy(devPVector, devRVector, N * sizeof(double), cudaMemcpyDeviceToDevice));
     CUDA_CHECK(cudaMemcpy( r.data(), devRVector, N*sizeof(double), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy( p.data(), devRVector, N*sizeof(double), cudaMemcpyHostToDevice));
+
     for (int iter = 0; iter < globs.maxIters; ++iter)
     {
         sparseMultiply<<<gridDim1D, blockDim1D>>>(devSparseMatValues, devSparseMatCols, devSparseMatRowPtr, devPVector, devApVector, N);
@@ -91,13 +83,8 @@ void LinearAlgebra::conjugateGradientCUDA(const SparseMatrix& A, const std::vect
         dotBlock<<<gridDim1D, blockDim1D, sharedMemSizeDot>>>(devPVector, devApVector, devBlockSums, N);
         CUDA_CHECK(cudaGetLastError());     
         CUDA_CHECK(cudaDeviceSynchronize()); 
-        sum = arraySum(devBlockSums, gridDim1D.x);
-        //std::vector<double> hosstSum2(gridDim1D.x);
-        //CUDA_CHECK(cudaMemcpy(hosstSum2.data(), devBlockSums , gridDim1D.x*sizeof(double), cudaMemcpyDeviceToHost));
-        //sum = std::accumulate(hosstSum2.begin(), hosstSum2.end(), 0.0);
-        *hostSum2 = sum;
 
-        double alpha = rsold / (*hostSum2);
+        fac = rsold / arraySum(devBlockSums, gridDim1D.x);
 
         addSubtract<<<gridDim1D,blockDim1D>>>(devXVector , devPVector, devXVector, fac, N, 1.0);
         CUDA_CHECK(cudaGetLastError());     
@@ -105,37 +92,25 @@ void LinearAlgebra::conjugateGradientCUDA(const SparseMatrix& A, const std::vect
         addSubtract<<<gridDim1D,blockDim1D>>>(devRVector , devApVector, devRVector, fac, N, -1.0);
         CUDA_CHECK(cudaGetLastError());     
         CUDA_CHECK(cudaDeviceSynchronize()); 
-
-
         
         dotBlock<<<gridDim1D, blockDim1D, sharedMemSizeDot>>>(devRVector, devRVector, devBlockSums, N);
         CUDA_CHECK(cudaGetLastError());     
         CUDA_CHECK(cudaDeviceSynchronize()); 
-        sum = arraySum(devBlockSums, gridDim1D.x);
-        // arrayAtomicAdd <<<gridDim1D, blockDim1D,sharedMemSizeSum>>>(devBlockSums, devSum2, gridDim1D.x);
-        // cudaDeviceSynchronize();
-        // cudaMemcpy(hostSum2, devSum2 , sizeof(double), cudaMemcpyDeviceToHost);
-        //std::vector<double> hosstSum3(gridDim1D.x);
-        //CUDA_CHECK(cudaMemcpy(hosstSum3.data(), devBlockSums , gridDim1D.x*sizeof(double), cudaMemcpyDeviceToHost));
-        //sum = std::accumulate(hosstSum3.begin(), hosstSum3.end(), 0.0);
-        *hostSum2 = sum;
-        double sqrtRsnew = std::sqrt(*hostSum2);
+        double rsnew = arraySum(devBlockSums, gridDim1D.x);
+        double sqrtRsnew = std::sqrt(rsnew);
+
         if (globs.verbosity & SimulationGlobals::VERB_HIGH){
             std::cout << "     Step:: "<<globs.t+1<<" Iter:  "<< iter<< "  Err:  "<<sqrtRsnew << std::endl;
             ++globs.totalIters;}
         if (sqrtRsnew < globs.tol) break;
 
-        addSubtract<<<gridDim1D,blockDim1D>>>(devRVector , devPVector,devPVector, (*hostSum2/ (*hostSum)), N, 1.0);
+        addSubtract<<<gridDim1D,blockDim1D>>>(devRVector , devPVector,devPVector, (rsnew/ rsold), N, 1.0);
         CUDA_CHECK(cudaGetLastError());     
         CUDA_CHECK(cudaDeviceSynchronize()); 
 
-        *hostSum = *hostSum2;
+        rsold = rsnew;
 
     }
     CUDA_CHECK(cudaMemcpy( x.data(), devXVector, N*sizeof(double), cudaMemcpyDeviceToHost));
 
 }
-// void launchdotBlock(double* a, double* b, double* blockSum, int N)
-// {
-//     dotBlock (a, b, blockSum, N);
-// }
