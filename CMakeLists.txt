@@ -7,7 +7,12 @@ project(Heat3D LANGUAGES CXX CUDA)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Detect OpenMP
+# Detect packages
+find_package(CUDAToolkit REQUIRED)
+if(OpenMP_CXX_FOUND)
+    message(STATUS "CUDA Toolkit found! Enabling flags.")
+endif()
+
 find_package(OpenMP REQUIRED)
 if(OpenMP_CXX_FOUND)
     message(STATUS "OpenMP found! Enabling flags.")
@@ -26,18 +31,21 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native -Wall 
 # CUDA debug flags
 set(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -G -g -O0")
 
+set(SHARED_SOURCES
+    src/grid.cpp
+    src/boundaryConditions.cpp
+    src/solverCPU.cpp
+    src/linearAlgebraCPU.cpp
+)
 # Source files
 set(SOURCES
-    src/main.cpp
-    src/grid.cpp
-    src/solverCPU.cpp
+src/main.cpp
     src/solverCUDAStencil.cpp
     src/solverCUDAMatrix.cpp
-    src/linearAlgebraCPU.cpp
-    src/boundaryConditions.cpp
     src/outputWriter.cpp
     src/linearAlgebraGPU.cu
     src/kernel.cu
+    ${SHARED_SOURCES}  
 )
 
 # Create executable
@@ -47,4 +55,18 @@ add_executable(heat3d ${SOURCES})
 target_include_directories(heat3d PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     /usr/local/cuda/include
+)
+
+### tests
+add_executable(test_heat
+    tests/tests_main.cpp
+	${SHARED_SOURCES}  
+	)
+target_include_directories(test_heat PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(test_heat PRIVATE
+    OpenMP::OpenMP_CXX
+    CUDA::cudart
 )
