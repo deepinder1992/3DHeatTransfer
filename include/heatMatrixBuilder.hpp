@@ -1,7 +1,6 @@
 #pragma once 
 #include "sparseMatrix.hpp"
 #include <array>
-#include "bcType.hpp"
 
 inline SparseMatrix implicitMatrix( size_type nx, size_type ny, size_type nz, double coeff, const BoundaryConditions& bc){
         size_type N = nx*ny*nz;

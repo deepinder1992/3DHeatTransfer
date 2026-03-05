@@ -1,7 +1,7 @@
 #pragma once
 #include "grid.hpp"
-#include "bcType.hpp"
 #include <array>
+#include "simGlobals.hpp"
 
 class BoundaryConditions{
     public:

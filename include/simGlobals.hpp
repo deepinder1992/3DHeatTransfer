@@ -1,10 +1,25 @@
 #pragma once
-#include "bcType.hpp"
 #include <array>
+
+enum class SolverType
+{
+    CPU_STENCIL = 1,
+    CPU_MATRIX  = 2,
+    CUDA_STENCIL = 3,
+    CUDA_MATRIX  = 4
+};
+
+enum class BCType{
+    Dirichlet,
+    Neumann
+};
+
 struct SimulationGlobals {
     static constexpr int VERB_LOW    = 1 << 0;
     static constexpr int VERB_MEDIUM = 1 << 1;
     static constexpr int VERB_HIGH   = 1 << 2;
+
+    SolverType solver = SolverType::CPU_MATRIX; // default solver
     
     int t = 0;
     int steps = 20000;
@@ -14,11 +29,10 @@ struct SimulationGlobals {
 
     double dt = 1;
     double lx = 1; // 10 cm =ly,lz
-   // double ly = 0.1; // 10 cm
-    //double lz = 0.1; // 10 cm
+
 
  
-    size_type nx = 60;
+    size_type nx = 30;
     size_type ny = nx;
     size_type nz = nx;
 
@@ -58,3 +72,4 @@ struct SimulationGlobals {
     
 
 };
+
