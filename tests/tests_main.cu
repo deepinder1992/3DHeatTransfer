@@ -78,7 +78,7 @@ int main() {
         current.fill(0.0);
         current(globs.nx/2, globs.ny/2, globs.nz/2) = 100.0;
 
-        LinearAlgebra lin;
+        LinearAlgebra lin(globs.maxIters);
         HeatSolverCPUStencil solver(globs.alpha, globs.dx, globs.dt, lin);
         BoundaryConditions bc{{}, {}};
 
@@ -113,7 +113,7 @@ int main() {
         current.fill(0.0);
         current(globs.nx/2, globs.ny/2, globs.nz/2) = 100.0;
 
-        LinearAlgebra lin;
+        LinearAlgebra lin(globs.maxIters);
         HeatSolverCPUStencil solver(globs.alpha, globs.dx, globs.dt, lin);
         BoundaryConditions bc{{}, {}};
 
@@ -202,7 +202,7 @@ int main() {
         double cudaDot = arraySum(devBlockSums, gridDim1D.x);
 
         // cpu dot
-        LinearAlgebra linAlg;
+        LinearAlgebra linAlg(globs.maxIters);
         double cpuDot = linAlg.dot(randA,randB);
         
         CUDA_CHECK(cudaFree(devBVector));

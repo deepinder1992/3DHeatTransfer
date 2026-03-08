@@ -8,7 +8,7 @@
 
 class LinearAlgebra{
     public:         
-        //LinearAlgerbra();
+         LinearAlgebra(int maxIters):_maxIters(maxIters){};
         ~LinearAlgebra() { if (devSparseMatValues) cudaFree(devSparseMatValues);
                            if (devSparseMatRowPtr) cudaFree(devSparseMatRowPtr);
                            if (devSparseMatCols)   cudaFree(devSparseMatCols);
@@ -27,11 +27,9 @@ class LinearAlgebra{
         void conjugateGradient(const SparseMatrix& A, const std::vector<double>& b,
                                 std::vector<double>& x, const SimulationGlobals& globs);
 
-        //cuda functions
-
         void implicitJacobiCPU(size_type nx, size_type ny, size_type nz, const double coeff_, double& maxerror,
                                  Grid3D* oldGrid, Grid3D* newGrid, const Grid3D& current);
-            
+        //cuda functions
         void implicitJacobiCUDA(double* oldVal, double* newVal, double* currentVal, std::size_t nx, std::size_t ny, std::size_t nz,
                                     double coeff_, dim3 grid, dim3 block);
 
@@ -40,6 +38,17 @@ class LinearAlgebra{
         
         void conjugateGradientCUDA(const SparseMatrix& A, const std::vector<double>& b,
                             std::vector<double>& x, const SimulationGlobals& globs);
+
+        int maxIters() const noexcept{return _maxIters;}
+
+        //in case of non convergnce increase max iters but cap at 2000 to avoid infinte loop
+        void adjustMaxItersIfNeeded(int iter){
+                    if (iter==(_maxIters-1) && _maxIters<2000){
+                        _maxIters = static_cast<int> (_maxIters*1.5);
+                        std::cout<< "Inner Solution did not converge increasing maxIters to " << _maxIters<<std::endl;
+                    } }
+                        
+
 
     private:
         double* devSparseMatValues = nullptr;
@@ -66,4 +75,5 @@ class LinearAlgebra{
         size_type devMemSum2 = 0;
         size_type devMemPVector = 0;
 
+        int _maxIters = 0;
 };

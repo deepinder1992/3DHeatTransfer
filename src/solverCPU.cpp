@@ -35,7 +35,8 @@ void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const Simul
 
     *oldGrid = next;
     
-    for (int iter = 0; iter<=globs.maxIters;++iter){
+    for (int iter = 0; iter<linAlgebra_.maxIters();++iter){
+        bc.applyBCsToStencil(*oldGrid, globs.dx, globs.k);
         double maxErr = 0.0;
         linAlgebra_.implicitJacobiCPU(nx, ny, nz, coeff_, maxErr, oldGrid, newGrid, current);
 
@@ -45,10 +46,11 @@ void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const Simul
             ++globs.totalIters;    }
         if (maxErr<globs.tol)break;
         std::swap(oldGrid,newGrid);
+        linAlgebra_.adjustMaxItersIfNeeded(iter);
     }
     if (newGrid !=&next) next = *newGrid;
     
-    bc.applyBCsToStencil(next, globs.dx, globs.k);    
+    //bc.applyBCsToStencil(next, globs.dx, globs.k);    
 }   
 
 

@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     BoundaryConditions bc(globs.types, globs.values);
     bc.applyBCsToStencil(current, globs.dx, globs.k);
 
-    LinearAlgebra linAlgebra;
+    LinearAlgebra linAlgebra(globs.maxIters);
 
     // Select solver based on CLI input
     switch (globs.solver) {

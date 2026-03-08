@@ -22,12 +22,12 @@ struct SimulationGlobals {
     SolverType solver = SolverType::CPU_MATRIX; // default solver
     
     int t = 0;
-    int steps = 20000;
+    int steps = 1000;
     int writeInterval = 100000;
     double globalTol = 1e-8;
     int verbosity = VERB_LOW;
 
-    double dt = 1;
+    double dt = 50;
     double lx = 1; // 10 cm =ly,lz
 
 
@@ -47,7 +47,7 @@ struct SimulationGlobals {
     double cp = 385; //J/kg.K
     double alpha = k/(density*cp);
 
-    int maxIters = 50;
+    mutable int maxIters = 50;
     double tol = 1e-6;
 
     std::array<BCType,6> types = {

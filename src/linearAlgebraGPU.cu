@@ -75,7 +75,7 @@ void LinearAlgebra::conjugateGradientCUDA(const SparseMatrix& A, const std::vect
     CUDA_CHECK(cudaMemcpy( r.data(), devRVector, N*sizeof(double), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy( p.data(), devRVector, N*sizeof(double), cudaMemcpyHostToDevice));
 
-    for (int iter = 0; iter < globs.maxIters; ++iter)
+    for (int iter = 0; iter < _maxIters; ++iter)
     {
         sparseMultiply<<<gridDim1D, blockDim1D>>>(devSparseMatValues, devSparseMatCols, devSparseMatRowPtr, devPVector, devApVector, N);
         CUDA_CHECK(cudaGetLastError());     
@@ -109,7 +109,7 @@ void LinearAlgebra::conjugateGradientCUDA(const SparseMatrix& A, const std::vect
         CUDA_CHECK(cudaDeviceSynchronize()); 
 
         rsold = rsnew;
-
+        adjustMaxItersIfNeeded(iter);
     }
     CUDA_CHECK(cudaMemcpy( x.data(), devXVector, N*sizeof(double), cudaMemcpyDeviceToHost));
 
