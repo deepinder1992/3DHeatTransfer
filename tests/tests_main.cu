@@ -12,6 +12,8 @@
 #include "../include/solverCPU.hpp"
 #include "../include/linearAlgebra.hpp"
 #include "../include/kernel.cuh"
+
+
 //random Vector Generator 
 template<typename T> 
 std::vector<T> randomVector(std::size_t num, T min, T max){
@@ -203,11 +205,11 @@ int main() {
         LinearAlgebra linAlg;
         double cpuDot = linAlg.dot(randA,randB);
         
-        cudaFree(devBVector);
-        cudaFree(devAVector);
-        cudaFree(devCVector);
-        cudaFree(devBlockSums);
-        
+        CUDA_CHECK(cudaFree(devBVector));
+        CUDA_CHECK(cudaFree(devAVector));
+        CUDA_CHECK(cudaFree(devCVector));
+        CUDA_CHECK(cudaFree(devBlockSums));
+
         //match the results
         if (std::abs(cpuDot - cudaDot) > 0.1) {
             std::cout << "FAIL (computed=" << cudaDot << ", expected≈" << cpuDot << ", diff = "<< std::abs(cpuDot - cudaDot)<<")\n";
