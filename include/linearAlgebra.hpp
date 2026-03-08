@@ -18,7 +18,7 @@ class LinearAlgebra{
                            if (devPVector) cudaFree(devPVector);
                            if (devSum) cudaFree(devSum);
                            if (devSum2) cudaFree(devSum2);
-                            if (devBlockSums) cudaFree(devBlockSums);}
+                           if (devBlockSums) cudaFree(devBlockSums);}
 
         double dot (const std::vector<double>& a, const std::vector<double>& b);
 

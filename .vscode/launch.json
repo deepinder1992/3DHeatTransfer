@@ -10,11 +10,35 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,               // false = use integrated terminal (cleaner)
-            "debuggerPath": "/usr/local/cuda/bin/cuda-gdb",  // optional but recommended if auto-detect fails
+            "externalConsole": false,
+            "debuggerPath": "/usr/local/cuda/bin/cuda-gdb",
             "setupCommands": [
                 {
-                    "description": "Auto-stop on kernel launch (very useful for hitting kernel breakpoints)",
+                    "description": "Auto-stop on kernel launch",
+                    "text": "set cuda break_on_launch none",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Enable pretty-printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug Test Main (CUDA-GDB)",
+            "type": "cuda-gdb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test_heat",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "debuggerPath": "/usr/local/cuda/bin/cuda-gdb",
+            "setupCommands": [
+                {
+                    "description": "Auto-stop on kernel launch",
                     "text": "set cuda break_on_launch none",
                     "ignoreFailures": true
                 },

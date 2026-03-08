@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.18)
 
 project(Heat3D LANGUAGES CXX CUDA)
@@ -36,6 +35,7 @@ set(SHARED_SOURCES
     src/boundaryConditions.cpp
     src/solverCPU.cpp
     src/linearAlgebraCPU.cpp
+    src/kernel.cu
 )
 # Source files
 set(SOURCES
@@ -44,7 +44,6 @@ src/main.cpp
     src/solverCUDAMatrix.cpp
     src/outputWriter.cpp
     src/linearAlgebraGPU.cu
-    src/kernel.cu
     ${SHARED_SOURCES}  
 )
 
@@ -59,7 +58,7 @@ target_include_directories(heat3d PRIVATE
 
 ### tests
 add_executable(test_heat
-    tests/tests_main.cpp
+    tests/tests_main.cu
 	${SHARED_SOURCES}  
 	)
 target_include_directories(test_heat PRIVATE

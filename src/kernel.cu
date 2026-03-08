@@ -32,18 +32,7 @@ __global__ void addSubtract(double* a , double* b , double* c, double fac, std::
             for (std::size_t i = gTid; i< N; i+=stride) {c[i]= a[i]+sign*fac*b[i];}           
     }
 
-// __global__ void dotBlock (const double* a, const double* b, double* blockSum, std::size_t N){
-//             extern __shared__ double sData[];
-//             std::size_t gTid = threadIdx.x + blockDim.x*blockIdx.x;
-//             std::size_t tid = threadIdx.x;
-//             double temp = (gTid<N)?a[gTid]*b[gTid]:0.0;
-//             sData[tid] = temp;
-//             for (std::size_t s = blockDim.x/2; s>0; s>>=1){
-//                 if(tid<s) sData[tid]+=sData[tid+s];
-//                 __syncthreads();
-//             }
-//             if(tid==0) blockSum[blockIdx.x] = sData[0];
-//         } 
+
 __global__ void dotBlock(const double* a, const double* b, double* blockSum, std::size_t N)
 {
     extern __shared__ double sData[];
