@@ -152,10 +152,10 @@ int main() {
         double* devCVector = nullptr;
         double* devBlockSums = nullptr;
 
-        cudaMalloc(&devAVector, N*sizeof(double));
-        cudaMalloc(&devBVector, N*sizeof(double));
-        cudaMalloc(&devCVector, N*sizeof(double));
-        cudaMalloc(&devBlockSums, gridDim1D.x*sizeof(double));
+        CUDA_CHECK(cudaMalloc(&devAVector, N*sizeof(double)));
+        CUDA_CHECK(cudaMalloc(&devBVector, N*sizeof(double)));
+        CUDA_CHECK(cudaMalloc(&devCVector, N*sizeof(double)));
+        CUDA_CHECK(cudaMalloc(&devBlockSums, gridDim1D.x*sizeof(double)));
 
         CUDA_CHECK(cudaMemcpy(devAVector, randA.data(), N*sizeof(double), cudaMemcpyHostToDevice));
         CUDA_CHECK(cudaMemcpy(devBVector, randB.data(), N*sizeof(double), cudaMemcpyHostToDevice));
@@ -202,7 +202,12 @@ int main() {
         // cpu dot
         LinearAlgebra linAlg;
         double cpuDot = linAlg.dot(randA,randB);
-
+        
+        cudaFree(devBVector);
+        cudaFree(devAVector);
+        cudaFree(devCVector);
+        cudaFree(devBlockSums);
+        
         //match the results
         if (std::abs(cpuDot - cudaDot) > 0.1) {
             std::cout << "FAIL (computed=" << cudaDot << ", expected≈" << cpuDot << ", diff = "<< std::abs(cpuDot - cudaDot)<<")\n";
