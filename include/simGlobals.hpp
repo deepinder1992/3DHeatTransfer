@@ -32,9 +32,9 @@ struct SimulationGlobals {
 
 
  
-    size_type nx = 30;
-    size_type ny = nx;
-    size_type nz = nx;
+    std::size_t nx = 30;
+    std::size_t ny = nx;
+    std::size_t nz = nx;
 
     double dx = lx/nx; // = dy,dz
    // double dy = ly/ny;
@@ -61,12 +61,12 @@ struct SimulationGlobals {
                                     50000,100,
                                     100,-50000};
     // make sure blockdims are power of 2 _best practice
-    size_type blockDimX = 8;
-    size_type blockDimY = 8;
-    size_type blockDimZ = 8;
-    //size_type blockDim1D = blockDimX*blockDimY*blockDimZ;
+    std::size_t blockDimX = 8;
+    std::size_t blockDimY = 8;
+    std::size_t blockDimZ = 8;
+    //std::size_t blockDim1D = blockDimX*blockDimY*blockDimZ;
     //int numSMs = 16; // can vary based on GPU model
-    //size_type gridDim1D = 6*numSMs;
+    //std::size_t gridDim1D = 6*numSMs;
     //debugging
     mutable int totalIters = 0;
     

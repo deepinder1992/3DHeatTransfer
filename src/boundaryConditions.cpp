@@ -76,35 +76,10 @@ void BoundaryConditions::applyBCsToRhsMatrix(size_type nx,
     }
 }
 
-// __global__ void applyBcsStencil(Grid3D grid, std::size_t nx, std::size_t ny, std::size_t nz, double dx, double cond,
-//                                     std::array<BCType,6> types_, std::array<double,6> values_){
-        
-//         std::size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-//         std::size_t j = blockIdx.y * blockDim.y + threadIdx.y;
-//         std::size_t k = blockIdx.z * blockDim.z + threadIdx.z;
-        
-//         if(i>=nx|| j>=ny|| k>=nz) return;
-        
-//         //x min face
-//         if(i==0){ if (types_[0]==BCType::Dirichlet){grid(0,j,k)=values_[0];}
-//                   else if (types_[0]==BCType::Neumann){ grid(0,j,k)= (-2*dx*values_[0]/cond)+grid(2,j,k);}}
-//         //x max face
-//         if(i==nx-1){ if (types_[1]==BCType::Dirichlet){grid(nx-1,j,k)=values_[1];}
-//                      else if (types_[1]==BCType::Neumann){ grid(nx-1,j,k)= (2*dx*values_[1]/cond)+grid(nx-3,j,k);} }
-       
-//         //y min face
-//         if(j==0){ if (types_[2] == BCType::Dirichlet) grid(i,0,k) = values_[2];
-//                   else if (types_[2] == BCType::Neumann) grid(i,0,k) =  (-2*dx*values_[2]/cond)+grid(i,2,k);}
+void BoundaryConditions::applyBCsToStencilCUDA(double* grid, double dx, size_type nx, 
+    size_type ny, size_type nz, double cond, dim3 gridCuda, dim3 blockCuda) const
+    {         
 
-//         //y max face
-//         if(j==ny-1){ if (types_[3] == BCType::Dirichlet) grid(i,ny-1,k) = values_[3];
-//                      else if (types_[3] == BCType::Neumann) grid(i,ny-1,k) =  (2*dx*values_[3]/cond)+grid(i,ny-3,k); }
-        
-//         //z min face
-//         if(k==0){ if (types_[4] == BCType::Dirichlet) grid(i,j,0) = values_[4];
-//             else if (types_[4] == BCType::Neumann) grid(i,j,0) =  (-2*dx*values_[4]/cond)+grid(i,j,2);}
-//         //z max face
-//         if(k==nz-1){ if (types_[5] == BCType::Dirichlet) grid(i,j,nz-1) = values_[5];
-//                      else if (types_[5] == BCType::Neumann) grid(i,j,nz-1) =  (2*dx*values_[5]/cond)+grid(i,j,nz-3);}
-//         return;
-// }
+        applyBCsToStencilKern<<<gridCuda, blockCuda>>>(grid, nx, ny, nz, dx, cond, types_, values_);
+        cudaDeviceSynchronize();
+    }

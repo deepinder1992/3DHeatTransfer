@@ -38,7 +38,7 @@ void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const Simu
     ::allocateMemory(devMaxBlockError, devMemBlockErrorSize, numBlocks);
     
     for (int iter = 0; iter<linAlgebra_.maxIters();++iter){
-        //bc.applyBCsToStencilCUDA(devOld, globs.dx, globs.k);   
+        bc.applyBCsToStencilCUDA(devOld, dx_,nx, ny, nz, globs.k, gridDims, blockDims);   
 
         linAlgebra_.implicitJacobiCUDA(devOld, devNext, devCurrent, nx, ny, nz, coeff_, gridDims, blockDims);
         
@@ -75,7 +75,7 @@ void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const Simu
     }   
     cudaMemcpy(next.data(), devOld, N*sizeof(double), cudaMemcpyDeviceToHost);
 
-    bc.applyBCsToStencil(next, globs.dx, globs.k);   
+    //bc.applyBCsToStencil(next, globs.dx, globs.k);   
 
     
 }

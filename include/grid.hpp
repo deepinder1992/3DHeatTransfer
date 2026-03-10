@@ -1,15 +1,16 @@
 #pragma once
-
 #include<vector>
 #include<cassert>
 #include<cstddef>
+#include "cuda_runtime.h"
+
 using size_type = std::size_t;
 class Grid3D{
     public:
         using value_type = double;
 
         Grid3D(size_type nx, size_type ny, size_type nz);
-
+        
         value_type& operator()(size_type i, size_type j, size_type k);
         const value_type&  operator()(size_type i, size_type j, size_type k) const;
 

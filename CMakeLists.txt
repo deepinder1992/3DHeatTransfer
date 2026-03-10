@@ -37,6 +37,11 @@ set(SHARED_SOURCES
     src/linearAlgebraCPU.cpp
     src/kernel.cu
 )
+
+set_source_files_properties(
+    src/boundaryConditions.cpp
+    PROPERTIES LANGUAGE CUDA
+)
 # Source files
 set(SOURCES
 src/main.cpp
