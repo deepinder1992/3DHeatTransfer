@@ -78,8 +78,18 @@ void BoundaryConditions::applyBCsToRhsMatrix(size_type nx,
 
 void BoundaryConditions::applyBCsToStencilCUDA(double* grid, double dx, size_type nx, 
     size_type ny, size_type nz, double cond, dim3 gridCuda, dim3 blockCuda) const
-    {         
+    {    
+        //hard coded num 6 works for cubes and cuboids, however more elegant handling 
+        //is needed once we generalize to arbitrary shapes      
+        int numFaces = 6;
+        BCType types[numFaces];
+        for (int i = 0; i < numFaces; ++i)
+            types[i] = types_[i];
 
-        applyBCsToStencilKern<<<gridCuda, blockCuda>>>(grid, nx, ny, nz, dx, cond, types_, values_);
+        double values[numFaces];
+        for (int i = 0; i < numFaces; ++i)
+            values[i] = values_[i];
+
+        applyBCsToStencilKern<<<gridCuda, blockCuda>>>(grid, nx, ny, nz, dx, cond, types, values);
         cudaDeviceSynchronize();
     }

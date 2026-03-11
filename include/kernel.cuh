@@ -52,10 +52,8 @@ __global__ void maxError( double* oldVal, double* newVal, double* maxBlockError,
 __global__ void arraySumReduction (double* a, double* blockSum, std::size_t n);
 
 
-__global__ void arrayAtomicAdd (double* a, double* result, std::size_t n);
-
 __global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t ny, std::size_t nz, double dx, double cond,
-                                    std::array<BCType,6> types_, std::array<double,6> values_);
+                                     const BCType types_[6], const double values_[6]);
 
 double arraySum(double* d_a, std::size_t n);
 

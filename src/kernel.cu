@@ -136,7 +136,7 @@ double arraySum(double* a , std::size_t n){
 
 
 __global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t ny, std::size_t nz, double dx, double cond,
-                                    std::array<BCType,6> types_, std::array<double,6> values_){
+                                     const BCType types_[6], const double values_[6]){
         
         std::size_t i = blockIdx.x * blockDim.x + threadIdx.x;
         std::size_t j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -148,19 +148,18 @@ __global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t 
             if (types_[face]==BCType::Dirichlet){cell = values_[face];}
                   else if (types_[face]==BCType::Neumann){ cell = (sign*2*dx*values_[face]/cond)+interior;} };
         //x min face
-        if(i==0) applyBc(0, grid[0+j*nx+k*ny*nz], grid[2+j*nx+k*ny*nz], -1);
+        if(i==0) applyBc(0, grid[0+j*nx+k*ny*nx], grid[2+j*nx+k*ny*nx], -1);
         //x max face
-        if(i==nx-1) applyBc(1, grid[nx-1+j*nx+k*ny*nz], grid[nx-3+j*nx+k*ny*nz], 1);
+        else if(i==nx-1) applyBc(1, grid[nx-1+j*nx+k*ny*nx], grid[nx-3+j*nx+k*ny*nx], 1);
        
         //y min face
-        if(j==0) applyBc(2, grid[i+0*nx+k*ny*nz], grid[i+2*nx+k*ny*nz], -1);
+        else if(j==0) applyBc(2, grid[i+0*nx+k*ny*nx], grid[i+2*nx+k*ny*nx], -1);
 
         //y max face
-        if(j==ny-1) applyBc(3, grid[i+(ny-1)*nx+k*ny*nz], grid[i+(ny-3)*nx+k*ny*nz], 1);
+        else if(j==ny-1) applyBc(3, grid[i+(ny-1)*nx+k*ny*nx], grid[i+(ny-3)*nx+k*ny*nx], 1);
         
         //z min face
-        if(k==0)applyBc(4, grid[i+j*nx+0*ny*nz], grid[i+j*nx+2*ny*nz], -1);
+        else if(k==0)applyBc(4, grid[i+j*nx+0*ny*nx], grid[i+j*nx+2*ny*nx], -1);
         //z max face
-        if(k==nz-1)applyBc(5, grid[i+j*nx+(nz-1)*ny*nz], grid[i+j*nx+(nz-3)*ny*nz], 1);
-        return;
+        else if(k==nz-1)applyBc(5, grid[i+j*nx+(nz-1)*ny*nx], grid[i+j*nx+(nz-3)*ny*nx], 1);
 }
