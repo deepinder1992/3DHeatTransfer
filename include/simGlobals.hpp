@@ -14,6 +14,13 @@ enum class BCType{
     Neumann
 };
 
+enum class CellType
+{
+    SOLID = 0,
+    INTERIOR = 1,
+    BOUNDARY = 2
+};
+
 struct SimulationGlobals {
     static constexpr int VERB_LOW    = 1 << 0;
     static constexpr int VERB_MEDIUM = 1 << 1;
