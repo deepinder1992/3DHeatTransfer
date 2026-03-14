@@ -1,8 +1,8 @@
 #include "grid.hpp"
 
 
-Grid3D::Grid3D(size_type nx, size_type ny, size_type nz)
-:nx_(nx),ny_(ny),nz_(nz), data_(nx*ny*nz), cellType_(nx*ny*nz, CellType::INTERIOR)
+Grid3D::Grid3D(size_type nx, size_type ny, size_type nz, double dx)
+:nx_(nx),ny_(ny),nz_(nz), dx_(dx), data_(nx*ny*nz), cellType_(nx*ny*nz, CellType::INTERIOR)
     {
         assert(nx>0 && ny > 0 && nz >0);
     }
@@ -33,8 +33,16 @@ const CellType& Grid3D::cellType(size_type i, size_type j,size_type k) const{
         return cellType_[index(i,j,k)];
     }
 
+FaceType& Grid3D::faceType(size_type i, size_type j,size_type k){
+        return faceType_[index(i,j,k)];
+    }
+
+const FaceType& Grid3D::faceType(size_type i, size_type j,size_type k) const{
+        return faceType_[index(i,j,k)];
+    }
+
 CellType& Grid3D::cellType(size_type i, size_type j,size_type k){
-        return cellType_[index(i,j,k)];
+        return faceType_[index(i,j,k)];
     }
 
 void Grid3D::detectBoundaries(){

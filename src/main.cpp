@@ -72,9 +72,10 @@ int main(int argc, char** argv) {
     size_type nx = globs.nx;
     size_type ny = globs.ny;
     size_type nz = globs.nz;
+    double dx = globs.dx;
 
-    Grid3D current(nx, ny, nz);
-    Grid3D next(nx, ny, nz);
+    Grid3D current(nx, ny, nz, dx);
+    Grid3D next(nx, ny, nz, dx);
 
     current.fill(75.0);
 

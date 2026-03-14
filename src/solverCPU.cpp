@@ -24,8 +24,9 @@ void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const Simul
     const std::size_t nx = current.nx();
     const std::size_t ny = current.ny();
     const std::size_t nz = current.nz();
+    const double dx = current.dx();
 
-    Grid3D bufferGrid(nx,ny,nz);
+    Grid3D bufferGrid(nx,ny,nz,dx);
     //bufferGrid.fill(0.0);
 
     // old/ new here just mean the internal prev and next itertions of this time step in for loop below,

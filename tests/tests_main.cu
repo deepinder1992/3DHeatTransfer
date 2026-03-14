@@ -50,7 +50,7 @@ int main() {
     // Test 1: Grid basics
     {
         std::cout << "Test 1: Grid indexing & fill... ";
-        Grid3D g(10, 12, 8);
+        Grid3D g(10, 12, 8, 0.1);
         if (g.nx() != 10 || g.ny() != 12 || g.nz() != 8 || g.size() != 960) {
             std::cout << "FAIL\n";
             return 1;
@@ -74,7 +74,7 @@ int main() {
         globs.tol = 1e-5;
         globs.maxIters = 200;
 
-        Grid3D current(globs.nx, globs.ny, globs.nz);
+        Grid3D current(globs.nx, globs.ny, globs.nz, globs.dx);
         current.fill(0.0);
         current(globs.nx/2, globs.ny/2, globs.nz/2) = 100.0;
 
@@ -109,7 +109,7 @@ int main() {
         globs.tol = 1e-4;
         globs.maxIters = 300;
 
-        Grid3D current(globs.nx, globs.ny, globs.nz);
+        Grid3D current(globs.nx, globs.ny, globs.nz, globs.dx);
         current.fill(0.0);
         current(globs.nx/2, globs.ny/2, globs.nz/2) = 100.0;
 

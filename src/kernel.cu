@@ -150,14 +150,11 @@ __global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t 
         //x min face
         if(i==0) applyBc(0, grid[0+j*nx+k*ny*nx], grid[2+j*nx+k*ny*nx], -1);
         //x max face
-        else if(i==nx-1) applyBc(1, grid[nx-1+j*nx+k*ny*nx], grid[nx-3+j*nx+k*ny*nx], 1);
-       
+        else if(i==nx-1) applyBc(1, grid[nx-1+j*nx+k*ny*nx], grid[nx-3+j*nx+k*ny*nx], 1);  
         //y min face
         else if(j==0) applyBc(2, grid[i+0*nx+k*ny*nx], grid[i+2*nx+k*ny*nx], -1);
-
         //y max face
-        else if(j==ny-1) applyBc(3, grid[i+(ny-1)*nx+k*ny*nx], grid[i+(ny-3)*nx+k*ny*nx], 1);
-        
+        else if(j==ny-1) applyBc(3, grid[i+(ny-1)*nx+k*ny*nx], grid[i+(ny-3)*nx+k*ny*nx], 1); 
         //z min face
         else if(k==0)applyBc(4, grid[i+j*nx+0*ny*nx], grid[i+j*nx+2*ny*nx], -1);
         //z max face
