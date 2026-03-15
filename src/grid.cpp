@@ -33,15 +33,15 @@ const CellType& Grid3D::cellType(size_type i, size_type j,size_type k) const{
         return cellType_[index(i,j,k)];
     }
 
+CellType& Grid3D::cellType(size_type i, size_type j,size_type k){
+        return cellType_[index(i,j,k)];
+    }
+
 FaceType& Grid3D::faceType(size_type i, size_type j,size_type k){
         return faceType_[index(i,j,k)];
     }
 
 const FaceType& Grid3D::faceType(size_type i, size_type j,size_type k) const{
-        return faceType_[index(i,j,k)];
-    }
-
-CellType& Grid3D::cellType(size_type i, size_type j,size_type k){
         return faceType_[index(i,j,k)];
     }
 

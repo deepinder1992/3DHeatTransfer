@@ -37,6 +37,7 @@ set(SHARED_SOURCES
     src/solverCPU.cpp
     src/linearAlgebraCPU.cpp
     src/kernel.cu
+    src/voxelReader.cpp
 )
 
 set_source_files_properties(
