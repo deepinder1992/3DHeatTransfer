@@ -61,27 +61,37 @@ double distanceFromCentroid(double x, double y, double z, const Triangle& tri)
 VoxelReader::VoxelReader(const std::string& fileName, Grid3D& grid){
         std::vector<Triangle> triangles;
         static_assert(sizeof(Vector) == 3 * sizeof(float), "Vec3 must have no padding");
+        std::cout << "Reading Stl file..\n";
         loadBinaryStl(fileName, triangles);
-        voxelizeGrid(grid, triangles);
 
+        std::cout <<"Started Voxelizing..\n";
+
+        std::cout << "Ray tracing..\n";
+        voxelizeGrid(grid, triangles);
+        
+        std::cout << "Detecting boundaries..\n";
         grid.detectBoundaries();
 
         //add inlet,outlet and wall to file name
         std::string inletFile = addSuffix(fileName,"inlet");
         std::string outletFile = addSuffix(fileName,"outlet");
         std::string wallFile = addSuffix(fileName,"wall");
-
+        
+        std::cout << "Applying inlet patch..\n";
         std::vector<Triangle> inletTriangles;
         loadBinaryStl(inletFile, inletTriangles);
         voxelizePatch(grid, inletTriangles, FaceType::INLET);
 
+        std::cout << "Applying outlet patch..\n";
         std::vector<Triangle> outletTriangles;
         loadBinaryStl(outletFile, outletTriangles);
         voxelizePatch(grid, outletTriangles, FaceType::OUTLET);
         
+        std::cout << "Applying wall patch..\n";
         std::vector<Triangle> wallTriangles;
         loadBinaryStl(wallFile, wallTriangles);
         voxelizePatch(grid, wallTriangles, FaceType::WALL);
+        std::cout <<"Finished Voxelizing!\n";
 }
 
 bool VoxelReader::loadBinaryStl(const std::string& fileName, std::vector<Triangle>& triangles ){

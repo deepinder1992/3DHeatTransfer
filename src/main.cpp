@@ -4,6 +4,7 @@
 #include "boundaryConditions.hpp"
 #include "outputWriter.hpp"
 #include "simGlobals.hpp"
+#include "voxelReader.hpp"
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -76,6 +77,8 @@ int main(int argc, char** argv) {
 
     Grid3D current(nx, ny, nz, dx);
     Grid3D next(nx, ny, nz, dx);
+        //load stl file
+    VoxelReader(globs.stlFileloc, current);
 
     current.fill(75.0);
 
@@ -146,6 +149,12 @@ void parseCLI(int argc, char** argv, SimulationGlobals& g) {
         else if (arg == "--blockx") g.blockDimX = std::stoi(argv[++i]);
         else if (arg == "--blocky") g.blockDimY = std::stoi(argv[++i]);
         else if (arg == "--blockz") g.blockDimZ = std::stoi(argv[++i]);
+        else if (arg == "--bcTypes"){g.types[0]  = static_cast<BCType>(std::stoi(argv[++i]));
+                                    g.types[1]  = static_cast<BCType>(std::stoi(argv[++i]));
+                                    g.types[2]  = static_cast<BCType>(std::stoi(argv[++i]));}
+        else if (arg == "--bcVals") {g.values[0]  = std::stoi(argv[++i]);
+                                    g.values[1]  = std::stoi(argv[++i]);}
+        else if (arg == "--stlFilePath") g.stlFileloc = std::stoi(argv[++i]);
         else if (arg == "--help") {
             std::cout << "Usage: ./heatSolver [options]\n\n";
             std::cout << "Options:\n";
@@ -169,8 +178,18 @@ void parseCLI(int argc, char** argv, SimulationGlobals& g) {
             std::cout << "  --blockx N           CUDA block size in x (for GPU solvers)\n";
             std::cout << "  --blocky N           CUDA block size in y\n";
             std::cout << "  --blockz N           CUDA block size in z\n";
+            std::cout << "  --bcTypes            respective types of BC at inlet, wall and outlet patches\n"
+                      << "                       1 = Dirichlet \n"
+                      << "                       2 = Neumann \n"
+                      << "                       eg. --bcTypes 2 1 2 for inlet, wall and outlet respectively \n";
+            std::cout << "  --bcVals             respective values of BC at inlet, wall and outlet patches\n"
+                      << "                       eg. --bcVals 1000 100 -1000 for inlet, wall and outlet respectively \n";
+            std::cout << "  --binaryStlFilePath  Location of the stl file, just provide the stl geometry file name \n"
+                      << "                       make sure the inlet,outlet wall files are present in samelocation with \n"
+                      << "                       _inlet, _outlet,_wall appedned to the name of geometry file. \n"
+                      << "                       eg. cylinder.stl, cylinder_inlet.stl, cylinder_outlet.stl, cylinder_wall.stl \n";
             std::cout << "  --help               Show this help message\n\n";
-            std::cout << "Examples:\n";
+            std::cout << "Cmd Examples:\n";
             std::cout << "  ./heatSolver --solver 2 --nx 128 --steps 10000 --dt 0.01 --verbosity 3\n";
             std::cout << "  ./heatSolver --solver 4 --nx 256 --writeInterval 100 --blockx 16 --blocky 16 --blockz 16\n";
             exit(0);

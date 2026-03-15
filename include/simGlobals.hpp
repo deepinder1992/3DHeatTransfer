@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <string>
 
 enum class SolverType
 {
@@ -10,8 +11,8 @@ enum class SolverType
 };
 
 enum class BCType{
-    Dirichlet,
-    Neumann
+    Dirichlet =1,
+    Neumann = 2
 };
 
 enum class CellType
@@ -22,10 +23,9 @@ enum class CellType
 };
 enum class FaceType
 {
-    INLET = 0,
-    OUTLET = 1,
-    WALL = 2,
-    NONE = 4
+    INLET = 1,
+    OUTLET = 2,
+    WALL = 3
 };
 struct SimulationGlobals {
     static constexpr int VERB_LOW    = 1 << 0;
@@ -33,6 +33,7 @@ struct SimulationGlobals {
     static constexpr int VERB_HIGH   = 1 << 2;
 
     SolverType solver = SolverType::CPU_MATRIX; // default solver
+    std::string stlFileloc  = "../stlFiles/cylinder.stl"; //todo make it os agnostic
     
     int t = 0;
     int steps = 1000;
@@ -63,26 +64,20 @@ struct SimulationGlobals {
     mutable int maxIters = 50;
     double tol = 1e-6;
 
-    std::array<BCType,6> types = {
-                    BCType::Dirichlet, BCType::Neumann, //xmin,max
-                    BCType::Neumann, BCType::Dirichlet,    //ymin,max
-                    BCType::Dirichlet, BCType::Neumann        //zmin,max
+    std::array<BCType,3> types = {
+                    BCType::Neumann, //inlet
+                    BCType::Dirichlet,    //outlet
+                    BCType::Neumann        //wall
                 };  
 
-    std::array<double,6> values = {
-                                    100,-50000,
-                                    50000,100,
-                                    100,-50000};
+    std::array<double,3> values = { 50000, //inlet
+                                    100, //outlet
+                                    -50000}; //wall
     // make sure blockdims are power of 2 _best practice
     std::size_t blockDimX = 8;
     std::size_t blockDimY = 8;
     std::size_t blockDimZ = 8;
-    //std::size_t blockDim1D = blockDimX*blockDimY*blockDimZ;
-    //int numSMs = 16; // can vary based on GPU model
-    //std::size_t gridDim1D = 6*numSMs;
-    //debugging
-    mutable int totalIters = 0;
-    
+    mutable int totalIters = 0;   
 
 };
 

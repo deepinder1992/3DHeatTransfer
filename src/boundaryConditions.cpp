@@ -1,6 +1,6 @@
 #include "boundaryConditions.hpp"
 
-BoundaryConditions::BoundaryConditions(std::array<BCType,6>types,std::array<double,6>values)
+BoundaryConditions::BoundaryConditions(std::array<BCType,3>types,std::array<double,3>values)
            :types_(types),values_(values){};
 
 

@@ -7,7 +7,7 @@
 
 class BoundaryConditions{
     public:
-        BoundaryConditions(std::array<BCType,6>types, std::array<double,6>values);
+        BoundaryConditions(std::array<BCType,3>types, std::array<double,3>values);
         
         std::array<BCType,6> types() const noexcept {return types_;}
         std::array<double,6> values() const noexcept {return values_;}
