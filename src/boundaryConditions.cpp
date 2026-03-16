@@ -8,40 +8,38 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
     const size_type nx = grid.nx();
     const size_type ny = grid.ny();
     const size_type nz = grid.nz();
+    const std::vector<std::array<size_type,3>>& boundaryIdxs = grid.boundaryIndices();
     
-    // -----------------------------
-    // x faces
-    // -----------------------------
-    auto applyBC = [&](int face, double& cell, double interior, int sign ){ if (types_[face]==BCType::Dirichlet){cell=values_[face];}
-            else if (types_[face]==BCType::Neumann){ cell= (sign*2*dx*values_[face]/cond)+interior;}};
-    for (size_type k = 0; k < nz; ++k){
-        for (size_type  j = 0; j < ny; ++j){
-            //x min face
-            applyBC(0, grid(0,j,k),grid(2,j,k),-1);
-            //x max face
-            applyBC(1, grid(nx-1,j,k),grid(nx-3,j,k),1);            
+
+    auto applyBC = [&](int face, double& cell, double interior, int sign, float weightBc ){
+             if (types_[face]==BCType::Dirichlet){cell+=weightBc*values_[face];}
+            else if (types_[face]==BCType::Neumann){ cell+= (weightBc*sign*2*dx*values_[face]/cond)+interior;}};
+
+    for (std::array<size_type,3> idx:boundaryIdxs){
+        auto [i,j,k] = idx;
+        int faceNum = static_cast<int>(grid.faceType(i,j,k));
+        const std::vector<std::array<size_type,3>> solidNeighbors = grid.findSolidNeigbour(i, j, k);
+        int numSolidNeigbours = solidNeighbors.size();
+        if(numSolidNeigbours==0){
+            std::cout<<"Cell centered at"<<i<<", "<<j<<", "<<k<<"is boundary but no solid neigbour found!"<<std::endl;
+            continue;}
+        float weightBc = 1.0/numSolidNeigbours;
+        std::array<size_t,3> neighborOffsets[6] = {{i-1, j, k}, {i+1, j, k}, {i, j-1, k},
+                                                   {i, j+1, k}, {i, j, k-1}, {i, j, k+1}};
+        
+        grid(i,j,k) = 0.0; //reset so we dont accumulate previous values
+        for (std::array<size_type,3> neighbor :solidNeighbors){
+            //auto [in,jn,kn] = neighbor; 
+            
+            if(neighbor==neighborOffsets[0]){applyBC(faceNum, grid(i,j,k),grid(i+2,j,k),-1,weightBc);}
+            if(neighbor==neighborOffsets[1]){applyBC(faceNum, grid(i,j,k),grid(i-3,j,k),1,weightBc);}
+            if(neighbor==neighborOffsets[2]){applyBC(faceNum, grid(i,j,k), grid(i,j+2,k),-1,weightBc);}
+            if(neighbor==neighborOffsets[3]){ applyBC(faceNum, grid(i,j,k),grid(i,j-3,k),1,weightBc);}
+            if(neighbor==neighborOffsets[4]){applyBC(faceNum, grid(i,j,k),grid(i,j,k+2),-1,weightBc);}
+            if(neighbor==neighborOffsets[5]){applyBC(faceNum, grid(i,j,k),grid(i,j,k-3),1,weightBc);}
         }
     }
-     // -----------------------------
-    // y faces
-    // -----------------------------
-    for (size_type k = 0; k < nz; ++k)
-        for (size_type i = 0; i < nx; ++i) {
-            // ymin
-            applyBC(2, grid(i,0,k), grid(i,2,k),-1);
-            // ymax
-            applyBC(3, grid(i,ny-1,k),grid(i,ny-3,k),1);
-        }
-    // -----------------------------
-    // Z faces
-    // -----------------------------
-    for (size_type j = 0; j < ny; ++j)
-        for (size_type i = 0; i < nx; ++i) {
-            // zmin
-            applyBC(4, grid(i,j,0),grid(i,j,2),-1);
-            // zmax
-            applyBC(5, grid(i,j,nz-1),grid(i,j,nz-3),1);
-        }
+
 }
 
 void BoundaryConditions::applyBCsToRhsMatrix(size_type nx,

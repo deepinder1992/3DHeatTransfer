@@ -23,16 +23,16 @@ enum class CellType
 };
 enum class FaceType
 {
-    INLET = 1,
-    OUTLET = 2,
-    WALL = 3
+    INLET = 0,
+    OUTLET = 1,
+    WALL = 2
 };
 struct SimulationGlobals {
     static constexpr int VERB_LOW    = 1 << 0;
     static constexpr int VERB_MEDIUM = 1 << 1;
     static constexpr int VERB_HIGH   = 1 << 2;
 
-    SolverType solver = SolverType::CPU_MATRIX; // default solver
+    SolverType solver = SolverType::CPU_STENCIL; // default solver
     std::string stlFileloc  = "../stlFiles/cylinder.stl"; //todo make it os agnostic
     
     int t = 0;

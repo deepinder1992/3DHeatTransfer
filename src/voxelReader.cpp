@@ -106,8 +106,9 @@ bool VoxelReader::voxelReadBinaryStl(const std::string& fileName, std::vector<Tr
     char header[80];
     fin.read(header,80);
     uint32_t numTriangles;
-    triangles.resize(numTriangles);
+    
     fin.read(reinterpret_cast<char*>(&numTriangles), sizeof(uint32_t));
+    triangles.resize(numTriangles);
     for (uint32_t t=0; t<numTriangles;++t){
         Triangle& tri = triangles[t];
         fin.read(reinterpret_cast<char*>(&tri.normal), 3*sizeof(float));
@@ -184,6 +185,7 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
                     if (grid.cellType(i,j,k) == CellType::BOUNDARY && distanceFromCentroid(x, y, z, tri)<dx){
                         {
                             grid.faceType(i,j,k) = faceType;
+                            grid.cellFaceNormal(i,j,k) = tri.normal;
                         } 
                     }                 
                 }

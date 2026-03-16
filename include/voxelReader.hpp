@@ -4,18 +4,6 @@
 #include <vector>
 
 
-
-#pragma pack(push, 1)
-struct Vector{
-    float x, y, z;
-    Vector operator- (const Vector& vectB)const {return {x-vectB.x, y-vectB.y, z-vectB.z};}
-    Vector operator+ (const Vector& vectB)const {return {x+vectB.x, y+vectB.y, z+vectB.z};}
-    Vector operator* (float s)const {return {x*s,y*s,z*s};}
-
-    float dot(const Vector& vectB){return {x*vectB.x+ y*vectB.y+ z*vectB.z};}
-};
-#pragma pack(pop)
-
 struct Triangle{
     Vector normal;
     Vector v0;
