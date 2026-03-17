@@ -9,7 +9,7 @@ bool rayIntersectsTriangle(const Vector& origin, const Vector& direction, const 
     constexpr double epsilon2 = 1e-5;
     Vector normal = tri.normal;
     double nDenom = normal.dot(direction);
-    if(abs(nDenom) < epsilon){return false;}// with in parallel threshold
+    if(std::abs(nDenom) < epsilon){return false;}// with in parallel threshold
     double t = normal.dot(tri.v0-origin)/(normal.dot(direction));
     if(t <= epsilon2){return false;}// with
 
@@ -26,7 +26,7 @@ bool rayIntersectsTriangle(const Vector& origin, const Vector& direction, const 
     double dot12 = e1.dot(vp);
 
     double bCentDenom = (dot00 * dot11 - dot01 * dot01);
-    if (abs(bCentDenom) <= epsilon){return false;} //degenrate triangle
+    if (std::abs(bCentDenom) <= epsilon){return false;} //degenrate triangle
 
     double u = (dot11 * dot02 - dot01 * dot12) / bCentDenom;
     double v = (dot00 * dot12 - dot01 * dot02) / bCentDenom;
@@ -37,6 +37,13 @@ bool rayIntersectsTriangle(const Vector& origin, const Vector& direction, const 
 
     return false;
 }
+
+float VoxelReader::bBoxMinX = 0.0;
+float VoxelReader::bBoxMaxX = 0.0;
+float VoxelReader::bBoxMinY = 0.0;
+float VoxelReader::bBoxMaxY = 0.0;
+float VoxelReader::bBoxMinZ = 0.0;
+float VoxelReader::bBoxMaxZ = 0.0;
 
 std::string addSuffix(const std::string& filename, 
                                         const std::string& suffix) {
@@ -65,9 +72,10 @@ VoxelReader::VoxelReader(const std::string& fileName, Grid3D& grid){
         loadBinaryStl(fileName, triangles);
 
         std::cout <<"Started Voxelizing..\n";
-
+        shiftTriangles(triangles);
         std::cout << "Ray tracing..\n";
         voxelizeGrid(grid, triangles);
+        
         
         std::cout << "Detecting boundaries..\n";
         grid.detectBoundaries();
@@ -80,16 +88,20 @@ VoxelReader::VoxelReader(const std::string& fileName, Grid3D& grid){
         std::cout << "Applying inlet patch..\n";
         std::vector<Triangle> inletTriangles;
         loadBinaryStl(inletFile, inletTriangles);
+        shiftTriangles(inletTriangles);
         voxelizePatch(grid, inletTriangles, FaceType::INLET);
+    
 
         std::cout << "Applying outlet patch..\n";
         std::vector<Triangle> outletTriangles;
         loadBinaryStl(outletFile, outletTriangles);
+        shiftTriangles(outletTriangles);
         voxelizePatch(grid, outletTriangles, FaceType::OUTLET);
         
         std::cout << "Applying wall patch..\n";
         std::vector<Triangle> wallTriangles;
         loadBinaryStl(wallFile, wallTriangles);
+        shiftTriangles(wallTriangles);
         voxelizePatch(grid, wallTriangles, FaceType::WALL);
         std::cout <<"Finished Voxelizing!\n";
 }
@@ -117,6 +129,7 @@ bool VoxelReader::voxelReadBinaryStl(const std::string& fileName, std::vector<Tr
         fin.read(reinterpret_cast<char*>(&tri.v2), 3*sizeof(float));
         char attr[2];
         fin.read(attr,2);
+        boundingBox(tri,bBoxMinX,bBoxMaxX,bBoxMinY,bBoxMaxY,bBoxMinZ,bBoxMaxZ);
     }
     fin.close();
     return true;
@@ -164,12 +177,8 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
     double dz = grid.dx();
 
     for(const Triangle& tri:triangles){
-        float xmin = std::min(tri.v0.x,std::min(tri.v1.x,tri.v2.x));
-        float xmax = std::max(tri.v0.x,std::max(tri.v1.x,tri.v2.x));
-        float ymin = std::min(tri.v0.y,std::min(tri.v1.y,tri.v2.y));
-        float ymax = std::max(tri.v0.y,std::max(tri.v1.y,tri.v2.y));
-        float zmin = std::min(tri.v0.z,std::min(tri.v1.z,tri.v2.z));
-        float zmax = std::max(tri.v0.z,std::max(tri.v1.z,tri.v2.z));
+        float xmin = 0.0f, xmax = 0.0f, ymin = 0.0f, ymax = 0.0f, zmin = 0.0f, zmax = 0.0f;
+        boundingBox(tri, xmin, xmax, ymin, ymax, zmin, zmax); 
         std::size_t minI =  static_cast<std::size_t>(floor(xmin/dx));
         std::size_t maxI = std::min(static_cast<std::size_t>(floor(xmax/dx)),nx-1);
         std::size_t minJ =  static_cast<std::size_t>(floor(ymin/dy));
@@ -193,4 +202,35 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
         }}
 }
 
+void VoxelReader::boundingBox(const Triangle& tri, float& minX,float& maxX, float& minY,
+                                float& maxY,float& minZ, float& maxZ ){
 
+    const Vector verts[3] = {tri.v0, tri.v1, tri.v2};
+
+    for (int i = 0; i < 3; i++) {
+
+        minX = std::min(minX, verts[i].x);
+        minY = std::min(minY, verts[i].y);
+        minZ = std::min(minZ, verts[i].z);
+
+        maxX = std::max(maxX, verts[i].x);
+        maxY = std::max(maxY, verts[i].y);
+        maxZ = std::max(maxZ, verts[i].z);
+    }
+}
+
+void VoxelReader::shiftTriangles(std::vector<Triangle>& triangles) {
+    for (Triangle& tri : triangles) {
+        tri.v0.x -= bBoxMinX;
+        tri.v0.y -= bBoxMinY;
+        tri.v0.z -= bBoxMinZ;
+
+        tri.v1.x -= bBoxMinX;
+        tri.v1.y -= bBoxMinY;
+        tri.v1.z -= bBoxMinZ;
+
+        tri.v2.x -= bBoxMinX;
+        tri.v2.y -= bBoxMinY;
+        tri.v2.z -= bBoxMinZ;
+    }
+}

@@ -2,7 +2,8 @@
 
 
 Grid3D::Grid3D(size_type nx, size_type ny, size_type nz, double dx)
-:nx_(nx),ny_(ny),nz_(nz), dx_(dx), data_(nx*ny*nz), cellType_(nx*ny*nz, CellType::INTERIOR)
+:nx_(nx),ny_(ny),nz_(nz), dx_(dx), data_(nx*ny*nz), cellType_(nx*ny*nz, CellType::INTERIOR),
+faceType_(nx*ny*nz, FaceType::NONE),boundaryNormal_(nx*ny*nz)
     {
         assert(nx>0 && ny > 0 && nz >0);
     }

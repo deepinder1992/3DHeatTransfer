@@ -25,7 +25,8 @@ enum class FaceType
 {
     INLET = 0,
     OUTLET = 1,
-    WALL = 2
+    WALL = 2,
+    NONE = 4
 };
 struct SimulationGlobals {
     static constexpr int VERB_LOW    = 1 << 0;
@@ -42,10 +43,8 @@ struct SimulationGlobals {
     int verbosity = VERB_LOW;
 
     double dt = 50;
-    double lx = 1; // 10 cm =ly,lz
+    double lx = 100; //  =ly,lz
 
-
- 
     std::size_t nx = 30;
     std::size_t ny = nx;
     std::size_t nz = nx;
