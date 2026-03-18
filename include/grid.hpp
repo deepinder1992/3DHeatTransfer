@@ -2,8 +2,26 @@
 #include<vector>
 #include<cassert>
 #include<cstddef>
+/////////////////////
+////////////////
+//////////
+////////
+///////
+/////////
+///////
+#include <iostream>
+////////////////
+
+////////////////
+///////////
+///////////////////////
+////////////////
+//////////
+
+///////
 #include "cuda_runtime.h"
 #include "simGlobals.hpp"
+
 
 using size_type = std::size_t;
 
@@ -21,7 +39,7 @@ struct Vector{
 
 class Grid3D{
     public:
-        Grid3D(size_type nx, size_type ny, size_type nz,double dx);
+        Grid3D(size_type nx, size_type ny, size_type nz, double dx);
         
         double& operator()(size_type i, size_type j, size_type k);
         const double&  operator()(size_type i, size_type j, size_type k) const;
@@ -42,6 +60,8 @@ class Grid3D{
         size_type ny() const noexcept {return ny_;}
         size_type nz() const noexcept {return nz_;}
         double dx() const noexcept {return dx_;}
+        
+        void adjustGrid(const double maxStlEdge);
 
         size_type size() const noexcept{return data_.size();}
         double* data() noexcept {return data_.data();} 

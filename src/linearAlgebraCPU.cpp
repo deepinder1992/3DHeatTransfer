@@ -67,6 +67,7 @@ void LinearAlgebra::implicitJacobiCPU(size_type nx, size_type ny, size_type nz, 
         for (size_type k = 1; k < nz-1; ++k){
             for (size_type j = 1; j < ny-1; ++j ){
                 for (size_type i = 1; i < nx-1 ; ++i){
+                    if(current.cellType(i,j,k)!=CellType::INTERIOR) continue;
                     const double rhs  = current(i,j,k);
 
                     const double sum = (*oldGrid)(i+1,j,k)+ (*oldGrid)(i-1,j,k)

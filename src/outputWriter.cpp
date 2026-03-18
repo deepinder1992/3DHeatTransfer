@@ -27,7 +27,8 @@ void VTKWriter::write(const Grid3D& grid, const int& t){
     for (size_t k = 0; k < grid.nz(); ++k) {
         for (size_t j = 0; j < grid.ny(); ++j) {
             for (size_t i = 0; i < grid.nx(); ++i) {
-                file << grid(i, j, k) << " ";
+                if(grid.cellType(i,j,k) == CellType::INTERIOR){
+                file << grid(i, j, k) << " ";}
             }
         }
     }

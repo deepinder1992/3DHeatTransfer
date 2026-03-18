@@ -68,7 +68,7 @@ int main() {
         std::cout << "Test 2: Stencil diffusion (qualitative)... ";
         SimulationGlobals globs;
         globs.nx = globs.ny = globs.nz = 21;
-        globs.dx = globs.lx / globs.nx;
+        globs.dx = 1.0 / globs.nx;
         globs.dt = 0.005;
         globs.alpha = 0.1;
         globs.tol = 1e-5;

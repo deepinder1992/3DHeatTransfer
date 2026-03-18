@@ -43,13 +43,13 @@ struct SimulationGlobals {
     int verbosity = VERB_LOW;
 
     double dt = 50;
-    double lx = 100; //  =ly,lz
+    //double lx = 60; //  =ly,lz
 
-    std::size_t nx = 30;
+    std::size_t nx = 200;
     std::size_t ny = nx;
     std::size_t nz = nx;
 
-    double dx = lx/nx; // = dy,dz
+    double dx = 0.1; // = dy,dz
    // double dy = ly/ny;
    // double dz = lz/nz;
 

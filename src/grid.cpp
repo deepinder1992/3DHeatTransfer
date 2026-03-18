@@ -55,8 +55,12 @@ FaceType& Grid3D::faceType(size_type i, size_type j,size_type k){
 const FaceType& Grid3D::faceType(size_type i, size_type j,size_type k) const{
         return faceType_[index(i,j,k)];
     }
+void Grid3D::adjustGrid(const double maxStlEdge){
+    dx_ = maxStlEdge/nx_;
+ }
 
 void Grid3D::detectBoundaries(){
+    int kkkk = 0;
     for (size_type k=0; k< nz_; ++k){
         for(size_type j=0; j<ny_; ++j){
             for(size_type i=0; i<nx_; ++i){
@@ -64,10 +68,12 @@ void Grid3D::detectBoundaries(){
                 
                 if (findSolidNeigbour(i,j,k).size() !=0){
                     cellType(i,j,k) = CellType::BOUNDARY;
-                    boundaryIndices_.push_back({i,j,k});}
+                    boundaryIndices_.push_back({i,j,k});
+                    ++kkkk;}
             }
         }
     }
+    std::cout << kkkk<< std::endl;
 }
 
 const std::vector<std::array<std::size_t,3>>  Grid3D::findSolidNeigbour(std::size_t i, std::size_t j, std::size_t k) const{

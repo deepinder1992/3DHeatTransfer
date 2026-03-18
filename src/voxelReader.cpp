@@ -72,10 +72,11 @@ VoxelReader::VoxelReader(const std::string& fileName, Grid3D& grid){
         loadBinaryStl(fileName, triangles);
 
         std::cout <<"Started Voxelizing..\n";
+        grid.adjustGrid(maxLen());
         shiftTriangles(triangles);
+
         std::cout << "Ray tracing..\n";
-        voxelizeGrid(grid, triangles);
-        
+        voxelizeGrid(grid, triangles);        
         
         std::cout << "Detecting boundaries..\n";
         grid.detectBoundaries();
@@ -143,7 +144,7 @@ void VoxelReader::voxelizeGrid(Grid3D& grid, const std::vector<Triangle>& triang
     double dx = grid.dx();
     double dy = grid.dx();
     double dz = grid.dx();
-
+    int kkkk = 0;
     auto isInside = [&](const Vector& voxelCenter, const std::vector<Triangle>& triangles){
         Vector rayDir = {1.0,0,0};
         int crossCount = 0;
@@ -151,6 +152,7 @@ void VoxelReader::voxelizeGrid(Grid3D& grid, const std::vector<Triangle>& triang
             if(rayIntersectsTriangle(voxelCenter,rayDir, tri)){
                 crossCount++;}
          } 
+        if((crossCount%2)==1)kkkk+=1;
         return (crossCount%2)==1; 
     };
 
@@ -165,6 +167,7 @@ void VoxelReader::voxelizeGrid(Grid3D& grid, const std::vector<Triangle>& triang
             }
         }
     }
+    std::cout<<kkkk<<std::endl;
 }
 
 void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& triangles,const FaceType faceType){
@@ -175,6 +178,7 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
     double dx = grid.dx();
     double dy = grid.dx();
     double dz = grid.dx();
+    int kkkk = 0;
 
     for(const Triangle& tri:triangles){
         float xmin = 0.0f, xmax = 0.0f, ymin = 0.0f, ymax = 0.0f, zmin = 0.0f, zmax = 0.0f;
@@ -186,8 +190,8 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
         std::size_t minK =  static_cast<std::size_t>(floor(zmin/dz));
         std::size_t maxK = std::min(static_cast<std::size_t>(floor(zmax/dz)),nz-1);
         for (std::size_t k = minK; k<=maxK; ++k){
-            for (std::size_t j=minJ; j<maxJ; ++j){    
-                for (std::size_t i=minI; i<maxI; ++i){
+            for (std::size_t j=minJ; j<=maxJ; ++j){    
+                for (std::size_t i=minI; i<=maxI; ++i){
                     double x = (i+0.5)*dz;
                     double y = (j+0.5)*dy;
                     double z = (k+0.5)*dz;
@@ -195,11 +199,13 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
                         {
                             grid.faceType(i,j,k) = faceType;
                             grid.cellFaceNormal(i,j,k) = tri.normal;
+                            ++kkkk;
                         } 
                     }                 
                 }
             }
         }}
+    std::cout<<"iiii"<<kkkk<<std::endl;
 }
 
 void VoxelReader::boundingBox(const Triangle& tri, float& minX,float& maxX, float& minY,
@@ -233,4 +239,12 @@ void VoxelReader::shiftTriangles(std::vector<Triangle>& triangles) {
         tri.v2.y -= bBoxMinY;
         tri.v2.z -= bBoxMinZ;
     }
+}
+
+double VoxelReader::maxLen() {
+    double lenx = fabs(bBoxMinX-bBoxMaxX);
+    double leny = fabs(bBoxMinY-bBoxMaxY);
+    double lenz = fabs(bBoxMinZ-bBoxMaxZ);
+    
+    return std::max(lenx,std::max(leny,lenz));
 }

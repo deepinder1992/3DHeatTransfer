@@ -76,36 +76,37 @@ int main(int argc, char** argv) {
     double dx = globs.dx;
 
     Grid3D current(nx, ny, nz, dx);
-    Grid3D next(nx, ny, nz, dx);
         //load stl file
     VoxelReader(globs.stlFileloc, current);
+
+    Grid3D next(nx, ny, nz, current.dx());
 
     current.fill(75.0);
 
     BoundaryConditions bc(globs.types, globs.values);
-    bc.applyBCsToStencil(current, globs.dx, globs.k);
+    bc.applyBCsToStencil(current, current.dx(), globs.k);
 
     LinearAlgebra linAlgebra(globs.maxIters);
 
     // Select solver based on CLI input
     switch (globs.solver) {
         case SolverType::CPU_STENCIL: {
-            HeatSolverCPUStencil solver(globs.alpha, globs.dx, globs.dt, linAlgebra);
+            HeatSolverCPUStencil solver(globs.alpha, current.dx(), globs.dt, linAlgebra);
             runSimulation(solver, current, next, globs, bc);
             break;
         }
         case SolverType::CPU_MATRIX: {
-            HeatSolverCPUMatrix solver(nx, ny, nz, globs.alpha, globs.dx, globs.dt, globs.k, bc, linAlgebra);
+            HeatSolverCPUMatrix solver(nx, ny, nz, globs.alpha, current.dx(), globs.dt, globs.k, bc, linAlgebra);
             runSimulation(solver, current, next, globs, bc);
             break;
         }
         case SolverType::CUDA_STENCIL: {
-            HeatSolverCUDAStencil solver(globs.alpha, globs.dx, globs.dt, linAlgebra);
+            HeatSolverCUDAStencil solver(globs.alpha, current.dx(), globs.dt, linAlgebra);
             runSimulation(solver, current, next, globs, bc);
             break;
         }
         case SolverType::CUDA_MATRIX: {
-            HeatSolverCUDAMatrix solver(nx, ny, nz, globs.alpha, globs.dx, globs.dt, globs.k, bc, linAlgebra);
+            HeatSolverCUDAMatrix solver(nx, ny, nz, globs.alpha, current.dx(), globs.dt, globs.k, bc, linAlgebra);
             runSimulation(solver, current, next, globs, bc);
             break;
         }
@@ -142,7 +143,7 @@ void parseCLI(int argc, char** argv, SimulationGlobals& g) {
         else if (arg == "--dt") g.dt = std::stod(argv[++i]);
         else if (arg == "--jacobiTol") g.tol = std::stod(argv[++i]);
         else if (arg == "--globalTol") g.globalTol = std::stod(argv[++i]);
-        else if (arg == "--lx") g.lx = std::stod(argv[++i]);
+       // else if (arg == "--lx") g.lx = std::stod(argv[++i]);
         else if (arg == "--maxIters") g.maxIters = std::stoi(argv[++i]);
         else if (arg == "--verbosity") g.verbosity = std::stoi(argv[++i]);
         else if (arg == "--writeInterval") g.writeInterval = std::stoi(argv[++i]);
@@ -170,7 +171,7 @@ void parseCLI(int argc, char** argv, SimulationGlobals& g) {
             std::cout << "  --dt VALUE           Time step size\n";
             std::cout << "  --jacobiTol VALUE    Tolerance for Jacobi iterations (if using iterative solver)\n";
             std::cout << "  --globalTol VALUE    Global convergence tolerance for the simulation\n";
-            std::cout << "  --lx VALUE           Physical domain size in x (length units)\n";
+            //std::cout << "  --lx VALUE           Physical domain size in x (length units)\n";
             std::cout << "  --maxIters N         Maximum number of iterations per time step\n";
             std::cout << "  --verbosity LEVEL    Output verbosity level (bitmask):\n";
             std::cout << "                       1 = low, 2 = medium, 4 = high (can combine e.g., 3 = low+medium)\n";
@@ -197,5 +198,5 @@ void parseCLI(int argc, char** argv, SimulationGlobals& g) {
     }
 
     // recompute dependent values
-    g.dx = g.lx / g.nx;
+    //g.dx = g.lx / g.nx;
 }
