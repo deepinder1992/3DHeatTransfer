@@ -20,7 +20,7 @@ class VoxelReader{
         static void voxelizePatch(Grid3D& grid, const std::vector<Triangle>& triangles,const FaceType faceType);
         static void boundingBox(const Triangle& tri, float& minX,float& minY, float& minZ,
                                 float& maxX,float& maxY, float& maxZ );
-        static void shiftTriangles(std::vector<Triangle>& triangles);
+        static void shiftTriangles(std::vector<Triangle>& triangles, Vector gridCent);
         static double maxLen();
     private:
         static float bBoxMinX, bBoxMaxX, bBoxMinY,bBoxMaxY, bBoxMinZ, bBoxMaxZ;    

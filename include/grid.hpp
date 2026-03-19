@@ -62,10 +62,15 @@ class Grid3D{
         double dx() const noexcept {return dx_;}
         
         void adjustGrid(const double maxStlEdge);
+        Vector gridCent();
 
         size_type size() const noexcept{return data_.size();}
         double* data() noexcept {return data_.data();} 
         const double* data() const noexcept{return data_.data();}
+
+        size_type numInteriorCells() const {return numInteriorCells_;}
+
+        size_type numBoundaryCells() const { return numBoundaryCells_; }
         
         void fill (double value);
         
@@ -85,5 +90,7 @@ class Grid3D{
         std::vector<std::array<std::size_t,3>> boundaryIndices_;
 
         std::vector<Vector> boundaryNormal_;
+
+        size_type numInteriorCells_=0, numBoundaryCells_=0;
 
 };

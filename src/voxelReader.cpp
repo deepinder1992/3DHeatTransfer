@@ -67,13 +67,13 @@ double distanceFromCentroid(double x, double y, double z, const Triangle& tri)
 
 VoxelReader::VoxelReader(const std::string& fileName, Grid3D& grid){
         std::vector<Triangle> triangles;
-        static_assert(sizeof(Vector) == 3 * sizeof(float), "Vec3 must have no padding");
+        static_assert(sizeof(Vector) == 3 * sizeof(float), "Vector must have no padding");
         std::cout << "Reading Stl file..\n";
         loadBinaryStl(fileName, triangles);
 
         std::cout <<"Started Voxelizing..\n";
         grid.adjustGrid(maxLen());
-        shiftTriangles(triangles);
+        shiftTriangles(triangles,grid.gridCent());
 
         std::cout << "Ray tracing..\n";
         voxelizeGrid(grid, triangles);        
@@ -89,20 +89,22 @@ VoxelReader::VoxelReader(const std::string& fileName, Grid3D& grid){
         std::cout << "Applying inlet patch..\n";
         std::vector<Triangle> inletTriangles;
         loadBinaryStl(inletFile, inletTriangles);
-        shiftTriangles(inletTriangles);
+        shiftTriangles(inletTriangles,grid.gridCent());
+
         voxelizePatch(grid, inletTriangles, FaceType::INLET);
     
 
         std::cout << "Applying outlet patch..\n";
         std::vector<Triangle> outletTriangles;
         loadBinaryStl(outletFile, outletTriangles);
-        shiftTriangles(outletTriangles);
+        shiftTriangles(outletTriangles,grid.gridCent());
+
         voxelizePatch(grid, outletTriangles, FaceType::OUTLET);
         
         std::cout << "Applying wall patch..\n";
         std::vector<Triangle> wallTriangles;
         loadBinaryStl(wallFile, wallTriangles);
-        shiftTriangles(wallTriangles);
+        shiftTriangles(wallTriangles,grid.gridCent());
         voxelizePatch(grid, wallTriangles, FaceType::WALL);
         std::cout <<"Finished Voxelizing!\n";
 }
@@ -225,19 +227,22 @@ void VoxelReader::boundingBox(const Triangle& tri, float& minX,float& maxX, floa
     }
 }
 
-void VoxelReader::shiftTriangles(std::vector<Triangle>& triangles) {
+void VoxelReader::shiftTriangles(std::vector<Triangle>& triangles, Vector gridCent) {
+    Vector triangleCent = {0.5f*(bBoxMaxX+bBoxMinX), 0.5f*(bBoxMaxY+bBoxMinY), 0.5f*(bBoxMaxZ+bBoxMinZ)};
+    Vector shiftVect = gridCent-triangleCent;
+
     for (Triangle& tri : triangles) {
-        tri.v0.x -= bBoxMinX;
-        tri.v0.y -= bBoxMinY;
-        tri.v0.z -= bBoxMinZ;
+        tri.v0.x += shiftVect.x;
+        tri.v0.y += shiftVect.y;
+        tri.v0.z += shiftVect.z;
 
-        tri.v1.x -= bBoxMinX;
-        tri.v1.y -= bBoxMinY;
-        tri.v1.z -= bBoxMinZ;
+        tri.v1.x += shiftVect.x;
+        tri.v1.y += shiftVect.y;
+        tri.v1.z += shiftVect.z;
 
-        tri.v2.x -= bBoxMinX;
-        tri.v2.y -= bBoxMinY;
-        tri.v2.z -= bBoxMinZ;
+        tri.v2.x += shiftVect.x;
+        tri.v2.y += shiftVect.y;
+        tri.v2.z += shiftVect.z;
     }
 }
 
