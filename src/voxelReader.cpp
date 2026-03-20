@@ -194,10 +194,10 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
         for (std::size_t k = minK; k<=maxK; ++k){
             for (std::size_t j=minJ; j<=maxJ; ++j){    
                 for (std::size_t i=minI; i<=maxI; ++i){
-                    double x = (i+0.5)*dz;
-                    double y = (j+0.5)*dy;
-                    double z = (k+0.5)*dz;
-                    if (grid.cellType(i,j,k) == CellType::BOUNDARY && distanceFromCentroid(x, y, z, tri)<dx){
+                    float x = (i+0.5)*dx;
+                    float y = (j+0.5)*dy;
+                    float z = (k+0.5)*dz;
+                    if (grid.cellType(i,j,k) == CellType::BOUNDARY && isInterSecting(x, y, z, dx/2.0,tri )){
                         {
                             grid.faceType(i,j,k) = faceType;
                             grid.cellFaceNormal(i,j,k) = tri.normal;
@@ -252,4 +252,49 @@ double VoxelReader::maxLen() {
     double lenz = fabs(bBoxMinZ-bBoxMaxZ);
     
     return std::max(lenx,std::max(leny,lenz));
+}
+
+bool VoxelReader::isInterSecting(float boxCentX, float boxCentY, float boxCentZ, float halfSize, const Triangle& tri ){
+    //Separating Axis Theorem
+    Vector boxCent = {boxCentX, boxCentY, boxCentZ};
+
+    Vector v0 = tri.v0-boxCent;
+    Vector v1 = tri.v1-boxCent;
+    Vector v2 = tri.v2-boxCent;
+
+    auto maxSpan = [](float a, float b, float c){return std::max(a,std::max(b,c));};
+    auto minSpan = [](float a, float b, float c){return std::min(a,std::min(b,c));};
+
+    if(minSpan(v0.x, v1.x, v2.x)>halfSize) {return false;}
+    if(maxSpan(v0.x, v1.x, v2.x)<-halfSize) {return false;}
+
+    if(minSpan(v0.y, v1.y, v2.y)>halfSize) {return false;}
+    if(maxSpan(v0.y, v1.y, v2.y)<-halfSize) {return false;}
+
+    if(minSpan(v0.z, v1.z, v2.z)>halfSize) {return false;}
+    if(maxSpan(v0.z, v1.z, v2.z)<-halfSize) {return false;}
+
+    Vector e0 = v0-v1;
+    Vector e1 = v1-v2;
+    //Vector e2 = v2-v0;
+    //plane vs triangle
+    Vector triNorm = e0^e1;
+    float planeConst = -triNorm.dot(v0);
+    Vector vmin,vmax;
+    for(int i =0; i<3; ++i){
+        float normComp = (&triNorm.x)[i];
+        if(normComp>0.0){
+            (&vmin.x)[i] = -halfSize;
+            (&vmax.x)[i] = halfSize;
+
+        }
+        else{
+            (&vmax.x)[i] = -halfSize;
+            (&vmin.x)[i] = halfSize;
+        }
+    }
+
+    if(triNorm.dot(vmin)+planeConst>0.0){ return false;}
+    if(triNorm.dot(vmax)+planeConst<0.0){ return false;}
+    return true;
 }

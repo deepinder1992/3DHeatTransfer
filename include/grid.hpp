@@ -31,6 +31,9 @@ struct Vector{
     Vector operator- (const Vector& vectB)const {return {x-vectB.x, y-vectB.y, z-vectB.z};}
     Vector operator+ (const Vector& vectB)const {return {x+vectB.x, y+vectB.y, z+vectB.z};}
     Vector operator* (float s)const {return {x*s,y*s,z*s};}
+    Vector operator^ (const Vector& vectB)const {return { y * vectB.z - z * vectB.y,
+                                                                 z * vectB.x - x * vectB.z,
+                                                                 x * vectB.y - y * vectB.x };}
 
     float dot(const Vector& vectB){return {x*vectB.x+ y*vectB.y+ z*vectB.z};}
 };

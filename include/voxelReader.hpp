@@ -21,6 +21,7 @@ class VoxelReader{
         static void boundingBox(const Triangle& tri, float& minX,float& minY, float& minZ,
                                 float& maxX,float& maxY, float& maxZ );
         static void shiftTriangles(std::vector<Triangle>& triangles, Vector gridCent);
+        static bool isInterSecting(float boxCentX, float boxCentY, float boxCentZ, float halfSize, const Triangle& tri );
         static double maxLen();
     private:
         static float bBoxMinX, bBoxMaxX, bBoxMinY,bBoxMaxY, bBoxMinZ, bBoxMaxZ;    

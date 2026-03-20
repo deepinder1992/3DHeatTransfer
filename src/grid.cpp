@@ -81,7 +81,7 @@ void Grid3D::detectBoundaries(){
         }
     }
     std::cout <<"INNNNN" <<numInteriorCells_<< std::endl;
-    std::cout <<"BNNNNN" <<numInteriorCells_<< std::endl;
+    std::cout <<"BNNNNN" <<numBoundaryCells_<< std::endl;
 }
 
 const std::vector<std::array<std::size_t,3>>  Grid3D::findSolidNeigbour(std::size_t i, std::size_t j, std::size_t k) const{
