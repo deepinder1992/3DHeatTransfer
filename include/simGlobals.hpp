@@ -21,13 +21,14 @@ enum class CellType
     INTERIOR = 1,
     BOUNDARY = 2
 };
+
 enum class FaceType
-{
-    INLET = 0,
-    OUTLET = 1,
-    WALL = 2,
-    NONE = 4
+{   NONE = 0,
+    INLET = 1,
+    OUTLET = 2,
+    WALL = 3  
 };
+
 struct SimulationGlobals {
     static constexpr int VERB_LOW    = 1 << 0;
     static constexpr int VERB_MEDIUM = 1 << 1;

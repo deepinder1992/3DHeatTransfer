@@ -78,8 +78,10 @@ class Grid3D{
         void fill (double value);
         
         void detectBoundaries();
+        void diagnostics() const;
+
     private:
-        size_type index(size_type i, size_type j, size_type k) const noexcept;
+        std::size_t index(size_type i, size_type j, size_type k) const noexcept;
         
         size_type nx_, ny_,nz_;
         double dx_;
@@ -94,6 +96,6 @@ class Grid3D{
 
         std::vector<Vector> boundaryNormal_;
 
-        size_type numInteriorCells_=0, numBoundaryCells_=0;
+        size_type numInteriorCells_=0, numBoundaryCells_=0, numSolidCells_=0;
 
 };

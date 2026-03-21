@@ -78,6 +78,7 @@ int main(int argc, char** argv) {
     Grid3D current(nx, ny, nz, dx);
         //load stl file
     VoxelReader(globs.stlFileloc, current);
+    current.diagnostics();
 
     Grid3D next(nx, ny, nz, current.dx());
 

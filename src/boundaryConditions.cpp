@@ -20,9 +20,11 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
         int faceNum = static_cast<int>(grid.faceType(i,j,k));
         const std::vector<std::array<size_type,3>> solidNeighbors = grid.findSolidNeigbour(i, j, k);
         int numSolidNeigbours = solidNeighbors.size();
-        if(numSolidNeigbours==0){
-            std::cout<<"Cell centered at"<<i<<", "<<j<<", "<<k<<"is boundary but no solid neigbour found!"<<std::endl;
+
+        if(numSolidNeigbours==0 && !((i==0||j==0||k==0||i==nx-1||j==ny-1||k==nz-1))){
+            std::cout<<"Cell centered at "<<i<<", "<<j<<", "<<k<<" is boundary but no solid neigbour found!"<<std::endl;
             continue;}
+
         float weightBc = 1.0/numSolidNeigbours;
         std::array<size_t,3> neighborOffsets[6] = {{i-1, j, k}, {i+1, j, k}, {i, j-1, k},
                                                    {i, j+1, k}, {i, j, k-1}, {i, j, k+1}};

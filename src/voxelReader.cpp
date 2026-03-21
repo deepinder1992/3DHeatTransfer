@@ -5,8 +5,8 @@
 #include "voxelReader.hpp"
 
 bool rayIntersectsTriangle(const Vector& origin, const Vector& direction, const Triangle& tri) {
-    constexpr double epsilon = 1e-6;
-    constexpr double epsilon2 = 1e-5;
+    constexpr double epsilon = 1e-8;
+    constexpr double epsilon2 = 1e-7;
     Vector normal = tri.normal;
     double nDenom = normal.dot(direction);
     if(std::abs(nDenom) < epsilon){return false;}// with in parallel threshold
@@ -132,7 +132,7 @@ bool VoxelReader::voxelReadBinaryStl(const std::string& fileName, std::vector<Tr
         fin.read(reinterpret_cast<char*>(&tri.v2), 3*sizeof(float));
         char attr[2];
         fin.read(attr,2);
-        boundingBox(tri,bBoxMinX,bBoxMaxX,bBoxMinY,bBoxMaxY,bBoxMinZ,bBoxMaxZ);
+        boundingBox(tri, bBoxMinX, bBoxMaxX, bBoxMinY, bBoxMaxY, bBoxMinZ, bBoxMaxZ);
     }
     fin.close();
     return true;
@@ -185,24 +185,25 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
     for(const Triangle& tri:triangles){
         float xmin = 0.0f, xmax = 0.0f, ymin = 0.0f, ymax = 0.0f, zmin = 0.0f, zmax = 0.0f;
         boundingBox(tri, xmin, xmax, ymin, ymax, zmin, zmax); 
-        std::size_t minI =  static_cast<std::size_t>(floor(xmin/dx));
-        std::size_t maxI = std::min(static_cast<std::size_t>(floor(xmax/dx)),nx-1);
-        std::size_t minJ =  static_cast<std::size_t>(floor(ymin/dy));
-        std::size_t maxJ = std::min(static_cast<std::size_t>(floor(ymax/dy)),ny-1);
-        std::size_t minK =  static_cast<std::size_t>(floor(zmin/dz));
-        std::size_t maxK = std::min(static_cast<std::size_t>(floor(zmax/dz)),nz-1);
+        std::size_t minI = std::max(static_cast<std::size_t>(floor(xmin / dx)), size_t(0));
+        std::size_t maxI = std::min(static_cast<std::size_t>(ceil(xmax / dx)), nx - 1);
+        std::size_t minJ = std::max(static_cast<std::size_t>(floor(ymin / dy)), size_t(0));
+        std::size_t maxJ = std::min(static_cast<std::size_t>(ceil(ymax / dy)), ny - 1);
+        std::size_t minK = std::max(static_cast<std::size_t>(floor(zmin / dz)), size_t(0));
+        std::size_t maxK = std::min(static_cast<std::size_t>(ceil(zmax / dz)), nz - 1);
         for (std::size_t k = minK; k<=maxK; ++k){
             for (std::size_t j=minJ; j<=maxJ; ++j){    
                 for (std::size_t i=minI; i<=maxI; ++i){
                     float x = (i+0.5)*dx;
                     float y = (j+0.5)*dy;
                     float z = (k+0.5)*dz;
-                    if (grid.cellType(i,j,k) == CellType::BOUNDARY && isInterSecting(x, y, z, dx/2.0,tri )){
-                        {
+                    if (grid.cellType(i,j,k) == CellType::BOUNDARY //&& grid.faceType(i,j,k) == FaceType::NONE
+                         && isInterSecting(x, y, z, dx/2.0,tri )){
+                        // && distanceFromCentroid(x, y, z, tri)<=(dx+1e-3f)){
                             grid.faceType(i,j,k) = faceType;
                             grid.cellFaceNormal(i,j,k) = tri.normal;
                             ++kkkk;
-                        } 
+                        
                     }                 
                 }
             }
@@ -256,6 +257,7 @@ double VoxelReader::maxLen() {
 
 bool VoxelReader::isInterSecting(float boxCentX, float boxCentY, float boxCentZ, float halfSize, const Triangle& tri ){
     //Separating Axis Theorem
+    const float eps = 1.0e-3f * halfSize; 
     Vector boxCent = {boxCentX, boxCentY, boxCentZ};
 
     Vector v0 = tri.v0-boxCent;
@@ -265,18 +267,18 @@ bool VoxelReader::isInterSecting(float boxCentX, float boxCentY, float boxCentZ,
     auto maxSpan = [](float a, float b, float c){return std::max(a,std::max(b,c));};
     auto minSpan = [](float a, float b, float c){return std::min(a,std::min(b,c));};
 
-    if(minSpan(v0.x, v1.x, v2.x)>halfSize) {return false;}
-    if(maxSpan(v0.x, v1.x, v2.x)<-halfSize) {return false;}
+    if(minSpan(v0.x, v1.x, v2.x)>halfSize+eps) {return false;}
+    if(maxSpan(v0.x, v1.x, v2.x)<-halfSize-eps) {return false;}
 
-    if(minSpan(v0.y, v1.y, v2.y)>halfSize) {return false;}
-    if(maxSpan(v0.y, v1.y, v2.y)<-halfSize) {return false;}
+    if(minSpan(v0.y, v1.y, v2.y)>halfSize+eps) {return false;}
+    if(maxSpan(v0.y, v1.y, v2.y)<-halfSize-eps) {return false;}
 
-    if(minSpan(v0.z, v1.z, v2.z)>halfSize) {return false;}
-    if(maxSpan(v0.z, v1.z, v2.z)<-halfSize) {return false;}
+    if(minSpan(v0.z, v1.z, v2.z)>halfSize+eps) {return false;}
+    if(maxSpan(v0.z, v1.z, v2.z)<-halfSize-eps) {return false;}
 
     Vector e0 = v0-v1;
     Vector e1 = v1-v2;
-    //Vector e2 = v2-v0;
+    Vector e2 = v2-v0;
     //plane vs triangle
     Vector triNorm = e0^e1;
     float planeConst = -triNorm.dot(v0);
@@ -294,7 +296,24 @@ bool VoxelReader::isInterSecting(float boxCentX, float boxCentY, float boxCentZ,
         }
     }
 
-    if(triNorm.dot(vmin)+planeConst>0.0){ return false;}
-    if(triNorm.dot(vmax)+planeConst<0.0){ return false;}
+    if(triNorm.dot(vmin)+planeConst>eps){ return false;}
+    if(triNorm.dot(vmax)+planeConst<-eps){ return false;}
+
+    Vector boxAxes[3] = { {1,0,0}, {0,1,0}, {0,0,1} };
+    Vector edges[3] = { e0, e1, e2 };
+
+    for (int i = 0; i < 3; ++i) {       
+        for (int j = 0; j < 3; ++j) {   
+            Vector axis = edges[i] ^ boxAxes[j];  
+            if (axis.x == 0.0f && axis.y == 0.0f && axis.z == 0.0f) continue; 
+
+            float triProjMin = std::min({v0.dot(axis), v1.dot(axis), v2.dot(axis)});
+            float triProjMax = std::max({v0.dot(axis), v1.dot(axis), v2.dot(axis)});
+   
+            float r = halfSize * (std::fabs(axis.x) + std::fabs(axis.y) + std::fabs(axis.z));
+    
+            if (triProjMin > r || triProjMax < -r) return false;
+        }
+    }
     return true;
 }
