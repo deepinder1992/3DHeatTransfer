@@ -53,9 +53,10 @@ class Grid3D{
         FaceType& faceType(size_type i, size_type j,size_type k);
         const FaceType& faceType(size_type i, size_type j,size_type k) const;
 
-        Vector& cellFaceNormal(size_type i, size_type j,size_type k);
-        const Vector& cellFaceNormal(size_type i, size_type j,size_type k) const;
-    
+        // Vector& cellFaceNormal(size_type i, size_type j,size_type k);
+        // const Vector& cellFaceNormal(size_type i, size_type j,size_type k) const;
+        const std::vector<std::size_t>& interiorIdxs() const;
+
         const std::vector<std::array<std::size_t,3>>& boundaryIndices()const;
         const  std::vector<std::array<std::size_t,3>> findSolidNeigbour(std::size_t i, std::size_t j, std::size_t k) const;
 
@@ -94,7 +95,8 @@ class Grid3D{
         
         std::vector<std::array<std::size_t,3>> boundaryIndices_;
 
-        std::vector<Vector> boundaryNormal_;
+        //std::vector<Vector> boundaryNormal_;
+        std::vector<std::size_t> interiorIdxs_;
 
         size_type numInteriorCells_=0, numBoundaryCells_=0, numSolidCells_=0;
 

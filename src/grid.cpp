@@ -3,7 +3,7 @@
 
 Grid3D::Grid3D(size_type nx, size_type ny, size_type nz, double dx)
 :nx_(nx),ny_(ny),nz_(nz), dx_(dx), data_(nx*ny*nz), cellType_(nx*ny*nz, CellType::INTERIOR),
-faceType_(nx*ny*nz, FaceType::NONE),boundaryNormal_(nx*ny*nz)
+faceType_(nx*ny*nz, FaceType::NONE)//boundaryNormal_(nx*ny*nz)
     {
         assert(nx>0 && ny > 0 && nz >0);
     }
@@ -42,11 +42,15 @@ const std::vector<std::array<std::size_t,3>>& Grid3D::boundaryIndices() const{
     return boundaryIndices_;
 }
 
-Vector& Grid3D::cellFaceNormal(size_type i, size_type j,size_type k){
-     return boundaryNormal_[index(i,j,k)];}
+const std::vector<std::size_t>& Grid3D::interiorIdxs() const{ 
+    return interiorIdxs_;
+}
 
-const Vector& Grid3D::cellFaceNormal(size_type i, size_type j,size_type k) const{
-     return boundaryNormal_[index(i,j,k)];}
+// Vector& Grid3D::cellFaceNormal(size_type i, size_type j,size_type k){
+//      return boundaryNormal_[index(i,j,k)];}
+
+// const Vector& Grid3D::cellFaceNormal(size_type i, size_type j,size_type k) const{
+//      return boundaryNormal_[index(i,j,k)];}
 
 FaceType& Grid3D::faceType(size_type i, size_type j,size_type k){
         return faceType_[index(i,j,k)];
@@ -73,11 +77,17 @@ void Grid3D::detectBoundaries(){
         boundaryIndices_.push_back({i,j,k});
         ++numBoundaryCells_;  };
 
+    auto makeInterior = [&](std::size_t i, std::size_t j, std::size_t k) {
+        interiorIdxs_.push_back(index(i,j,k));
+        ++numInteriorCells_;  };
+
     for (size_type k=0; k< nz_; ++k){
         for(size_type j=0; j<ny_; ++j){
             for(size_type i=0; i<nx_; ++i){
                 if (cellType(i,j,k)==CellType::SOLID) continue;
-                ++numInteriorCells_;
+                    
+                makeInterior(i,j,k);
+                
                 if (findSolidNeigbour(i,j,k).size() !=0){
                     makeBoundary(i,j,k);
                     continue;}

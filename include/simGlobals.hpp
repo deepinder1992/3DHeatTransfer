@@ -38,12 +38,12 @@ struct SimulationGlobals {
     std::string stlFileloc  = "../stlFiles/cylinder.stl"; //todo make it os agnostic
     
     int t = 0;
-    int steps = 500;
-    int writeInterval = 10;
+    int steps = 10000;
+    int writeInterval = 1000;
     double globalTol = 1e-8;
     int verbosity = VERB_LOW;
 
-    double dt = 50;
+    double dt = 100;
     //double lx = 60; //  =ly,lz
 
     std::size_t nx = 50;

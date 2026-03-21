@@ -26,7 +26,6 @@ void runSimulation(
     VTKWriter vtkWriter("../VTKOutput", "temperature");
 
     double maxDiff = 0.0;                      
-    size_type gridSize = current.size();
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -41,8 +40,8 @@ void runSimulation(
         std::swap(current, next);
 
         maxDiff = 0.0;
-        for (size_type i = 0; i < gridSize; ++i) {
-            double diff = std::abs(current.data()[i] - next.data()[i]);
+        for (size_type idx:current.interiorIdxs()) {
+            double diff = std::abs(current.data()[idx] - next.data()[idx]);
             if (diff > maxDiff)
                 maxDiff = diff;
         }
@@ -79,8 +78,9 @@ int main(int argc, char** argv) {
         //load stl file
     VoxelReader(globs.stlFileloc, current);
     current.diagnostics();
-
-    Grid3D next(nx, ny, nz, current.dx());
+    
+    // auto deep copy
+    Grid3D next = current;
 
     current.fill(75.0);
 

@@ -17,7 +17,7 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
 
     for (std::array<size_type,3> idx:boundaryIdxs){
         auto [i,j,k] = idx;
-        int faceNum = static_cast<int>(grid.faceType(i,j,k));
+        int faceNum = static_cast<int>(grid.faceType(i,j,k))-1;
         const std::vector<std::array<size_type,3>> solidNeighbors = grid.findSolidNeigbour(i, j, k);
         int numSolidNeigbours = solidNeighbors.size();
 

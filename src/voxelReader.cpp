@@ -201,7 +201,7 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
                          && isInterSecting(x, y, z, dx/2.0,tri )){
                         // && distanceFromCentroid(x, y, z, tri)<=(dx+1e-3f)){
                             grid.faceType(i,j,k) = faceType;
-                            grid.cellFaceNormal(i,j,k) = tri.normal;
+                           // grid.cellFaceNormal(i,j,k) = tri.normal;
                             ++kkkk;
                         
                     }                 
