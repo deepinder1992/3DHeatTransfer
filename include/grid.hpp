@@ -2,6 +2,7 @@
 #include<vector>
 #include<cassert>
 #include<cstddef>
+#include <cmath>
 /////////////////////
 ////////////////
 //////////
@@ -28,14 +29,25 @@ using size_type = std::size_t;
 #pragma pack(push, 1)
 struct Vector{
     float x, y, z;
+
     Vector operator- (const Vector& vectB)const {return {x-vectB.x, y-vectB.y, z-vectB.z};}
+
     Vector operator+ (const Vector& vectB)const {return {x+vectB.x, y+vectB.y, z+vectB.z};}
+
     Vector operator* (float s)const {return {x*s,y*s,z*s};}
+
     Vector operator^ (const Vector& vectB)const {return { y * vectB.z - z * vectB.y,
                                                                  z * vectB.x - x * vectB.z,
                                                                  x * vectB.y - y * vectB.x };}
 
+
     float dot(const Vector& vectB){return {x*vectB.x+ y*vectB.y+ z*vectB.z};}
+ 
+    float mag() const {return std::sqrt(x*x + y*y + z*z);}
+
+    Vector normalize() const {float m = mag();
+        if (m<1e-8f)return{0.0,0.0,0.0};
+        return {x/m,y/m,z/m};}
 };
 #pragma pack(pop)
 
@@ -53,8 +65,10 @@ class Grid3D{
         FaceType& faceType(size_type i, size_type j,size_type k);
         const FaceType& faceType(size_type i, size_type j,size_type k) const;
 
-        // Vector& cellFaceNormal(size_type i, size_type j,size_type k);
-        // const Vector& cellFaceNormal(size_type i, size_type j,size_type k) const;
+        Vector& cellFaceNormal(size_type i, size_type j,size_type k);
+        //const Vector& cellFaceNormal(size_type i, size_type j,size_type k) const;
+        Vector cellFaceNormalized(size_type i, size_type j,size_type k) const;
+
         const std::vector<std::size_t>& interiorIdxs() const;
 
         const std::vector<std::array<std::size_t,3>>& boundaryIndices()const;
@@ -80,6 +94,7 @@ class Grid3D{
         
         void detectBoundaries();
         void diagnostics() const;
+        void assignNoneCells();
 
     private:
         std::size_t index(size_type i, size_type j, size_type k) const noexcept;
@@ -95,7 +110,7 @@ class Grid3D{
         
         std::vector<std::array<std::size_t,3>> boundaryIndices_;
 
-        //std::vector<Vector> boundaryNormal_;
+        std::vector<Vector> boundaryNormal_;
         std::vector<std::size_t> interiorIdxs_;
 
         size_type numInteriorCells_=0, numBoundaryCells_=0, numSolidCells_=0;

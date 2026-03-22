@@ -111,8 +111,8 @@ VoxelReader::VoxelReader(const std::string& fileName, Grid3D& grid){
 
 bool VoxelReader::loadBinaryStl(const std::string& fileName, std::vector<Triangle>& triangles ){
     if(!voxelReadBinaryStl(fileName, triangles)){
-        std::cerr << "Error: failed to read binary STL file " << fileName << "\n";
-        return false;}
+        std::cout << "Error: failed to read binary STL file " << fileName << "\n";
+        std::exit(EXIT_FAILURE); }
     return true;}
 
 bool VoxelReader::voxelReadBinaryStl(const std::string& fileName, std::vector<Triangle>& triangles){
@@ -197,11 +197,11 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
                     float x = (i+0.5)*dx;
                     float y = (j+0.5)*dy;
                     float z = (k+0.5)*dz;
-                    if (grid.cellType(i,j,k) == CellType::BOUNDARY //&& grid.faceType(i,j,k) == FaceType::NONE
+                    if (grid.cellType(i,j,k) == CellType::BOUNDARY && grid.faceType(i,j,k) == FaceType::NONE
                          && isInterSecting(x, y, z, dx/2.0,tri )){
                         // && distanceFromCentroid(x, y, z, tri)<=(dx+1e-3f)){
                             grid.faceType(i,j,k) = faceType;
-                           // grid.cellFaceNormal(i,j,k) = tri.normal;
+                            grid.cellFaceNormal(i,j,k) = tri.normal;
                             ++kkkk;
                         
                     }                 

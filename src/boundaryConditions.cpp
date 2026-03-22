@@ -12,8 +12,17 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
     
 
     auto applyBC = [&](int face, double& cell, double interior, int sign, float weightBc ){
-             if (types_[face]==BCType::Dirichlet){cell+=weightBc*values_[face];}
-            else if (types_[face]==BCType::Neumann){ cell+= (weightBc*sign*2*dx*values_[face]/cond)+interior;}};
+            if (types_[face]==BCType::Dirichlet){cell+=weightBc*values_[face];}
+            else if (types_[face]==BCType::Neumann){
+                 cell+= (weightBc*sign*2*dx*values_[face]/cond)+interior;}};
+
+    auto sign =[&](Vector cellNormal, std::array<size_type,3>  cellIdxs, std::size_t i, std::size_t j, std::size_t k){
+        Vector radial {static_cast<float>(cellIdxs[0]) - static_cast<float>(i),
+                       static_cast<float>(cellIdxs[1]) - static_cast<float>(j),
+                       static_cast<float>(cellIdxs[2]) - static_cast<float>(k)};
+        
+        if (radial.dot(cellNormal)>0) return 1;
+        return -1; };
 
     for (std::array<size_type,3> idx:boundaryIdxs){
         auto [i,j,k] = idx;
@@ -21,24 +30,23 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
         const std::vector<std::array<size_type,3>> solidNeighbors = grid.findSolidNeigbour(i, j, k);
         int numSolidNeigbours = solidNeighbors.size();
 
-        if(numSolidNeigbours==0 && !((i==0||j==0||k==0||i==nx-1||j==ny-1||k==nz-1))){
-            std::cout<<"Cell centered at "<<i<<", "<<j<<", "<<k<<" is boundary but no solid neigbour found!"<<std::endl;
+        if(numSolidNeigbours==0){
+            std::cout<<"Cell centered at "<<i<<", "<<j<<", "<<k<<" is boundary but no solid neigbours found!"<<std::endl;
             continue;}
 
         float weightBc = 1.0/numSolidNeigbours;
         std::array<size_t,3> neighborOffsets[6] = {{i-1, j, k}, {i+1, j, k}, {i, j-1, k},
                                                    {i, j+1, k}, {i, j, k-1}, {i, j, k+1}};
         
+        Vector norm = grid.cellFaceNormalized(i,j,k);
         grid(i,j,k) = 0.0; //reset so we dont accumulate previous values
         for (std::array<size_type,3> neighbor :solidNeighbors){
-            //auto [in,jn,kn] = neighbor; 
-            
-            if(neighbor==neighborOffsets[0]){applyBC(faceNum, grid(i,j,k),grid(i+2,j,k),-1,weightBc);}
-            if(neighbor==neighborOffsets[1]){applyBC(faceNum, grid(i,j,k),grid(i-3,j,k),1,weightBc);}
-            if(neighbor==neighborOffsets[2]){applyBC(faceNum, grid(i,j,k), grid(i,j+2,k),-1,weightBc);}
-            if(neighbor==neighborOffsets[3]){ applyBC(faceNum, grid(i,j,k),grid(i,j-3,k),1,weightBc);}
-            if(neighbor==neighborOffsets[4]){applyBC(faceNum, grid(i,j,k),grid(i,j,k+2),-1,weightBc);}
-            if(neighbor==neighborOffsets[5]){applyBC(faceNum, grid(i,j,k),grid(i,j,k-3),1,weightBc);}
+            if(neighbor==neighborOffsets[0]){applyBC(faceNum, grid(i,j,k), grid(i+2,j,k), sign(norm,idx,i+2,j,k), weightBc);}
+            if(neighbor==neighborOffsets[1]){applyBC(faceNum, grid(i,j,k), grid(i-3,j,k), sign(norm,idx,i-3,j,k), weightBc);}
+            if(neighbor==neighborOffsets[2]){applyBC(faceNum, grid(i,j,k), grid(i,j+2,k), sign(norm,idx,i,j+2,k), weightBc);}
+            if(neighbor==neighborOffsets[3]){ applyBC(faceNum, grid(i,j,k), grid(i,j-3,k), sign(norm,idx,i,j-3,k), weightBc);}
+            if(neighbor==neighborOffsets[4]){applyBC(faceNum, grid(i,j,k), grid(i,j,k+2), sign(norm,idx,i,j,k+2), weightBc);}
+            if(neighbor==neighborOffsets[5]){applyBC(faceNum, grid(i,j,k), grid(i,j,k-3), sign(norm,idx,i,j,k-3), weightBc);}
         }
     }
 

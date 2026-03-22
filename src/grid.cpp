@@ -3,7 +3,7 @@
 
 Grid3D::Grid3D(size_type nx, size_type ny, size_type nz, double dx)
 :nx_(nx),ny_(ny),nz_(nz), dx_(dx), data_(nx*ny*nz), cellType_(nx*ny*nz, CellType::INTERIOR),
-faceType_(nx*ny*nz, FaceType::NONE)//boundaryNormal_(nx*ny*nz)
+faceType_(nx*ny*nz, FaceType::NONE),boundaryNormal_(nx*ny*nz)
     {
         assert(nx>0 && ny > 0 && nz >0);
     }
@@ -46,11 +46,11 @@ const std::vector<std::size_t>& Grid3D::interiorIdxs() const{
     return interiorIdxs_;
 }
 
-// Vector& Grid3D::cellFaceNormal(size_type i, size_type j,size_type k){
-//      return boundaryNormal_[index(i,j,k)];}
+Vector& Grid3D::cellFaceNormal(size_type i, size_type j,size_type k){
+     return boundaryNormal_[index(i,j,k)];}
 
-// const Vector& Grid3D::cellFaceNormal(size_type i, size_type j,size_type k) const{
-//      return boundaryNormal_[index(i,j,k)];}
+Vector Grid3D::cellFaceNormalized(size_type i, size_type j,size_type k) const{
+     return boundaryNormal_[index(i,j,k)].normalize();}
 
 FaceType& Grid3D::faceType(size_type i, size_type j,size_type k){
         return faceType_[index(i,j,k)];
@@ -92,7 +92,7 @@ void Grid3D::detectBoundaries(){
                     makeBoundary(i,j,k);
                     continue;}
                     //if cell is qulaified interior and is at the edge of grid it is boundary
-                if (i==0||j==0||k==0||i==nx_-1||j==ny_-1||k==nz_-1) makeBoundary(i,j,k);
+                
             }
         }
     }
@@ -104,12 +104,19 @@ void Grid3D::detectBoundaries(){
 
 const std::vector<std::array<std::size_t,3>>  Grid3D::findSolidNeigbour(std::size_t i, std::size_t j, std::size_t k) const{
     std::vector<std::array<std::size_t,3>> solidNeighbours;
+
     if (i > 0     && cellType(i-1,j,k) == CellType::SOLID) solidNeighbours.push_back({i-1,j,k});
-    else if (i < nx_-1 && cellType(i+1,j,k) == CellType::SOLID)  solidNeighbours.push_back({i+1,j,k});
-    else if (j > 0     && cellType(i,j-1,k) == CellType::SOLID)  solidNeighbours.push_back({i,j-1,k});
-    else if (j < ny_-1 && cellType(i,j+1,k) == CellType::SOLID)  solidNeighbours.push_back({i,j+1,k});
-    else if (k > 0     && cellType(i,j,k-1) == CellType::SOLID)  solidNeighbours.push_back({i,j,k-1});
-    else if (k < nz_-1 && cellType(i,j,k+1) == CellType::SOLID)  solidNeighbours.push_back({i,j,k+1});
+    if (i < nx_-1 && cellType(i+1,j,k) == CellType::SOLID)  solidNeighbours.push_back({i+1,j,k});
+    if (j > 0     && cellType(i,j-1,k) == CellType::SOLID)  solidNeighbours.push_back({i,j-1,k});
+    if (j < ny_-1 && cellType(i,j+1,k) == CellType::SOLID)  solidNeighbours.push_back({i,j+1,k});
+    if (k > 0     && cellType(i,j,k-1) == CellType::SOLID)  solidNeighbours.push_back({i,j,k-1});
+    if (k < nz_-1 && cellType(i,j,k+1) == CellType::SOLID)  solidNeighbours.push_back({i,j,k+1});
+    if (i==0) solidNeighbours.push_back({i-1,j,k});
+    if (j==0) solidNeighbours.push_back({i,j-1,k});
+    if (k==0) solidNeighbours.push_back({i,j,k-1});
+    if (i==nx_-1) solidNeighbours.push_back({i+1,j,k});
+    if (j==ny_-1) solidNeighbours.push_back({i,j+1,k});
+    if (k==nz_-1) solidNeighbours.push_back({i,j,k+1});
     return solidNeighbours;
 }
 
@@ -143,4 +150,16 @@ void Grid3D::diagnostics()const{
     std::cout << "Outlet Cells:     " << numOutletCells << std::endl;
     std::cout << "Wall Cells:       " << numWallCells << std::endl;
     std::cout << "Unassigned Cells: " << numNoneCells <<"\n" <<std::endl;
+}
+
+void Grid3D::assignNoneCells(){
+    for (size_type k=0; k< nz_; ++k){
+        for(size_type j=0; j<ny_; ++j){
+            for(size_type i=0; i<nx_; ++i){
+                if(cellType(i,j,k) == CellType::BOUNDARY && faceType(i,j,k) == FaceType::NONE){
+                 faceType(i,j,k)=FaceType::WALL;
+                }
+            }
+        }
+    }
 }

@@ -78,6 +78,7 @@ int main(int argc, char** argv) {
         //load stl file
     VoxelReader(globs.stlFileloc, current);
     current.diagnostics();
+    current.assignNoneCells();
     
     // auto deep copy
     Grid3D next = current;

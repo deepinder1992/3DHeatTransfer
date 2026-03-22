@@ -35,7 +35,7 @@ struct SimulationGlobals {
     static constexpr int VERB_HIGH   = 1 << 2;
 
     SolverType solver = SolverType::CPU_STENCIL; // default solver
-    std::string stlFileloc  = "../stlFiles/cylinder.stl"; //todo make it os agnostic
+    std::string stlFileloc  = "../stlFiles/cube.stl"; //todo make it os agnostic
     
     int t = 0;
     int steps = 10000;
@@ -43,7 +43,7 @@ struct SimulationGlobals {
     double globalTol = 1e-8;
     int verbosity = VERB_LOW;
 
-    double dt = 100;
+    double dt = 1000;
     //double lx = 60; //  =ly,lz
 
     std::size_t nx = 50;
@@ -65,14 +65,14 @@ struct SimulationGlobals {
     double tol = 1e-6;
 
     std::array<BCType,3> types = {
-                    BCType::Neumann, //inlet
+                    BCType::Dirichlet, //inlet
                     BCType::Dirichlet,    //outlet
                     BCType::Neumann        //wall
                 };  
 
-    std::array<double,3> values = { 50000, //inlet
+    std::array<double,3> values = { 100, //inlet
                                     100, //outlet
-                                    -50000}; //wall
+                                    100}; //wall
     // make sure blockdims are power of 2 _best practice
     std::size_t blockDimX = 8;
     std::size_t blockDimY = 8;
