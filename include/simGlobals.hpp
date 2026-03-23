@@ -11,8 +11,8 @@ enum class SolverType
 };
 
 enum class BCType{
-    Dirichlet =1,
-    Neumann = 2
+    Dirichlet =0,
+    Neumann = 1
 };
 
 enum class CellType
@@ -28,6 +28,16 @@ enum class FaceType
     OUTLET = 2,
     WALL = 3  
 };
+
+enum class NeighbourType
+{   X_PREV = 0,
+    X_NEXT = 1,
+    Y_PREV = 2,
+    Y_NEXT = 3,
+    Z_PREV = 4,
+    Z_NEXT = 5 
+};
+
 
 struct SimulationGlobals {
     static constexpr int VERB_LOW    = 1 << 0;
@@ -46,7 +56,7 @@ struct SimulationGlobals {
     double dt = 1000;
     //double lx = 60; //  =ly,lz
 
-    std::size_t nx = 50;
+    std::size_t nx = 60;
     std::size_t ny = nx;
     std::size_t nz = nx;
 
@@ -65,14 +75,14 @@ struct SimulationGlobals {
     double tol = 1e-6;
 
     std::array<BCType,3> types = {
-                    BCType::Dirichlet, //inlet
-                    BCType::Dirichlet,    //outlet
-                    BCType::Neumann        //wall
+                    BCType::Neumann, //inlet
+                    BCType::Neumann,    //outlet
+                    BCType::Dirichlet       //wall
                 };  
 
-    std::array<double,3> values = { 100, //inlet
-                                    100, //outlet
-                                    100}; //wall
+    std::array<double,3> values = { 100.0, //inlet
+                                    -100.0, //outlet
+                                    100.0}; //wall
     // make sure blockdims are power of 2 _best practice
     std::size_t blockDimX = 8;
     std::size_t blockDimY = 8;

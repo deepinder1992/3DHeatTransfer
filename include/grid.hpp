@@ -3,23 +3,6 @@
 #include<cassert>
 #include<cstddef>
 #include <cmath>
-/////////////////////
-////////////////
-//////////
-////////
-///////
-/////////
-///////
-#include <iostream>
-////////////////
-
-////////////////
-///////////
-///////////////////////
-////////////////
-//////////
-
-///////
 #include "cuda_runtime.h"
 #include "simGlobals.hpp"
 
@@ -72,7 +55,7 @@ class Grid3D{
         const std::vector<std::size_t>& interiorIdxs() const;
 
         const std::vector<std::array<std::size_t,3>>& boundaryIndices()const;
-        const  std::vector<std::array<std::size_t,3>> findSolidNeigbour(std::size_t i, std::size_t j, std::size_t k) const;
+        const std::vector<NeighbourType> findSolidNeigbour(std::size_t i, std::size_t j, std::size_t k) const;
 
         size_type nx() const noexcept {return nx_;}
         size_type ny() const noexcept {return ny_;}

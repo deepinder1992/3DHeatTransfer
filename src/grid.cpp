@@ -1,5 +1,5 @@
 #include "grid.hpp"
-
+#include <iostream>
 
 Grid3D::Grid3D(size_type nx, size_type ny, size_type nz, double dx)
 :nx_(nx),ny_(ny),nz_(nz), dx_(dx), data_(nx*ny*nz), cellType_(nx*ny*nz, CellType::INTERIOR),
@@ -89,10 +89,7 @@ void Grid3D::detectBoundaries(){
                 makeInterior(i,j,k);
                 
                 if (findSolidNeigbour(i,j,k).size() !=0){
-                    makeBoundary(i,j,k);
-                    continue;}
-                    //if cell is qulaified interior and is at the edge of grid it is boundary
-                
+                    makeBoundary(i,j,k);}                
             }
         }
     }
@@ -102,21 +99,21 @@ void Grid3D::detectBoundaries(){
     std::cout <<"SNNNNN" <<numBoundaryCells_<< std::endl;
 }
 
-const std::vector<std::array<std::size_t,3>>  Grid3D::findSolidNeigbour(std::size_t i, std::size_t j, std::size_t k) const{
-    std::vector<std::array<std::size_t,3>> solidNeighbours;
+const std::vector<NeighbourType>  Grid3D::findSolidNeigbour(std::size_t i, std::size_t j, std::size_t k) const{
+    std::vector<NeighbourType> solidNeighbours;
 
-    if (i > 0     && cellType(i-1,j,k) == CellType::SOLID) solidNeighbours.push_back({i-1,j,k});
-    if (i < nx_-1 && cellType(i+1,j,k) == CellType::SOLID)  solidNeighbours.push_back({i+1,j,k});
-    if (j > 0     && cellType(i,j-1,k) == CellType::SOLID)  solidNeighbours.push_back({i,j-1,k});
-    if (j < ny_-1 && cellType(i,j+1,k) == CellType::SOLID)  solidNeighbours.push_back({i,j+1,k});
-    if (k > 0     && cellType(i,j,k-1) == CellType::SOLID)  solidNeighbours.push_back({i,j,k-1});
-    if (k < nz_-1 && cellType(i,j,k+1) == CellType::SOLID)  solidNeighbours.push_back({i,j,k+1});
-    if (i==0) solidNeighbours.push_back({i-1,j,k});
-    if (j==0) solidNeighbours.push_back({i,j-1,k});
-    if (k==0) solidNeighbours.push_back({i,j,k-1});
-    if (i==nx_-1) solidNeighbours.push_back({i+1,j,k});
-    if (j==ny_-1) solidNeighbours.push_back({i,j+1,k});
-    if (k==nz_-1) solidNeighbours.push_back({i,j,k+1});
+    if (i > 0     && cellType(i-1,j,k) == CellType::SOLID) solidNeighbours.push_back(NeighbourType::X_PREV);
+    else if (i < nx_-1 && cellType(i+1,j,k) == CellType::SOLID)  solidNeighbours.push_back(NeighbourType::X_NEXT);
+    else if (j > 0     && cellType(i,j-1,k) == CellType::SOLID)  solidNeighbours.push_back(NeighbourType::Y_PREV);
+    else if (j < ny_-1 && cellType(i,j+1,k) == CellType::SOLID)  solidNeighbours.push_back(NeighbourType::Y_NEXT);
+    else if (k > 0     && cellType(i,j,k-1) == CellType::SOLID)  solidNeighbours.push_back(NeighbourType::Z_PREV);
+    else if (k < nz_-1 && cellType(i,j,k+1) == CellType::SOLID)  solidNeighbours.push_back(NeighbourType::Z_NEXT);
+    else if (i==0)     solidNeighbours.push_back(NeighbourType::X_PREV); 
+    else if (i==nx_-1) solidNeighbours.push_back(NeighbourType::X_NEXT);
+    else if (j==0)     solidNeighbours.push_back(NeighbourType::Y_PREV);
+    else if (j==ny_-1) solidNeighbours.push_back(NeighbourType::Y_NEXT);
+    else if (k==0)     solidNeighbours.push_back(NeighbourType::Z_PREV);
+    else if (k==nz_-1) solidNeighbours.push_back(NeighbourType::Z_NEXT);
     return solidNeighbours;
 }
 
@@ -127,7 +124,7 @@ void Grid3D::diagnostics()const{
     for (size_type k=0; k< nz_; ++k){
         for(size_type j=0; j<ny_; ++j){
             for(size_type i=0; i<nx_; ++i){
-                // all ifs delibrately
+
                 if(cellType(i,j,k) == CellType::BOUNDARY) ++numBoundaryCells;
                 if(cellType(i,j,k) == CellType::SOLID) ++numSolidCells;
                 if(cellType(i,j,k) == CellType::INTERIOR) ++numInteriorCells;
@@ -135,9 +132,9 @@ void Grid3D::diagnostics()const{
                 if(faceType(i,j,k) == FaceType::OUTLET) ++numOutletCells;
                 if(faceType(i,j,k) == FaceType::WALL) ++numWallCells;
                 if(cellType(i,j,k) == CellType::BOUNDARY && faceType(i,j,k) == FaceType::NONE) ++numNoneCells;
-                // if(cellType(i,j,k) == CellType::BOUNDARY && faceType(i,j,k) == FaceType::NONE){
-                //     std::cout <<i<<" "<<j<<" "<<k<<std::endl;
-                // }
+                if(cellType(i,j,k) == CellType::SOLID){//&&(i==0||j==0||k==0||i==nx_-1||j==ny_-1||k==nz_-1)){
+                    std::cout <<i<<" "<<j<<" "<<k<<std::endl;
+                }
             }
         }
     }

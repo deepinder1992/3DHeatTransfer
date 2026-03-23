@@ -5,8 +5,8 @@
 #include "voxelReader.hpp"
 
 bool rayIntersectsTriangle(const Vector& origin, const Vector& direction, const Triangle& tri) {
-    constexpr double epsilon = 1e-8;
-    constexpr double epsilon2 = 1e-7;
+    constexpr double epsilon = 0.0;
+    constexpr double epsilon2 = 0.0;
     Vector normal = tri.normal;
     double nDenom = normal.dot(direction);
     if(std::abs(nDenom) < epsilon){return false;}// with in parallel threshold
@@ -32,7 +32,7 @@ bool rayIntersectsTriangle(const Vector& origin, const Vector& direction, const 
     double v = (dot00 * dot12 - dot01 * dot02) / bCentDenom;
 
     // inside triangle test
-    if (u >= -epsilon && v >= -epsilon && (u + v) <= 1.0+epsilon)
+    if (u >= -epsilon && v > -epsilon && (u + v) <= 1.0+epsilon)
         return true;
 
     return false;
@@ -77,7 +77,7 @@ VoxelReader::VoxelReader(const std::string& fileName, Grid3D& grid){
 
         std::cout << "Ray tracing..\n";
         voxelizeGrid(grid, triangles);        
-        
+
         std::cout << "Detecting boundaries..\n";
         grid.detectBoundaries();
 
@@ -197,7 +197,7 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
                     float x = (i+0.5)*dx;
                     float y = (j+0.5)*dy;
                     float z = (k+0.5)*dz;
-                    if (grid.cellType(i,j,k) == CellType::BOUNDARY && grid.faceType(i,j,k) == FaceType::NONE
+                     if (grid.cellType(i,j,k) == CellType::BOUNDARY && grid.faceType(i,j,k) == FaceType::NONE
                          && isInterSecting(x, y, z, dx/2.0,tri )){
                         // && distanceFromCentroid(x, y, z, tri)<=(dx+1e-3f)){
                             grid.faceType(i,j,k) = faceType;
@@ -248,16 +248,16 @@ void VoxelReader::shiftTriangles(std::vector<Triangle>& triangles, Vector gridCe
 }
 
 double VoxelReader::maxLen() {
-    double lenx = fabs(bBoxMinX-bBoxMaxX);
-    double leny = fabs(bBoxMinY-bBoxMaxY);
-    double lenz = fabs(bBoxMinZ-bBoxMaxZ);
+    double lenx = std::abs(bBoxMinX-bBoxMaxX);
+    double leny = std::abs(bBoxMinY-bBoxMaxY);
+    double lenz = std::abs(bBoxMinZ-bBoxMaxZ);
     
     return std::max(lenx,std::max(leny,lenz));
 }
 
 bool VoxelReader::isInterSecting(float boxCentX, float boxCentY, float boxCentZ, float halfSize, const Triangle& tri ){
     //Separating Axis Theorem
-    const float eps = 1.0e-3f * halfSize; 
+    const float eps = 1.0e-2f * halfSize; 
     Vector boxCent = {boxCentX, boxCentY, boxCentZ};
 
     Vector v0 = tri.v0-boxCent;
@@ -276,11 +276,11 @@ bool VoxelReader::isInterSecting(float boxCentX, float boxCentY, float boxCentZ,
     if(minSpan(v0.z, v1.z, v2.z)>halfSize+eps) {return false;}
     if(maxSpan(v0.z, v1.z, v2.z)<-halfSize-eps) {return false;}
 
-    Vector e0 = v0-v1;
-    Vector e1 = v1-v2;
-    Vector e2 = v2-v0;
+    Vector e0 = (v0-v1).normalize();
+    Vector e1 = (v1-v2).normalize();
+    Vector e2 = (v2-v0).normalize();
     //plane vs triangle
-    Vector triNorm = e0^e1;
+    Vector triNorm = (e0^e1).normalize();
     float planeConst = -triNorm.dot(v0);
     Vector vmin,vmax;
     for(int i =0; i<3; ++i){
@@ -310,9 +310,9 @@ bool VoxelReader::isInterSecting(float boxCentX, float boxCentY, float boxCentZ,
             float triProjMin = std::min({v0.dot(axis), v1.dot(axis), v2.dot(axis)});
             float triProjMax = std::max({v0.dot(axis), v1.dot(axis), v2.dot(axis)});
    
-            float r = halfSize * (std::fabs(axis.x) + std::fabs(axis.y) + std::fabs(axis.z));
+            float r = halfSize * (std::abs(axis.x) + std::abs(axis.y) + std::abs(axis.z));
     
-            if (triProjMin > r || triProjMax < -r) return false;
+            if (triProjMin > r+eps || triProjMax < -r-eps) return false;
         }
     }
     return true;
