@@ -5,13 +5,13 @@
 #include "voxelReader.hpp"
 
 bool rayIntersectsTriangle(const Vector& origin, const Vector& direction, const Triangle& tri) {
-    constexpr double epsilon = 0.0;
-    constexpr double epsilon2 = 0.0;
+    constexpr float epsilon = 1e-5;
+    constexpr float epsilon2 = 1e-4;
     Vector normal = tri.normal;
     double nDenom = normal.dot(direction);
-    if(std::abs(nDenom) < epsilon){return false;}// with in parallel threshold
-    double t = normal.dot(tri.v0-origin)/(normal.dot(direction));
-    if(t <= epsilon2){return false;}// with
+    if(std::abs(nDenom) <= epsilon)return false;// with in parallel threshold
+    float t = normal.dot(tri.v0-origin)/(normal.dot(direction));
+    if(t <= epsilon2)return false;
 
     Vector p = origin + direction*t;
 
@@ -19,24 +19,29 @@ bool rayIntersectsTriangle(const Vector& origin, const Vector& direction, const 
     Vector e2 = tri.v2 - tri.v0;
     Vector vp = p - tri.v0;
 
-    double dot00 = e2.dot(e2);
-    double dot01 = e2.dot(e1);
-    double dot02 = e2.dot(vp);
-    double dot11 = e1.dot(e1);
-    double dot12 = e1.dot(vp);
+    float dot00 = e2.dot(e2);
+    float dot01 = e2.dot(e1);
+    float dot02 = e2.dot(vp);
+    float dot11 = e1.dot(e1);
+    float dot12 = e1.dot(vp);
 
-    double bCentDenom = (dot00 * dot11 - dot01 * dot01);
-    if (std::abs(bCentDenom) <= epsilon){return false;} //degenrate triangle
+    float bCentDenom = (dot00 * dot11 - dot01 * dot01);
+    if (std::abs(bCentDenom) <= epsilon)return false; //degenrate triangle
 
-    double u = (dot11 * dot02 - dot01 * dot12) / bCentDenom;
-    double v = (dot00 * dot12 - dot01 * dot02) / bCentDenom;
+    float u = (dot11 * dot02 - dot01 * dot12) / bCentDenom;
+    float v = (dot00 * dot12 - dot01 * dot02) / bCentDenom;
 
     // inside triangle test
-    if (u >= -epsilon && v > -epsilon && (u + v) <= 1.0+epsilon)
-        return true;
-
+    if (u >= 0.0 && v > 0.0 && (u + v) <= 1.0+epsilon){
+        // if (fabs(u) <=epsilon || fabs(v)<=epsilon || fabs(u + v-1.0)<=epsilon){
+        //     Triangle tria = tri; 
+        //     edgeVertexHitTriangles.push_back(tria)
+        // }  
+     return true;}
+    
     return false;
 }
+
 
 float VoxelReader::bBoxMinX = 0.0;
 float VoxelReader::bBoxMaxX = 0.0;
@@ -161,9 +166,9 @@ void VoxelReader::voxelizeGrid(Grid3D& grid, const std::vector<Triangle>& triang
     for (std::size_t k = 0; k<nz; ++k){
         for (std::size_t j=0; j<ny; ++j){    
             for (std::size_t i=0; i<nx; ++i){
-                float x = (i+0.5)*dx;
-                float y = (j+0.5)*dy;
-                float z = (k+0.5)*dz;
+                float x = (i+0.53)*dx;
+                float y = (j+0.53)*dy;
+                float z = (k+0.53)*dz;
                 Vector origin = {x,y,z};
                 grid.cellType(i,j,k) = (isInside(origin, triangles))?CellType::INTERIOR:CellType::SOLID;                    
             }
