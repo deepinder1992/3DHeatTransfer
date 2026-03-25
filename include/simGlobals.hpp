@@ -45,7 +45,10 @@ struct SimulationGlobals {
     static constexpr int VERB_HIGH   = 1 << 2;
 
     SolverType solver = SolverType::CPU_STENCIL; // default solver
-    std::string stlFileloc  = "../stlFiles/cube.stl"; //todo make it os agnostic
+    std::string stlFileloc  = "../stlFiles/sphere/sphere.stl"; //todo make it os agnostic
+                             // "../stlFiles/cube/cube.stl"
+                             //"../stlFiles/cylinder/cylinder.stl"
+                             //   "../stlFiles/sphere/sphere.stl"
     
     int t = 0;
     int steps = 10000;
@@ -56,7 +59,7 @@ struct SimulationGlobals {
     double dt = 1000;
     //double lx = 60; //  =ly,lz
 
-    std::size_t nx = 60;
+    std::size_t nx = 50;
     std::size_t ny = nx;
     std::size_t nz = nx;
 
@@ -80,8 +83,8 @@ struct SimulationGlobals {
                     BCType::Dirichlet       //wall
                 };  
 
-    std::array<double,3> values = { 100.0, //inlet
-                                    -100.0, //outlet
+    std::array<double,3> values = { 500.0, //inlet
+                                    -500.0, //outlet
                                     100.0}; //wall
     // make sure blockdims are power of 2 _best practice
     std::size_t blockDimX = 8;

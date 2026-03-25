@@ -32,12 +32,7 @@ bool rayIntersectsTriangle(const Vector& origin, const Vector& direction, const 
     float v = (dot00 * dot12 - dot01 * dot02) / bCentDenom;
 
     // inside triangle test
-    if (u >= 0.0 && v > 0.0 && (u + v) <= 1.0+epsilon){
-        // if (fabs(u) <=epsilon || fabs(v)<=epsilon || fabs(u + v-1.0)<=epsilon){
-        //     Triangle tria = tri; 
-        //     edgeVertexHitTriangles.push_back(tria)
-        // }  
-     return true;}
+    if (u >= 0.0 && v > 0.0 && (u + v) <= 1.0+epsilon)return true;
     
     return false;
 }
@@ -190,11 +185,11 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
     for(const Triangle& tri:triangles){
         float xmin = 0.0f, xmax = 0.0f, ymin = 0.0f, ymax = 0.0f, zmin = 0.0f, zmax = 0.0f;
         boundingBox(tri, xmin, xmax, ymin, ymax, zmin, zmax); 
-        std::size_t minI = std::max(static_cast<std::size_t>(floor(xmin / dx)), size_t(0));
+        std::size_t minI = static_cast<std::size_t>(std::max(floor(xmin / dx), 0.0));
         std::size_t maxI = std::min(static_cast<std::size_t>(ceil(xmax / dx)), nx - 1);
-        std::size_t minJ = std::max(static_cast<std::size_t>(floor(ymin / dy)), size_t(0));
+        std::size_t minJ = static_cast<std::size_t>(std::max(floor(ymin / dy), 0.0));
         std::size_t maxJ = std::min(static_cast<std::size_t>(ceil(ymax / dy)), ny - 1);
-        std::size_t minK = std::max(static_cast<std::size_t>(floor(zmin / dz)), size_t(0));
+        std::size_t minK = static_cast<std::size_t>(std::max(floor(zmin / dz), 0.0));
         std::size_t maxK = std::min(static_cast<std::size_t>(ceil(zmax / dz)), nz - 1);
         for (std::size_t k = minK; k<=maxK; ++k){
             for (std::size_t j=minJ; j<=maxJ; ++j){    
