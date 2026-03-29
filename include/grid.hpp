@@ -52,7 +52,7 @@ class Grid3D{
         //const Vector& cellFaceNormal(size_type i, size_type j,size_type k) const;
         Vector cellFaceNormalized(size_type i, size_type j,size_type k) const;
 
-        const std::vector<std::size_t>& interiorIdxs() const;
+        const std::vector<std::array<std::size_t,3>>& activeIndices() const;
 
         const std::vector<std::array<std::size_t,3>>& boundaryIndices()const;
         const std::vector<NeighbourType> findSolidNeigbour(std::size_t i, std::size_t j, std::size_t k) const;
@@ -72,6 +72,11 @@ class Grid3D{
         size_type numInteriorCells() const {return numInteriorCells_;}
 
         size_type numBoundaryCells() const { return numBoundaryCells_; }
+
+        const size_type& totalCellsInGeometry() const;
+
+        void compactLookup();
+        const std::vector<std::size_t>& compactLookup() const;
         
         void fill (double value);
         
@@ -88,14 +93,14 @@ class Grid3D{
         std::vector<double> data_;
 
         std::vector<CellType> cellType_;
-
         std::vector<FaceType> faceType_;
-        
+
         std::vector<std::array<std::size_t,3>> boundaryIndices_;
-
         std::vector<Vector> boundaryNormal_;
-        std::vector<std::size_t> interiorIdxs_;
+        std::vector<std::array<std::size_t,3>>  activeIndices_;
 
+        std::vector<std::size_t> compactLookup_;
+        
         size_type numInteriorCells_=0, numBoundaryCells_=0, numSolidCells_=0;
 
 };

@@ -1,88 +1,95 @@
 #include "boundaryConditions.hpp"
 
+static const std::array<int,3> interiorOffsets[6] = {{+2,0,0}, {-3,0,0}, {0,+2,0},
+                                                        {0,-3,0}, {0,0,+2}, {0,0,-3}};
+        
+
 BoundaryConditions::BoundaryConditions(std::array<BCType,3>types,std::array<double,3>values)
            :types_(types),values_(values){};
 
+int BoundaryConditions::sign(Vector cellNormal, const std::array<size_type,3>&  cellIdxs,
+                                 std::size_t i, std::size_t j, std::size_t k) const {
+    Vector radial {static_cast<float>(cellIdxs[0]) - static_cast<float>(i),
+                    static_cast<float>(cellIdxs[1]) - static_cast<float>(j),
+                    static_cast<float>(cellIdxs[2]) - static_cast<float>(k)};
+    
+    if (radial.dot(cellNormal)>0) return 1;
+    return -1; 
+};
 
 void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) const{
     const size_type nx = grid.nx();
     const size_type ny = grid.ny();
     const size_type nz = grid.nz();
     const std::vector<std::array<size_type,3>>& boundaryIdxs = grid.boundaryIndices();
-    
 
-    // auto applyBC = [&](int face, double& cell, double interior, int sign, float weightBc ){
-    //         if (types_[face]==BCType::Dirichlet){
-    //             cell+=weightBc*values_[face];}
-    //         else if (types_[face]==BCType::Neumann){
-    //              cell+= (weightBc*sign*2*dx*values_[face]/cond)+interior;}};
-
-    auto sign =[&](Vector cellNormal, std::array<size_type,3>  cellIdxs, std::size_t i, std::size_t j, std::size_t k){
-        Vector radial {static_cast<float>(cellIdxs[0]) - static_cast<float>(i),
-                       static_cast<float>(cellIdxs[1]) - static_cast<float>(j),
-                       static_cast<float>(cellIdxs[2]) - static_cast<float>(k)};
-        
-        if (radial.dot(cellNormal)>0) return 1;
-        return -1; 
-    };
-
-    for (std::array<size_type,3> idx:boundaryIdxs){
+    for (const std::array<size_type,3>& idx:boundaryIdxs){
         auto [i,j,k] = idx;
         int faceNum = static_cast<int>(grid.faceType(i,j,k))-1;
         const std::vector<NeighbourType> solidNeighbors = grid.findSolidNeigbour(i, j, k);
         int numSolidNeigbours = solidNeighbors.size();
 
         if(numSolidNeigbours==0){
-            std::cout<<"Cell centered at "<<i<<", "<<j<<", "<<k<<" is boundary but no solid neigbours found!"<<std::endl;
+            std::cout<<"Cell centered at "<<i<<", "<<j<<", "<<k
+            <<" is boundary but no solid neigbours found!"<<std::endl;
             continue;}
 
         float weightBc = 1.0/numSolidNeigbours;
 
-        std::array<size_t,3> interiorOffsets[6] = {{i+2,j,k}, {i-3,j,k}, {i,j+2,k},
-                                            {i,j-3,k}, {i,j,k+2}, {i,j,k-3}};
+        // std::array<size_t,3> interiorOffsets[6] = {{i+2,j,k}, {i-3,j,k}, {i,j+2,k},
+        //                                     {i,j-3,k}, {i,j,k+2}, {i,j,k-3}};
         
         Vector norm = grid.cellFaceNormalized(i,j,k);
         grid(i,j,k) = 0.0; //reset so we dont accumulate previous values
-        for (NeighbourType neighbour :solidNeighbors){
-            if (types_[faceNum]==BCType::Dirichlet){
-                grid(i,j,k)+=weightBc*values_[faceNum];}
-            else if (types_[faceNum]==BCType::Neumann){
-                int  s  = static_cast<int>(neighbour);
-                auto ic = interiorOffsets[s][0];
-                auto jc = interiorOffsets[s][1];
-                auto kc = interiorOffsets[s][2];
-                int sign_ = sign(norm,idx,ic,jc,kc);
-                grid(i,j,k)+= (weightBc*sign_*2*dx*values_[faceNum]/cond)+grid(ic,jc,kc);}
+        
+        for (NeighbourType neighbour :solidNeighbors)
+        {
+            if (types_[faceNum]==BCType::Dirichlet)
+            {
+                grid(i,j,k)+=weightBc*values_[faceNum];
             }
+                
+            else if (types_[faceNum]==BCType::Neumann)
+            {
+                int  s  = static_cast<int>(neighbour);
+                auto ic = i + interiorOffsets[s][0];
+                auto jc = j + interiorOffsets[s][1];
+                auto kc = k + interiorOffsets[s][2];
+                int sign_ = sign(norm,idx,ic,jc,kc);
+                grid(i,j,k)+= (weightBc*sign_*2*dx*values_[faceNum]/cond)+grid(ic,jc,kc);
+            }
+        }
     }
  }
 
-void BoundaryConditions::applyBCsToRhsMatrix(size_type nx,
-                                              size_type ny,
-                                               size_type nz, 
-                                                double dx,
-                                                 double coeff,
-                                                  double cond,
-                                                   std::vector<double>& b) const
-{   
- 
-    auto applyBC = [&](size_type faceInx, size_type row, int factor){
+void BoundaryConditions::applyBCsToRhsMatrix(const Grid3D& grid, size_type nx, size_type ny, size_type nz, double dx,
+                                                 double coeff, double cond, std::vector<double>& b) const{
+
+    auto applyBC = [&](size_type faceInx, size_type row, int sign){
                     if(types_[faceInx]==BCType::Dirichlet)b[row] += 2.0*coeff*values_[faceInx];
-                    else if(types_[faceInx]==BCType::Neumann)b[row] += (factor*2.0*coeff*dx/cond)*values_[faceInx]; };
-                    
-    for (size_type k =0 ; k< nz; ++k)
-    for (size_type j =0 ; j< ny; ++j)
-    for (size_type i =0 ; i< nx; ++i)
-    {
-        size_type row = i + nx*(j+ny*k);
+                    else if(types_[faceInx]==BCType::Neumann)b[row] += (sign*2.0*coeff*dx/cond)*values_[faceInx]; };  
+    
+    const std::vector<std::array<size_type,3>>& boundaryIdxs = grid.boundaryIndices();
+    const std::vector<std::size_t>& compactLookup = grid.compactLookup();
 
-        if(i==0) applyBC(0, row, -1);// ----- X- -----
-        if(i==nx-1) applyBC(1,row,1); // ----- X+ -----
-        if(j==0) applyBC(2,row,-1); // ----- X- -----       
-        if(j==ny-1) applyBC(3,row,1);// ----- Y+ -----        
-        if(k==0)applyBC(4,row,-1);// ----- Z- -----       
-        if(k==nz-1)applyBC(5,row,1);// ----- Z+ -----
+    for (const std::array<size_type,3>& cell:boundaryIdxs){
+        auto [i,j,k] = cell;
+        size_type idx = i + nx*(j+ny*k);
+        size_type row =  compactLookup[idx];
 
+        const std::vector<NeighbourType> solidNeighbors = grid.findSolidNeigbour(i, j, k);
+        int faceNum = static_cast<int>(grid.faceType(i,j,k))-1;
+        Vector norm = grid.cellFaceNormalized(i,j,k);
+
+        for (NeighbourType neighbour :solidNeighbors)
+        {
+            int  s  = static_cast<int>(neighbour);
+            auto ic = i + interiorOffsets[s][0];
+            auto jc = j + interiorOffsets[s][1];
+            auto kc = k + interiorOffsets[s][2];
+            int sign_ = sign(norm,cell,ic,jc,kc);
+            applyBC(faceNum, row, sign_);
+        }
     }
 }
 

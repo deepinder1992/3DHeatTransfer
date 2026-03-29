@@ -5,15 +5,15 @@
 #include "voxelReader.hpp"
 
 bool rayIntersectsTriangle(const Vector& origin, const Vector& direction, const Triangle& tri) {
-    constexpr float epsilon = 1e-5;
-    constexpr float epsilon2 = 1e-4;
+    constexpr float epsilon = 1e-6;
+    constexpr float epsilon2 = 1e-5;
     Vector normal = tri.normal;
     double nDenom = normal.dot(direction);
     if(std::abs(nDenom) <= epsilon)return false;// with in parallel threshold
-    float t = normal.dot(tri.v0-origin)/(normal.dot(direction));
-    if(t <= epsilon2)return false;
+    float hitDist = normal.dot(tri.v0-origin)/(normal.dot(direction));
+    if(hitDist <= epsilon2)return false;
 
-    Vector p = origin + direction*t;
+    Vector p = origin + direction*hitDist;
 
     Vector e1 = tri.v1 - tri.v0;
     Vector e2 = tri.v2 - tri.v0;
@@ -32,7 +32,8 @@ bool rayIntersectsTriangle(const Vector& origin, const Vector& direction, const 
     float v = (dot00 * dot12 - dot01 * dot02) / bCentDenom;
 
     // inside triangle test
-    if (u >= 0.0 && v > 0.0 && (u + v) <= 1.0+epsilon)return true;
+    if (u >= 0.0 && v > 0.0 && (u + v) <= 1.0+epsilon){
+        return true;}
     
     return false;
 }
@@ -151,9 +152,9 @@ void VoxelReader::voxelizeGrid(Grid3D& grid, const std::vector<Triangle>& triang
         Vector rayDir = {1.0,0,0};
         int crossCount = 0;
         for (const Triangle& tri:triangles){
-            if(rayIntersectsTriangle(voxelCenter,rayDir, tri)){
-                crossCount++;}
-         } 
+            if(rayIntersectsTriangle(voxelCenter,rayDir, tri)){               
+                      crossCount++;}
+        }
         if((crossCount%2)==1)kkkk+=1;
         return (crossCount%2)==1; 
     };

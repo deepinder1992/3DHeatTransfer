@@ -40,8 +40,9 @@ void runSimulation(
         std::swap(current, next);
 
         maxDiff = 0.0;
-        for (size_type idx:current.interiorIdxs()) {
-            double diff = std::abs(current.data()[idx] - next.data()[idx]);
+        for (auto& cell:current.activeIndices()) {
+            auto [i,j,k] = cell;
+            double diff = std::abs(current(i,j,k) - next(i,j,k));
             if (diff > maxDiff)
                 maxDiff = diff;
         }
@@ -98,7 +99,7 @@ int main(int argc, char** argv) {
             break;
         }
         case SolverType::CPU_MATRIX: {
-            HeatSolverCPUMatrix solver(nx, ny, nz, globs.alpha, current.dx(), globs.dt, globs.k, bc, linAlgebra);
+            HeatSolverCPUMatrix solver(current, nx, ny, nz, globs.alpha, current.dx(), globs.dt, globs.k, bc, linAlgebra);
             runSimulation(solver, current, next, globs, bc);
             break;
         }
@@ -107,11 +108,11 @@ int main(int argc, char** argv) {
             runSimulation(solver, current, next, globs, bc);
             break;
         }
-        case SolverType::CUDA_MATRIX: {
-            HeatSolverCUDAMatrix solver(nx, ny, nz, globs.alpha, current.dx(), globs.dt, globs.k, bc, linAlgebra);
-            runSimulation(solver, current, next, globs, bc);
-            break;
-        }
+        // case SolverType::CUDA_MATRIX: {
+        //     HeatSolverCUDAMatrix solver(nx, ny, nz, globs.alpha, current.dx(), globs.dt, globs.k, bc, linAlgebra);
+        //     runSimulation(solver, current, next, globs, bc);
+        //     break;
+        // }
         default:
             std::cerr << "Unknown solver selected!" << std::endl;
             return 1;

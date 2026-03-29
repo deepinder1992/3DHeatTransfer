@@ -3,7 +3,7 @@
 
 Grid3D::Grid3D(size_type nx, size_type ny, size_type nz, double dx)
 :nx_(nx),ny_(ny),nz_(nz), dx_(dx), data_(nx*ny*nz), cellType_(nx*ny*nz, CellType::INTERIOR),
-faceType_(nx*ny*nz, FaceType::NONE),boundaryNormal_(nx*ny*nz)
+faceType_(nx*ny*nz, FaceType::NONE),boundaryNormal_(nx*ny*nz), compactLookup_(nx*ny*nz, INVALID)
     {
         assert(nx>0 && ny > 0 && nz >0);
     }
@@ -40,17 +40,19 @@ CellType& Grid3D::cellType(size_type i, size_type j,size_type k){
 
 const std::vector<std::array<std::size_t,3>>& Grid3D::boundaryIndices() const{
     return boundaryIndices_;
-}
+    }
 
-const std::vector<std::size_t>& Grid3D::interiorIdxs() const{ 
-    return interiorIdxs_;
-}
+const std::vector<std::array<std::size_t,3>>& Grid3D::activeIndices() const{ 
+    return activeIndices_;
+    }
 
 Vector& Grid3D::cellFaceNormal(size_type i, size_type j,size_type k){
-     return boundaryNormal_[index(i,j,k)];}
+     return boundaryNormal_[index(i,j,k)];
+    }
 
 Vector Grid3D::cellFaceNormalized(size_type i, size_type j,size_type k) const{
-     return boundaryNormal_[index(i,j,k)].normalize();}
+     return boundaryNormal_[index(i,j,k)].normalize();
+    }
 
 FaceType& Grid3D::faceType(size_type i, size_type j,size_type k){
         return faceType_[index(i,j,k)];
@@ -58,6 +60,9 @@ FaceType& Grid3D::faceType(size_type i, size_type j,size_type k){
 
 const FaceType& Grid3D::faceType(size_type i, size_type j,size_type k) const{
         return faceType_[index(i,j,k)];
+    }
+const size_type& Grid3D::totalCellsInGeometry() const{
+        return numInteriorCells_;
     }
 
 void Grid3D::adjustGrid(const double maxStlEdge) {
@@ -71,14 +76,27 @@ Vector Grid3D::gridCent(){
     return {cent, cent, cent};
  }
 
+void Grid3D::compactLookup() {
+     std::size_t counter = 0;
+     for (auto& cell:activeIndices_){
+        auto[i,j,k] = cell;
+        compactLookup_[index(i,j,k)] = counter;
+        ++counter;
+     }
+ }
+
+const std::vector<std::size_t>& Grid3D::compactLookup() const {
+        return compactLookup_;
+ }
+
 void Grid3D::detectBoundaries(){
     auto makeBoundary = [&](std::size_t i, std::size_t j, std::size_t k) {
         cellType(i,j,k) = CellType::BOUNDARY;
         boundaryIndices_.push_back({i,j,k});
         ++numBoundaryCells_;  };
 
-    auto makeInterior = [&](std::size_t i, std::size_t j, std::size_t k) {
-        interiorIdxs_.push_back(index(i,j,k));
+    auto makeActive = [&](std::size_t i, std::size_t j, std::size_t k) {
+        activeIndices_.push_back({i,j,k});
         ++numInteriorCells_;  };
 
     for (size_type k=0; k< nz_; ++k){
@@ -86,14 +104,15 @@ void Grid3D::detectBoundaries(){
             for(size_type i=0; i<nx_; ++i){
                 if (cellType(i,j,k)==CellType::SOLID) continue;
                     
-                makeInterior(i,j,k);
+                makeActive(i,j,k);
                 
                 if (findSolidNeigbour(i,j,k).size() !=0){
                     makeBoundary(i,j,k);}                
             }
         }
     }
-
+    //make look up internal cells 
+    compactLookup();
     std::cout <<"INNNNN" <<numInteriorCells_<< std::endl;
     std::cout <<"BNNNNN" <<numBoundaryCells_<< std::endl;
     std::cout <<"SNNNNN" <<numBoundaryCells_<< std::endl;
@@ -155,8 +174,11 @@ void Grid3D::assignNoneCells(){
             for(size_type i=0; i<nx_; ++i){
                 if(cellType(i,j,k) == CellType::BOUNDARY && faceType(i,j,k) == FaceType::NONE){
                  faceType(i,j,k)=FaceType::WALL;
+                 ++numBoundaryCells_; 
                 }
             }
         }
     }
 }
+
+

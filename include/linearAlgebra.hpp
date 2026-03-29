@@ -50,30 +50,17 @@ class LinearAlgebra{
                         
 
 
-    private:
-        double* devSparseMatValues = nullptr;
-        std::size_t* devSparseMatRowPtr = nullptr;
-        std::size_t* devSparseMatCols   = nullptr;
-        double* devBVector = nullptr;
-        double* devXVector = nullptr;
-        double* devApVector = nullptr;
-        double* devRVector = nullptr;
-        double* devPVector = nullptr;
-        double* devSum = nullptr;
-        double* devSum2 = nullptr;
-        double* devBlockSums = nullptr;
+private:
+    double *devSparseMatValues = nullptr, *devBVector = nullptr, *devXVector = nullptr,
+           *devApVector = nullptr, *devRVector = nullptr, *devPVector = nullptr,
+           *devSum = nullptr, *devSum2 = nullptr, *devBlockSums = nullptr;
 
-        size_type devMemSpMatVals = 0;
-        size_type devMemSpMatRowPtr = 0;
-        size_type devMemSpMatCols = 0;
-        size_type devMemBVector = 0;
-        size_type devMemXVector = 0;
-        size_type devMemApVector = 0;
-        size_type devMemRVector = 0;
-        size_type devMemBlockSums = 0;
-        size_type devMemSum = 0;
-        size_type devMemSum2 = 0;
-        size_type devMemPVector = 0;
+    std::size_t *devSparseMatRowPtr = nullptr, *devSparseMatCols = nullptr;
 
-        int _maxIters = 0;
+    size_type devMemSpMatVals = 0, devMemSpMatRowPtr = 0, devMemSpMatCols = 0,
+              devMemBVector = 0, devMemXVector = 0, devMemApVector = 0,
+              devMemRVector = 0, devMemBlockSums = 0, devMemSum = 0,
+              devMemSum2 = 0, devMemPVector = 0;
+
+    int _maxIters = 0;
 };

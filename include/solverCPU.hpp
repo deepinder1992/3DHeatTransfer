@@ -22,7 +22,7 @@ class HeatSolverCPUStencil final : public HeatSolver {
 class HeatSolverCPUMatrix final : public HeatSolver{
 
     public:
-        HeatSolverCPUMatrix(size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k, const BoundaryConditions& bc, const LinearAlgebra& linAlgebra);
+        HeatSolverCPUMatrix(const Grid3D& grid, size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k, const BoundaryConditions& bc, const LinearAlgebra& linAlgebra);
         
         void step(const Grid3D& current, Grid3D & next,const SimulationGlobals& globs, const BoundaryConditions& bc) override;
         const char* name() const override {return "CPU Impict Matrix";}
