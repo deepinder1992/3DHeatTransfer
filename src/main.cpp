@@ -22,6 +22,8 @@ void runSimulation(
     SimulationGlobals& globs,
     BoundaryConditions& bc)
 {
+    std::cout << "Running: "  << solver.name() << " Solver!"<< std::endl;
+    
     BinaryWriter binWriter("../BinaryOutput", "temperature");
     VTKWriter vtkWriter("../VTKOutput", "temperature");
 
@@ -87,7 +89,7 @@ int main(int argc, char** argv) {
     current.fill(75.0);
 
     BoundaryConditions bc(globs.types, globs.values);
-    bc.applyBCsToStencil(current, current.dx(), globs.k);
+    //bc.applyBCsToStencil(current, current.dx(), globs.k);
 
     LinearAlgebra linAlgebra(globs.maxIters);
 

@@ -35,9 +35,6 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
             continue;}
 
         float weightBc = 1.0/numSolidNeigbours;
-
-        // std::array<size_t,3> interiorOffsets[6] = {{i+2,j,k}, {i-3,j,k}, {i,j+2,k},
-        //                                     {i,j-3,k}, {i,j,k+2}, {i,j,k-3}};
         
         Vector norm = grid.cellFaceNormalized(i,j,k);
         grid(i,j,k) = 0.0; //reset so we dont accumulate previous values
@@ -69,15 +66,20 @@ void BoundaryConditions::applyBCsToRhsMatrix(const Grid3D& grid, size_type nx, s
                     if(types_[faceInx]==BCType::Dirichlet)b[row] += 2.0*coeff*values_[faceInx];
                     else if(types_[faceInx]==BCType::Neumann)b[row] += (sign*2.0*coeff*dx/cond)*values_[faceInx]; };  
     
-    const std::vector<std::array<size_type,3>>& boundaryIdxs = grid.boundaryIndices();
+     
     const std::vector<std::size_t>& compactLookup = grid.compactLookup();
 
-    for (const std::array<size_type,3>& cell:boundaryIdxs){
+    for (const std::array<size_type,3>& cell:grid.boundaryIndices()){
         auto [i,j,k] = cell;
         size_type idx = i + nx*(j+ny*k);
         size_type row =  compactLookup[idx];
 
         const std::vector<NeighbourType> solidNeighbors = grid.findSolidNeigbour(i, j, k);
+        
+        if(solidNeighbors.size()==0){
+            std::cout<<"Cell centered at "<<i<<", "<<j<<", "<<k
+            <<" is boundary but no solid neigbours found!"<<std::endl;}
+        
         int faceNum = static_cast<int>(grid.faceType(i,j,k))-1;
         Vector norm = grid.cellFaceNormalized(i,j,k);
 

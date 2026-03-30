@@ -45,7 +45,7 @@ struct SimulationGlobals {
     static constexpr int VERB_HIGH   = 1 << 2;
 
     SolverType solver = SolverType::CPU_MATRIX; // default solver
-    std::string stlFileloc  = "../stlFiles/cube/cube.stl"; //todo make it os agnostic
+    std::string stlFileloc  = "../stlFiles/L_Channel/l.stl"; //todo make it os agnostic
                              // "../stlFiles/cube/cube.stl"
                              // "../stlFiles/L_Channel/l.stl"
                              //"../stlFiles/cylinder/cylinder.stl"

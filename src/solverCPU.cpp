@@ -74,11 +74,12 @@ void HeatSolverCPUMatrix::step(const Grid3D& current, Grid3D& next,const Simulat
 
     size_type N = current.totalCellsInGeometry();
 
-    std::vector<double> b(N);
-    
+    std::vector<double> b(N, 0.0);
+    std::size_t counter = 0;
     for (auto& cell : current.activeIndices()) {
         auto [i,j,k] = cell;
-        b.push_back(current(i,j,k));
+        b[counter] = current(i,j,k);
+        ++counter;
     }
 
     bc.applyBCsToRhsMatrix(current, current.nx(), current.ny(), current.nz(), dx_,
@@ -86,10 +87,15 @@ void HeatSolverCPUMatrix::step(const Grid3D& current, Grid3D& next,const Simulat
                              
     std::vector<double> x(N,0.0);
     
+    assert(b.size() == A_.rows());
+
     linAlgebra_.conjugateGradient(A_, b, x, globs);
 
-    for (size_type i = 0; i < N ; ++i){
-        next.data()[i] = x[i];
+    counter = 0;
+    for (auto& cell : current.activeIndices()) {
+        auto [i,j,k] = cell;
+        next(i,j,k) = x[counter];
+        ++counter;
     }
 
 }
