@@ -69,14 +69,16 @@ void LinearAlgebra::implicitJacobiCPU(size_type nx, size_type ny, size_type nz, 
                 for (size_type i = 1; i < nx-1 ; ++i){
                     if(current.cellType(i,j,k)!=CellType::INTERIOR) continue;
                     const double rhs  = current(i,j,k);
+                    
+                    const auto& old = *oldGrid;
 
-                    const double sum = (*oldGrid)(i+1,j,k)+ (*oldGrid)(i-1,j,k)
-                                                + (*oldGrid)(i,j+1,k)+ (*oldGrid)(i,j-1,k)
-                                                    + (*oldGrid)(i,j,k+1)+ (*oldGrid)(i,j,k-1);
+                    const double sum = old(i+1,j,k)+ old(i-1,j,k)
+                                                + old(i,j+1,k)+ old(i,j-1,k)
+                                                    + old(i,j,k+1)+ old(i,j,k-1);
                     
                     const double newVal = (rhs + coeff_*sum)/(1+6*coeff_);
                     
-                    maxErr = std::max(maxErr, std::abs(newVal-(*oldGrid)(i,j,k)));
+                    maxErr = std::max(maxErr, std::abs(newVal-old(i,j,k)));
                     (*newGrid)(i,j,k) = newVal;
                 }
             }        
