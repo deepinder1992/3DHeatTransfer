@@ -110,11 +110,11 @@ int main(int argc, char** argv) {
             runSimulation(solver, current, next, globs, bc);
             break;
         }
-        // case SolverType::CUDA_MATRIX: {
-        //     HeatSolverCUDAMatrix solver(nx, ny, nz, globs.alpha, current.dx(), globs.dt, globs.k, bc, linAlgebra);
-        //     runSimulation(solver, current, next, globs, bc);
-        //     break;
-        // }
+        case SolverType::CUDA_MATRIX: {
+            HeatSolverCUDAMatrix solver(current, nx, ny, nz, globs.alpha, current.dx(), globs.dt, globs.k, bc, linAlgebra);
+            runSimulation(solver, current, next, globs, bc);
+            break;
+        }
         default:
             std::cerr << "Unknown solver selected!" << std::endl;
             return 1;

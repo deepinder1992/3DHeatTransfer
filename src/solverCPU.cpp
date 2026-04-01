@@ -59,7 +59,7 @@ void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const Simul
 //Implict Matrix Solver
 HeatSolverCPUMatrix::HeatSolverCPUMatrix(const Grid3D& grid, size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k,
                                             const BoundaryConditions& bc, const LinearAlgebra& linAlgebra):
-                                            A_(nx*ny*nz), alpha_(alpha), dx_(dx), dt_(dt), cond_(k),
+                                            A_(grid.totalCellsInGeometry()), alpha_(alpha), dx_(dx), dt_(dt), cond_(k),
                                             linAlgebra_(linAlgebra){
     assert(alpha> 0.0);
     assert(dx > 0.0);
@@ -73,8 +73,9 @@ HeatSolverCPUMatrix::HeatSolverCPUMatrix(const Grid3D& grid, size_type nx, size_
 void HeatSolverCPUMatrix::step(const Grid3D& current, Grid3D& next,const SimulationGlobals& globs,const BoundaryConditions& bc){
 
     size_type N = current.totalCellsInGeometry();
-
+    assert(N == A_.rows());
     std::vector<double> b(N, 0.0);
+    
     std::size_t counter = 0;
     for (auto& cell : current.activeIndices()) {
         auto [i,j,k] = cell;
@@ -86,8 +87,6 @@ void HeatSolverCPUMatrix::step(const Grid3D& current, Grid3D& next,const Simulat
                             coeff_, cond_, b);
                              
     std::vector<double> x(N,0.0);
-    
-    assert(b.size() == A_.rows());
 
     linAlgebra_.conjugateGradient(A_, b, x, globs);
 

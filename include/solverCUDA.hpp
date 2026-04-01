@@ -37,7 +37,7 @@ class HeatSolverCUDAStencil final: public HeatSolver{
 
 class HeatSolverCUDAMatrix final: public HeatSolver{
     public:
-        HeatSolverCUDAMatrix(size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k,
+        HeatSolverCUDAMatrix(const Grid3D& grid, size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k,
                                             const BoundaryConditions& bc, const LinearAlgebra& linAlgebra);
 
 
