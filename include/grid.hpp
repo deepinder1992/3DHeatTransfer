@@ -1,5 +1,6 @@
 #pragma once
 #include<vector>
+#include <map> 
 #include<cassert>
 #include<cstddef>
 #include <cmath>
@@ -26,7 +27,7 @@ struct Vector{
 
     float dot(const Vector& vectB){return {x*vectB.x+ y*vectB.y+ z*vectB.z};}
  
-    float mag() const {return std::sqrt(x*x + y*y + z*z);}
+    float mag() const {return sqrtf(x*x + y*y + z*z);}
 
     Vector normalize() const {float m = mag();
         if (m<1e-8f)return{0.0,0.0,0.0};
@@ -47,15 +48,20 @@ class Grid3D{
 
         FaceType& faceType(size_type i, size_type j,size_type k);
         const FaceType& faceType(size_type i, size_type j,size_type k) const;
+        const std::vector<FaceType>& faceTypeVect() const {return faceType_;}
 
         Vector& cellFaceNormal(size_type i, size_type j,size_type k);
-        //const Vector& cellFaceNormal(size_type i, size_type j,size_type k) const;
+        const std::vector<Vector>& cellFaceNormals() const;
         Vector cellFaceNormalized(size_type i, size_type j,size_type k) const;
 
         const std::vector<std::array<std::size_t,3>>& activeIndices() const;
-
         const std::vector<std::array<std::size_t,3>>& boundaryIndices()const;
-        const std::vector<NeighbourType> findSolidNeigbour(std::size_t i, std::size_t j, std::size_t k) const;
+        const std::vector<std::array<std::size_t,3>>& interiorIndices()const;
+        const std::vector<NeighbourType>& flatNeigbourTypes() const;
+        const std::vector<std::size_t>& offsetsNeighbourTypes()const;
+
+        std::vector<NeighbourType> getSolidNeighbours(std::size_t i, std::size_t j, std::size_t k) const;
+        std::vector<NeighbourType> findSolidNeighbours(std::size_t i, std::size_t j, std::size_t k);
 
         size_type nx() const noexcept {return nx_;}
         size_type ny() const noexcept {return ny_;}
@@ -69,11 +75,9 @@ class Grid3D{
         double* data() noexcept {return data_.data();} 
         const double* data() const noexcept{return data_.data();}
 
-        size_type numInteriorCells() const {return numInteriorCells_;}
-
         size_type numBoundaryCells() const { return numBoundaryCells_; }
 
-        const size_type& totalCellsInGeometry() const;
+        size_type totalCellsInGeometry() const { return numActiveCells_;}
 
         void compactLookup();
         const std::vector<std::size_t>& compactLookup() const;
@@ -81,6 +85,8 @@ class Grid3D{
         void fill (double value);
         
         void detectBoundaries();
+        void constructNeigbourMap(SolverType solver);
+
         void diagnostics() const;
         void assignNoneCells();
 
@@ -95,12 +101,15 @@ class Grid3D{
         std::vector<CellType> cellType_;
         std::vector<FaceType> faceType_;
 
-        std::vector<std::array<std::size_t,3>> boundaryIndices_;
+        std::vector<std::array<std::size_t,3>> boundaryIndices_, activeIndices_, interiorIndices_;
         std::vector<Vector> boundaryNormal_;
-        std::vector<std::array<std::size_t,3>>  activeIndices_;
 
         std::vector<std::size_t> compactLookup_;
+
+        std::map<std::size_t, std::vector<NeighbourType>> solidNebrMap_;
+        std::vector<NeighbourType> flatNbrTypes_;
+        std::vector<std::size_t> offsetsNbrTypes_;
         
-        size_type numInteriorCells_=0, numBoundaryCells_=0, numSolidCells_=0;
+        size_type numActiveCells_=0, numBoundaryCells_=0, numSolidCells_=0;
 
 };

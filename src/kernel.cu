@@ -5,23 +5,31 @@
 #include <numeric> 
 #include <vector>
 
+__device__ __constant__ int interiorOffsetsGPU[6][3] =  { {+2,0,0} ,   {-3,0,0}, 
+                                                      {0,+2,0} ,   {0,-3,0}, 
+                                                      {0,0,+2} ,   {0,0,-3}};
 
-__global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, std::size_t nx, std::size_t ny, std::size_t nz, double coeff_)
+
+__global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, std::size_t (*intIndices)[3],
+                                    std::size_t nx, std::size_t ny, std::size_t nz, double coeff_)
     {
-        std::size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-        std::size_t j = blockIdx.y * blockDim.y + threadIdx.y;
-        std::size_t k = blockIdx.z * blockDim.z + threadIdx.z;
+        std::size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+        //std::size_t j = blockIdx.y * blockDim.y + threadIdx.y;
+        //std::size_t k = blockIdx.z * blockDim.z + threadIdx.z;
 
-        if(i>0 && i<nx-1 && j>0 && j<ny-1 && k>0 && k<nz-1 ){
-            std::size_t idx = i + j*nx + k*nx*ny;
-            double rhs = currentVal[idx];
+        const auto& ijk = intIndices[tid];
+        std::size_t i = ijk[0];
+        std::size_t j = ijk[1];
+        std::size_t k = ijk[2];
 
-            double sum = oldVal[(i-1) + j*nx +k*nx*ny] + oldVal[(i+1)+j*nx +k*nx*ny]
-                       + oldVal[i + (j-1)*nx +k*nx*ny] + oldVal[i+(j+1)*nx +k*nx*ny]
-                       + oldVal[i + j*nx +(k-1)*nx*ny] + oldVal[i+j*nx +(k+1)*nx*ny];
-            
-            newVal[idx] = (rhs + coeff_*sum)/(1+6*coeff_);        
-        }
+        std::size_t idx = i + j*nx + k*nx*ny;
+        double rhs = currentVal[idx];
+
+        double sum = oldVal[(i-1) + j*nx +k*nx*ny] + oldVal[(i+1)+j*nx +k*nx*ny]
+                    + oldVal[i + (j-1)*nx +k*nx*ny] + oldVal[i+(j+1)*nx +k*nx*ny]
+                    + oldVal[i + j*nx +(k-1)*nx*ny] + oldVal[i+j*nx +(k+1)*nx*ny];
+        
+        newVal[idx] = (rhs + coeff_*sum)/(1+6*coeff_);
 
     }
 
@@ -76,27 +84,30 @@ __global__ void sparseMultiply (const double* values, const std::size_t* cols, c
             }            
     }
 
-__global__ void maxError( double* oldVal, double* newVal, double* maxBlockError, std::size_t N, std::size_t nx, std::size_t ny){
-        extern __shared__ double sData[];
+__global__ void maxError( double* oldVal, double* newVal, double* maxBlockError,
+                         std::size_t (*intIndices)[3], std::size_t nIntIdxs,
+                         std::size_t nx, std::size_t ny){
 
-        std::size_t tid = threadIdx.x + threadIdx.y * blockDim.x + threadIdx.z*blockDim.x*blockDim.y;
-        std::size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-        std::size_t j = blockIdx.y * blockDim.y + threadIdx.y;
-        std::size_t k = blockIdx.z * blockDim.z + threadIdx.z;
-        std::size_t gTid = i + j*nx + k*nx*ny;
+    extern __shared__ double sData[];
+    std::size_t tid  = blockIdx.x * blockDim.x + threadIdx.x;
+    std::size_t lTid = threadIdx.x;
 
+    if (tid >= nIntIdxs) sData[lTid] = 0.0;
+    else{ const auto& ijk = intIndices[tid];
+          std::size_t i = ijk[0];
+          std::size_t j = ijk[1];
+          std::size_t k = ijk[2];
+          std::size_t idx = i + j*nx + k*nx*ny;
+          sData[lTid] = fabs(oldVal[idx] - newVal[idx]); }
 
-        if (gTid < N)sData[tid] = fabs(oldVal[gTid]-newVal[gTid]);
-        else sData[tid] = 0.0;
+    __syncthreads();
+
+    for (std::size_t s = blockDim.x / 2; s > 0; s >>= 1){
+        if (lTid < s) sData[lTid] = fmax(sData[lTid], sData[lTid + s]);
         __syncthreads();
+    }
 
-        for (std::size_t s = blockDim.x*blockDim.y*blockDim.z/2; s>0; s>>=1){
-            if(tid<s) sData[tid] = fmax(sData[tid], sData[tid+s]);
-            __syncthreads();
-        }
-
-        if (tid == 0) maxBlockError[blockIdx.x + blockIdx.y*gridDim.x + blockIdx.z*gridDim.x*gridDim.y] = sData[0];
-
+    if (lTid == 0) maxBlockError[blockIdx.x] = sData[0];
 }
 
 __global__ void arraySumReduction (double* a, double* blockSum, std::size_t n){
@@ -135,28 +146,50 @@ double arraySum(double* a , std::size_t n){
 }
 
 
-__global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t ny, std::size_t nz, double dx, double cond,
-                                     const BCType types_[6], const double values_[6]){
+__global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t ny, std::size_t nz, double dx, 
+                                    std::size_t (*bcIndices)[3], FaceType* faceTypes,std::size_t nBcCells,
+                                    NeighbourType* nbrType, std::size_t* nbrOffset, float (*devCellNormals)[3],
+                                    double  cond, const BCType types_[3], const double values_[3]){
+
+        auto applyBc = [=] __device__ (int face, double& cell, double interior, int sign, double weightBc){
+                if (types_[face]==BCType::Dirichlet){cell = values_[face];}
+                else if (types_[face]==BCType::Neumann){ cell = (weightBc*sign*2*dx*values_[face]/cond)+interior;} };
         
-        std::size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-        std::size_t j = blockIdx.y * blockDim.y + threadIdx.y;
-        std::size_t k = blockIdx.z * blockDim.z + threadIdx.z;
-        
-        if(i>=nx|| j>=ny|| k>=nz) return;
-        
-        auto applyBc = [=] __device__ (int face, double& cell, double interior, int sign){
-            if (types_[face]==BCType::Dirichlet){cell = values_[face];}
-                  else if (types_[face]==BCType::Neumann){ cell = (sign*2*dx*values_[face]/cond)+interior;} };
-        //x min face
-        if(i==0) applyBc(0, grid[0+j*nx+k*ny*nx], grid[2+j*nx+k*ny*nx], -1);
-        //x max face
-        else if(i==nx-1) applyBc(1, grid[nx-1+j*nx+k*ny*nx], grid[nx-3+j*nx+k*ny*nx], 1);  
-        //y min face
-        else if(j==0) applyBc(2, grid[i+0*nx+k*ny*nx], grid[i+2*nx+k*ny*nx], -1);
-        //y max face
-        else if(j==ny-1) applyBc(3, grid[i+(ny-1)*nx+k*ny*nx], grid[i+(ny-3)*nx+k*ny*nx], 1); 
-        //z min face
-        else if(k==0)applyBc(4, grid[i+j*nx+0*ny*nx], grid[i+j*nx+2*ny*nx], -1);
-        //z max face
-        else if(k==nz-1)applyBc(5, grid[i+j*nx+(nz-1)*ny*nx], grid[i+j*nx+(nz-3)*ny*nx], 1);
+        auto sign = [=] __device__ (float cellNormal[3],
+                                    std::size_t i, std::size_t j, std::size_t k,
+                                    std::size_t ic, std::size_t jc, std::size_t kc) {
+                float radial[3] =  {static_cast<float>(i) - static_cast<float>(ic),
+                                        static_cast<float>(j) - static_cast<float>(jc),
+                                        static_cast<float>(k) - static_cast<float>(kc)};
+                //dot product 
+                if((radial[0]*cellNormal[0]+radial[1]*cellNormal[1]+radial[2]*cellNormal[2])>0) return 1;
+                return -1; };
+                
+        std::size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+        if (tid>=nBcCells) return;
+        const auto& ijk = bcIndices[tid];
+        std::size_t i = ijk[0];
+        std::size_t j = ijk[1];
+        std::size_t k = ijk[2];
+        int faceNum = static_cast<int>(faceTypes[i+j*nx+k*ny*nx])-1;
+
+        std::size_t start = nbrOffset[tid];
+        std::size_t end   = nbrOffset[tid + 1];
+        double weightBc = (start!=end)? 1.0/(static_cast<double>(end)-static_cast<double>(start)):1.0;
+
+
+
+        for (std::size_t idx = start; idx < end; ++idx) {
+            NeighbourType& neighbour = nbrType[idx];
+
+            int  s  = static_cast<int>(neighbour);
+            auto ic = i + interiorOffsetsGPU[s][0];
+            auto jc = j + interiorOffsetsGPU[s][1];
+            auto kc = k + interiorOffsetsGPU[s][2];
+
+            int sign_ = sign(devCellNormals[i+j*nx+k*ny*nx], i,j,k,ic,jc,kc );
+
+            applyBc(faceNum, grid[i+j*nx+k*ny*nx], grid[ic+jc*nx+kc*ny*nx], sign_,weightBc);
+        }
 }

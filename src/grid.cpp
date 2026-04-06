@@ -3,7 +3,8 @@
 
 Grid3D::Grid3D(size_type nx, size_type ny, size_type nz, double dx)
 :nx_(nx),ny_(ny),nz_(nz), dx_(dx), data_(nx*ny*nz), cellType_(nx*ny*nz, CellType::INTERIOR),
-faceType_(nx*ny*nz, FaceType::NONE),boundaryNormal_(nx*ny*nz), compactLookup_(nx*ny*nz, INVALID)
+faceType_(nx*ny*nz, FaceType::NONE),boundaryNormal_(nx*ny*nz), compactLookup_(nx*ny*nz, INVALID),
+offsetsNbrTypes_(1, 0)
     {
         assert(nx>0 && ny > 0 && nz >0);
     }
@@ -46,8 +47,16 @@ const std::vector<std::array<std::size_t,3>>& Grid3D::activeIndices() const{
     return activeIndices_;
     }
 
+const std::vector<std::array<std::size_t,3>>& Grid3D::interiorIndices() const{ 
+    return interiorIndices_;
+    }
+
 Vector& Grid3D::cellFaceNormal(size_type i, size_type j,size_type k){
      return boundaryNormal_[index(i,j,k)];
+    }
+
+const std::vector<Vector>& Grid3D::cellFaceNormals() const{
+     return boundaryNormal_;
     }
 
 Vector Grid3D::cellFaceNormalized(size_type i, size_type j,size_type k) const{
@@ -61,9 +70,14 @@ FaceType& Grid3D::faceType(size_type i, size_type j,size_type k){
 const FaceType& Grid3D::faceType(size_type i, size_type j,size_type k) const{
         return faceType_[index(i,j,k)];
     }
-const size_type& Grid3D::totalCellsInGeometry() const{
-        return numInteriorCells_;
+
+const std::vector<NeighbourType>& Grid3D::flatNeigbourTypes() const{
+        return flatNbrTypes_;
     }
+const std::vector<std::size_t>& Grid3D::offsetsNeighbourTypes() const{
+        return offsetsNbrTypes_;
+    }
+
 
 void Grid3D::adjustGrid(const double maxStlEdge) {
     dx_ = maxStlEdge/(nx_);
@@ -97,7 +111,10 @@ void Grid3D::detectBoundaries(){
 
     auto makeActive = [&](std::size_t i, std::size_t j, std::size_t k) {
         activeIndices_.push_back({i,j,k});
-        ++numInteriorCells_;  };
+        ++numActiveCells_;  };
+    
+    auto makeInterior = [&](std::size_t i, std::size_t j, std::size_t k) {
+        interiorIndices_.push_back({i,j,k}); };
 
     for (size_type k=0; k< nz_; ++k){
         for(size_type j=0; j<ny_; ++j){
@@ -106,34 +123,70 @@ void Grid3D::detectBoundaries(){
                     
                 makeActive(i,j,k);
                 
-                if (findSolidNeigbour(i,j,k).size() !=0){
-                    makeBoundary(i,j,k);}                
+                if (findSolidNeighbours(i,j,k).size() !=0){
+                    makeBoundary(i,j,k);}    
+                else{
+                    makeInterior(i,j,k);
+                }            
             }
         }
     }
     //make look up internal cells 
     compactLookup();
-    std::cout <<"INNNNN" <<numInteriorCells_<< std::endl;
+    std::cout <<"INNNNN" <<numActiveCells_<< std::endl;
     std::cout <<"BNNNNN" <<numBoundaryCells_<< std::endl;
     std::cout <<"SNNNNN" <<numBoundaryCells_<< std::endl;
 }
 
-const std::vector<NeighbourType>  Grid3D::findSolidNeigbour(std::size_t i, std::size_t j, std::size_t k) const{
-    std::vector<NeighbourType> solidNeighbours;
+void Grid3D::constructNeigbourMap(SolverType solver){
+    std::size_t idx = INVALID;
 
-    if (i > 0     && cellType(i-1,j,k) == CellType::SOLID) solidNeighbours.push_back(NeighbourType::X_PREV);
-    else if (i < nx_-1 && cellType(i+1,j,k) == CellType::SOLID)  solidNeighbours.push_back(NeighbourType::X_NEXT);
-    else if (j > 0     && cellType(i,j-1,k) == CellType::SOLID)  solidNeighbours.push_back(NeighbourType::Y_PREV);
-    else if (j < ny_-1 && cellType(i,j+1,k) == CellType::SOLID)  solidNeighbours.push_back(NeighbourType::Y_NEXT);
-    else if (k > 0     && cellType(i,j,k-1) == CellType::SOLID)  solidNeighbours.push_back(NeighbourType::Z_PREV);
-    else if (k < nz_-1 && cellType(i,j,k+1) == CellType::SOLID)  solidNeighbours.push_back(NeighbourType::Z_NEXT);
-    else if (i==0)     solidNeighbours.push_back(NeighbourType::X_PREV); 
-    else if (i==nx_-1) solidNeighbours.push_back(NeighbourType::X_NEXT);
-    else if (j==0)     solidNeighbours.push_back(NeighbourType::Y_PREV);
-    else if (j==ny_-1) solidNeighbours.push_back(NeighbourType::Y_NEXT);
-    else if (k==0)     solidNeighbours.push_back(NeighbourType::Z_PREV);
-    else if (k==nz_-1) solidNeighbours.push_back(NeighbourType::Z_NEXT);
-    return solidNeighbours;
+    for (auto ijk:boundaryIndices_){
+        auto [i,j,k] =ijk;
+        idx = index(i,j,k);
+          
+        solidNebrMap_[idx] = findSolidNeighbours(i, j, k);
+        if(solidNebrMap_[idx].size()==0){
+            std::cout<<"Cell centered at "<<i<<", "<<j<<", "<<k
+            <<" is boundary but no solid neigbours found!"<<std::endl;}
+
+        if (solver==SolverType::CUDA_STENCIL){
+            flatNbrTypes_.insert(flatNbrTypes_.end(),
+                                    solidNebrMap_[idx].begin(),
+                                    solidNebrMap_[idx].end());
+
+            offsetsNbrTypes_.push_back(flatNbrTypes_.size());
+        }
+    }
+    //just a sanity check
+    assert(solidNebrMap_.size()==numBoundaryCells_);
+
+}
+
+std::vector<NeighbourType> Grid3D::findSolidNeighbours(std::size_t i, std::size_t j, std::size_t k){
+        std::vector<NeighbourType> solidsVect;
+        if (i > 0     && cellType(i-1,j,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::X_PREV);
+        else if (i < nx_-1 && cellType(i+1,j,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::X_NEXT);
+        else if (j > 0     && cellType(i,j-1,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Y_PREV);
+        else if (j < ny_-1 && cellType(i,j+1,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Y_NEXT);
+        else if (k > 0     && cellType(i,j,k-1) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Z_PREV);
+        else if (k < nz_-1 && cellType(i,j,k+1) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Z_NEXT);
+        else if (i==0)      solidsVect.push_back(NeighbourType::X_PREV); 
+        else if (i==nx_-1)  solidsVect.push_back(NeighbourType::X_NEXT);
+        else if (j==0)      solidsVect.push_back(NeighbourType::Y_PREV);
+        else if (j==ny_-1)  solidsVect.push_back(NeighbourType::Y_NEXT);
+        else if (k==0)      solidsVect.push_back(NeighbourType::Z_PREV);
+        else if (k==nz_-1)  solidsVect.push_back(NeighbourType::Z_NEXT);
+        return solidsVect;
+    }
+
+std::vector<NeighbourType>  Grid3D::getSolidNeighbours(std::size_t i, std::size_t j, std::size_t k) const{
+    auto it = solidNebrMap_.find(index(i,j,k));
+    if (it == solidNebrMap_.end()) {
+        throw std::runtime_error("No solid neigbour at index: "
+            + std::to_string(i) +" "+ std::to_string(i)+ " " + std::to_string(k));
+    }
+    return it->second;
 }
 
 void Grid3D::diagnostics()const{

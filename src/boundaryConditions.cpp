@@ -26,13 +26,10 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
     for (const std::array<size_type,3>& idx:boundaryIdxs){
         auto [i,j,k] = idx;
         int faceNum = static_cast<int>(grid.faceType(i,j,k))-1;
-        const std::vector<NeighbourType> solidNeighbors = grid.findSolidNeigbour(i, j, k);
+        const std::vector<NeighbourType> solidNeighbors = grid.getSolidNeighbours(i, j, k);
         int numSolidNeigbours = solidNeighbors.size();
 
-        if(numSolidNeigbours==0){
-            std::cout<<"Cell centered at "<<i<<", "<<j<<", "<<k
-            <<" is boundary but no solid neigbours found!"<<std::endl;
-            continue;}
+        if(numSolidNeigbours==0)continue;
 
         float weightBc = 1.0/numSolidNeigbours;
         
@@ -74,11 +71,7 @@ void BoundaryConditions::applyBCsToRhsMatrix(const Grid3D& grid, size_type nx, s
         size_type idx = i + nx*(j+ny*k);
         size_type row =  compactLookup[idx];
 
-        const std::vector<NeighbourType> solidNeighbors = grid.findSolidNeigbour(i, j, k);
-        
-        if(solidNeighbors.size()==0){
-            std::cout<<"Cell centered at "<<i<<", "<<j<<", "<<k
-            <<" is boundary but no solid neigbours found!"<<std::endl;}
+        const std::vector<NeighbourType> solidNeighbors = grid.getSolidNeighbours(i, j, k);
         
         int faceNum = static_cast<int>(grid.faceType(i,j,k))-1;
         Vector norm = grid.cellFaceNormalized(i,j,k);
@@ -96,11 +89,10 @@ void BoundaryConditions::applyBCsToRhsMatrix(const Grid3D& grid, size_type nx, s
 }
 
 void BoundaryConditions::applyBCsToStencilCUDA(double* grid, double dx, size_type nx, 
-    size_type ny, size_type nz, double cond, dim3 gridCuda, dim3 blockCuda) const
+    size_type ny, size_type nz, size_type(*bcIndices)[3], FaceType* faceTypes, std::size_t nBcCells,
+    NeighbourType* devNbrTypes, std::size_t* devNbrOffset, float (*devCellNormals)[3], double cond, dim3 gridCuda, dim3 blockCuda) const 
     {    
-        //hard coded num 6 works for cubes and cuboids, however more elegant handling 
-        //is needed once we generalize to arbitrary shapes      
-        int numFaces = 6;
+        int numFaces = 3;
         BCType types[numFaces];
         for (int i = 0; i < numFaces; ++i)
             types[i] = types_[i];
@@ -109,6 +101,7 @@ void BoundaryConditions::applyBCsToStencilCUDA(double* grid, double dx, size_typ
         for (int i = 0; i < numFaces; ++i)
             values[i] = values_[i];
 
-        applyBCsToStencilKern<<<gridCuda, blockCuda>>>(grid, nx, ny, nz, dx, cond, types, values);
+        applyBCsToStencilKern<<<gridCuda, blockCuda>>>(grid, nx, ny, nz, dx, bcIndices, faceTypes,
+             nBcCells, devNbrTypes, devNbrOffset, devCellNormals, cond, types, values);
         cudaDeviceSynchronize();
     }

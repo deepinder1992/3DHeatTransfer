@@ -44,8 +44,8 @@ struct SimulationGlobals {
     static constexpr int VERB_MEDIUM = 1 << 1;
     static constexpr int VERB_HIGH   = 1 << 2;
 
-    SolverType solver = SolverType::CPU_MATRIX; // default solver
-    std::string stlFileloc  = "../stlFiles/cylinder/cylinder.stl"; //todo make it os agnostic
+    SolverType solver = SolverType::CUDA_STENCIL; // default solver
+    std::string stlFileloc  = "../stlFiles/L_Channel/l.stl"; //todo make it os agnostic
                              // "../stlFiles/cube/cube.stl"
                              // "../stlFiles/L_Channel/l.stl"
                              //"../stlFiles/cylinder/cylinder.stl"
@@ -91,6 +91,7 @@ struct SimulationGlobals {
     std::size_t blockDimX = 8;
     std::size_t blockDimY = 8;
     std::size_t blockDimZ = 8;
+    std::size_t blockDim = 216;
     mutable int totalIters = 0;   
 
     

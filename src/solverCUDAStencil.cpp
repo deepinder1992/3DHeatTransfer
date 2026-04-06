@@ -13,34 +13,60 @@ HeatSolverCUDAStencil::HeatSolverCUDAStencil(double alpha, double dx, double dt,
 
 void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs, const BoundaryConditions& bc){
 
-    size_type N = current.size();
+    size_type N =  current.size();
     const std::size_t nx = current.nx();
     const std::size_t ny = current.ny();
     const std::size_t nz = current.nz();
+    const std::size_t nIntIdxs = (current.interiorIndices()).size();
+    const std::size_t nBcIdxs = (current.boundaryIndices()).size();
+    const std::size_t nSolidNbrIdxs = (current.flatNeigbourTypes()).size();
 
     ::allocateMemory(devCurrent, devMemCurrGrdSize, N);
     ::allocateMemory(devNext, devMemNextGrdSize, N);
     ::allocateMemory(devOld, devMemOldGrdSize, N);
+    ::allocateMemory(devFaceTypes, devMemFaceTypeSize, N);
+    ::allocateMemory(devCellNormals, devMemCellNormalSize, N);
+
+    ::allocateMemory(devBcIndices, devMemBcIndSize, nBcIdxs);
+    ::allocateMemory(devIntIndices, devMemIntIndSize, nIntIdxs);
+    ::allocateMemory(devNbrTypes, devMemNbrSize, nSolidNbrIdxs );
+    ::allocateMemory(devNbrOffset, devMemNbrOffsetSize, nBcIdxs+1);
    
     cudaMemcpy(devCurrent, current.data(), N*sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(devOld, next.data(), N*sizeof(double), cudaMemcpyHostToDevice);
     cudaMemcpy(devNext, next.data(), N*sizeof(double), cudaMemcpyHostToDevice);
 
+    cudaMemcpy(devIntIndices, current.interiorIndices().data(), 
+                nIntIdxs*sizeof(*devIntIndices), cudaMemcpyHostToDevice);
+
+    cudaMemcpy(devBcIndices, current.boundaryIndices().data(), 
+            nBcIdxs*sizeof(*devBcIndices), cudaMemcpyHostToDevice);
+
+    cudaMemcpy(devFaceTypes, current.faceTypeVect().data(), 
+            N*sizeof(FaceType), cudaMemcpyHostToDevice);
+
+    cudaMemcpy(devCellNormals, current.cellFaceNormals().data(), 
+            N*sizeof(*devCellNormals), cudaMemcpyHostToDevice);
+
+    cudaMemcpy(devNbrTypes, current.flatNeigbourTypes().data(), 
+        nSolidNbrIdxs*sizeof(NeighbourType), cudaMemcpyHostToDevice);
+
+    cudaMemcpy(devNbrOffset, current.offsetsNeighbourTypes().data(), 
+        (nBcIdxs+1)*sizeof(std::size_t), cudaMemcpyHostToDevice);
     
-    dim3 blockDims(globs.blockDimX,globs.blockDimY,globs.blockDimZ);
-    dim3 gridDims((nx+globs.blockDimX-1)/globs.blockDimX,
-                    (ny+globs.blockDimY-1)/globs.blockDimY,
-                    (nz+globs.blockDimZ-1)/globs.blockDimZ);
+    dim3 blockDims(globs.blockDim);
+    dim3 gridDims((nIntIdxs+globs.blockDim-1)/globs.blockDim);
 
 
-    size_type numBlocks = gridDims.x*gridDims.y*gridDims.z;
+    size_type numBlocks = gridDims.x;
 
     ::allocateMemory(devMaxBlockError, devMemBlockErrorSize, numBlocks);
     
     for (int iter = 0; iter<linAlgebra_.maxIters();++iter){
-        bc.applyBCsToStencilCUDA(devOld, dx_,nx, ny, nz, globs.k, gridDims, blockDims);   
+        bc.applyBCsToStencilCUDA(devOld, dx_,nx, ny, nz, devBcIndices, devFaceTypes, nBcIdxs,
+            devNbrTypes, devNbrOffset, devCellNormals, globs.k, gridDims, blockDims);   
 
-        linAlgebra_.implicitJacobiCUDA(devOld, devNext, devCurrent, nx, ny, nz, coeff_, gridDims, blockDims);
+        linAlgebra_.implicitJacobiCUDA(devOld, devNext, devCurrent, devIntIndices, nx, ny, nz, coeff_, gridDims, blockDims);
         
         if (globs.verbosity & SimulationGlobals::VERB_MEDIUM){
             cudaError_t err = cudaGetLastError();
@@ -48,8 +74,8 @@ void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const Simu
                 std::cerr << "CUDA error Jacobi: " << cudaGetErrorString(err) << std::endl;
             }
         }
-        std::size_t sharedMemSize = blockDims.x*blockDims.y*blockDims.z*sizeof(double);
-        linAlgebra_.maxErrorCUDA(devOld, devNext, devMaxBlockError, N, nx, ny, gridDims, blockDims, sharedMemSize);
+        std::size_t sharedMemSize = blockDims.x*sizeof(double);
+        linAlgebra_.maxErrorCUDA(devOld, devNext, devMaxBlockError, devIntIndices, nIntIdxs, nx, ny, gridDims, blockDims, sharedMemSize);
         if (globs.verbosity & SimulationGlobals::VERB_MEDIUM){
             cudaError_t err = cudaGetLastError();
             if (err != cudaSuccess) {

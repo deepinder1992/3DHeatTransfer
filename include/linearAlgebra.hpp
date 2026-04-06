@@ -30,11 +30,11 @@ class LinearAlgebra{
         void implicitJacobiCPU(size_type nx, size_type ny, size_type nz, const double coeff_, double& maxerror,
                                  Grid3D* oldGrid, Grid3D* newGrid, const Grid3D& current);
         //cuda functions
-        void implicitJacobiCUDA(double* oldVal, double* newVal, double* currentVal, std::size_t nx, std::size_t ny, std::size_t nz,
-                                    double coeff_, dim3 grid, dim3 block);
+        void implicitJacobiCUDA(double* oldVal, double* newVal, double* currentVal, std::size_t (*intIndices)[3],
+                             std::size_t nx, std::size_t ny, std::size_t nz, double coeff_, dim3 grid, dim3 block);
 
-        void maxErrorCUDA(double* oldVal, double* newVal,  double* maxBlockError, std::size_t N, std::size_t nx, std::size_t ny,
-                            dim3 grid, dim3 block, size_t sharedMemSize);
+        void maxErrorCUDA(double* oldVal, double* newVal,  double* maxBlockError, std::size_t (*intIndices)[3], std::size_t nIntIdxs, std::size_t nx, std::size_t ny,
+                    dim3 grid, dim3 block, size_t sharedMemSize);
         
         void conjugateGradientCUDA(const SparseMatrix& A, const std::vector<double>& b,
                             std::vector<double>& x, const SimulationGlobals& globs);

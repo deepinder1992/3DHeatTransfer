@@ -2,17 +2,17 @@
 #include "kernel.cuh"
 
 
-void LinearAlgebra::implicitJacobiCUDA(double* oldVal, double* newVal, double* currentVal, std::size_t nx, std::size_t ny, std::size_t nz,
-                          double coeff_, dim3 grid, dim3 block)
+void LinearAlgebra::implicitJacobiCUDA(double* oldVal, double* newVal, double* currentVal,  std::size_t (*intIndices)[3],
+                                         std::size_t nx, std::size_t ny, std::size_t nz, double coeff_, dim3 grid, dim3 block)
     {         
-        implicitJacobiKernel<<<grid, block>>>(oldVal, newVal, currentVal, nx, ny, nz, coeff_);
+        implicitJacobiKernel<<<grid, block>>>(oldVal, newVal, currentVal, intIndices, nx, ny, nz, coeff_);
         cudaDeviceSynchronize();
     }
 
-void LinearAlgebra::maxErrorCUDA(double* oldVal, double* newVal,  double* maxBlockError, std::size_t N, std::size_t nx, std::size_t ny,
+void LinearAlgebra::maxErrorCUDA(double* oldVal, double* newVal,  double* maxBlockError, std::size_t (*intIndices)[3], std::size_t nIntIdxs, std::size_t nx, std::size_t ny,
                     dim3 grid, dim3 block, size_t sharedMemSize)
     {
-        maxError<<<grid, block, sharedMemSize>>>( oldVal, newVal, maxBlockError, N, nx, ny);
+        maxError<<<grid, block, sharedMemSize>>>( oldVal, newVal, maxBlockError, intIndices, nIntIdxs, nx, ny);
     }
 
 

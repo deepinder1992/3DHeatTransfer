@@ -13,6 +13,11 @@ class HeatSolverCUDAStencil final: public HeatSolver{
                             if(devNext) cudaFree(devNext);
                             if(devOld) cudaFree(devOld);
                             if(devMaxBlockError) cudaFree(devMaxBlockError);
+                            if(devBcIndices) cudaFree(devBcIndices);
+                            if(devIntIndices) cudaFree(devIntIndices);
+                            if(devFaceTypes) cudaFree (devFaceTypes);
+                            if(devNbrTypes) cudaFree(devNbrTypes); 
+                            if(devNbrOffset) cudaFree(devNbrOffset);   
                         }
 
         void step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs, const BoundaryConditions& bc) override;
@@ -22,18 +27,22 @@ class HeatSolverCUDAStencil final: public HeatSolver{
     private:
         double alpha_, dx_,dt_,coeff_;
         LinearAlgebra linAlgebra_;
-        double* devCurrent = nullptr;
-        double* devNext = nullptr;
-        double* devOld = nullptr;
-        double* devMaxBlockError = nullptr;
 
-        size_type devMemCurrGrdSize = 0;
-        size_type devMemNextGrdSize = 0;
-        size_type devMemOldGrdSize = 0;
-        size_type devMemBlockErrorSize = 0;
+        double *devCurrent = nullptr, *devNext = nullptr, *devOld = nullptr,
+                *devMaxBlockError = nullptr;
+        float  (*devCellNormals)[3] = nullptr;
+        
+        FaceType *devFaceTypes = nullptr;
+        NeighbourType  *devNbrTypes = nullptr;
 
+        std::size_t (*devIntIndices)[3] = nullptr, (*devBcIndices)[3] = nullptr, *devNbrOffset = nullptr;
+
+        size_type devMemCurrGrdSize = 0, devMemNextGrdSize = 0, devMemOldGrdSize = 0,
+                  devMemBcIndSize = 0, devMemIntIndSize = 0, devMemBlockErrorSize = 0,
+                  devMemFaceTypeSize = 0, devMemNbrSize = 0,  devMemNbrOffsetSize =0,
+                  devMemCellNormalSize = 0;
+                 
 };
-
 
 class HeatSolverCUDAMatrix final: public HeatSolver{
     public:
