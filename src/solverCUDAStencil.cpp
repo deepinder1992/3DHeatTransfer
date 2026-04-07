@@ -66,16 +66,18 @@ void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const Simu
         bc.applyBCsToStencilCUDA(devOld, dx_,nx, ny, nz, devBcIndices, devFaceTypes, nBcIdxs,
             devNbrTypes, devNbrOffset, devCellNormals, globs.k, gridDims, blockDims);   
 
-        linAlgebra_.implicitJacobiCUDA(devOld, devNext, devCurrent, devIntIndices, nx, ny, nz, coeff_, gridDims, blockDims);
-        
+        linAlgebra_.implicitJacobiCUDA(devOld, devNext, devCurrent, devIntIndices, nIntIdxs, nx, ny, nz, coeff_, gridDims, blockDims);
+
         if (globs.verbosity & SimulationGlobals::VERB_MEDIUM){
             cudaError_t err = cudaGetLastError();
             if (err != cudaSuccess) {
                 std::cerr << "CUDA error Jacobi: " << cudaGetErrorString(err) << std::endl;
             }
         }
+        
         std::size_t sharedMemSize = blockDims.x*sizeof(double);
         linAlgebra_.maxErrorCUDA(devOld, devNext, devMaxBlockError, devIntIndices, nIntIdxs, nx, ny, gridDims, blockDims, sharedMemSize);
+
         if (globs.verbosity & SimulationGlobals::VERB_MEDIUM){
             cudaError_t err = cudaGetLastError();
             if (err != cudaSuccess) {

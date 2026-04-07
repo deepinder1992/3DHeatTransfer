@@ -50,7 +50,7 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
                 auto jc = j + interiorOffsets[s][1];
                 auto kc = k + interiorOffsets[s][2];
                 int sign_ = sign(norm,idx,ic,jc,kc);
-                grid(i,j,k)+= (weightBc*sign_*2*dx*values_[faceNum]/cond)+grid(ic,jc,kc);
+                grid(i,j,k)+= weightBc*((sign_*2*dx*values_[faceNum]/cond)+grid(ic,jc,kc));
             }
         }
     }

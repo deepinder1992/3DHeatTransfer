@@ -34,7 +34,7 @@ inline void allocateMemory(T*& ptr,
 
 
 
-__global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, std::size_t (*intIndices)[3],
+__global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, std::size_t (*intIndices)[3], std::size_t nIntIdxs,
                                         std::size_t nx, std::size_t ny, std::size_t nz, double coeff_);
 
 __global__ void addSubtract(double*a , double* b , double* c , double alpha, std::size_t N, double sign);

@@ -166,17 +166,17 @@ void Grid3D::constructNeigbourMap(SolverType solver){
 std::vector<NeighbourType> Grid3D::findSolidNeighbours(std::size_t i, std::size_t j, std::size_t k){
         std::vector<NeighbourType> solidsVect;
         if (i > 0     && cellType(i-1,j,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::X_PREV);
-        else if (i < nx_-1 && cellType(i+1,j,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::X_NEXT);
-        else if (j > 0     && cellType(i,j-1,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Y_PREV);
-        else if (j < ny_-1 && cellType(i,j+1,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Y_NEXT);
-        else if (k > 0     && cellType(i,j,k-1) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Z_PREV);
-        else if (k < nz_-1 && cellType(i,j,k+1) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Z_NEXT);
-        else if (i==0)      solidsVect.push_back(NeighbourType::X_PREV); 
-        else if (i==nx_-1)  solidsVect.push_back(NeighbourType::X_NEXT);
-        else if (j==0)      solidsVect.push_back(NeighbourType::Y_PREV);
-        else if (j==ny_-1)  solidsVect.push_back(NeighbourType::Y_NEXT);
-        else if (k==0)      solidsVect.push_back(NeighbourType::Z_PREV);
-        else if (k==nz_-1)  solidsVect.push_back(NeighbourType::Z_NEXT);
+        if (i < nx_-1 && cellType(i+1,j,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::X_NEXT);
+        if (j > 0     && cellType(i,j-1,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Y_PREV);
+        if (j < ny_-1 && cellType(i,j+1,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Y_NEXT);
+        if (k > 0     && cellType(i,j,k-1) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Z_PREV);
+        if (k < nz_-1 && cellType(i,j,k+1) == CellType::SOLID)  solidsVect.push_back(NeighbourType::Z_NEXT);
+        if (i==0)      solidsVect.push_back(NeighbourType::X_PREV); 
+        if (i==nx_-1)  solidsVect.push_back(NeighbourType::X_NEXT);
+        if (j==0)      solidsVect.push_back(NeighbourType::Y_PREV);
+        if (j==ny_-1)  solidsVect.push_back(NeighbourType::Y_NEXT);
+        if (k==0)      solidsVect.push_back(NeighbourType::Z_PREV);
+        if (k==nz_-1)  solidsVect.push_back(NeighbourType::Z_NEXT);
         return solidsVect;
     }
 

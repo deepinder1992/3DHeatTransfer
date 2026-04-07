@@ -10,12 +10,11 @@ __device__ __constant__ int interiorOffsetsGPU[6][3] =  { {+2,0,0} ,   {-3,0,0},
                                                       {0,0,+2} ,   {0,0,-3}};
 
 
-__global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, std::size_t (*intIndices)[3],
+__global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, std::size_t (*intIndices)[3], std::size_t nIntIdxs,
                                     std::size_t nx, std::size_t ny, std::size_t nz, double coeff_)
     {
         std::size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
-        //std::size_t j = blockIdx.y * blockDim.y + threadIdx.y;
-        //std::size_t k = blockIdx.z * blockDim.z + threadIdx.z;
+        if (tid >= nIntIdxs) return ;
 
         const auto& ijk = intIndices[tid];
         std::size_t i = ijk[0];
@@ -98,7 +97,8 @@ __global__ void maxError( double* oldVal, double* newVal, double* maxBlockError,
           std::size_t j = ijk[1];
           std::size_t k = ijk[2];
           std::size_t idx = i + j*nx + k*nx*ny;
-          sData[lTid] = fabs(oldVal[idx] - newVal[idx]); }
+          double xxxx = fabs(oldVal[idx] - newVal[idx]);
+        sData[lTid] =xxxx; }
 
     __syncthreads();
 
@@ -152,8 +152,8 @@ __global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t 
                                     double  cond, const BCType types_[3], const double values_[3]){
 
         auto applyBc = [=] __device__ (int face, double& cell, double interior, int sign, double weightBc){
-                if (types_[face]==BCType::Dirichlet){cell = values_[face];}
-                else if (types_[face]==BCType::Neumann){ cell = (weightBc*sign*2*dx*values_[face]/cond)+interior;} };
+                if (types_[face]==BCType::Dirichlet){cell += weightBc*values_[face];}
+                else if (types_[face]==BCType::Neumann){ cell += weightBc*((sign*2*dx*values_[face]/cond)+interior);} };
         
         auto sign = [=] __device__ (float cellNormal[3],
                                     std::size_t i, std::size_t j, std::size_t k,
@@ -172,24 +172,28 @@ __global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t 
         std::size_t i = ijk[0];
         std::size_t j = ijk[1];
         std::size_t k = ijk[2];
-        int faceNum = static_cast<int>(faceTypes[i+j*nx+k*ny*nx])-1;
+        std::size_t inx = i+j*nx+k*ny*nx;
+        int faceNum = static_cast<int>(faceTypes[inx])-1;
 
         std::size_t start = nbrOffset[tid];
         std::size_t end   = nbrOffset[tid + 1];
         double weightBc = (start!=end)? 1.0/(static_cast<double>(end)-static_cast<double>(start)):1.0;
-
-
-
+        
+        //__syncthreads();
+        grid[inx] = 0.0;            
         for (std::size_t idx = start; idx < end; ++idx) {
-            NeighbourType& neighbour = nbrType[idx];
+            if(types_[faceNum]==BCType::Dirichlet){grid[inx] += weightBc*values_[faceNum];}
+            else if (types_[faceNum]==BCType::Neumann){
+                NeighbourType& neighbour = nbrType[idx];
 
             int  s  = static_cast<int>(neighbour);
             auto ic = i + interiorOffsetsGPU[s][0];
             auto jc = j + interiorOffsetsGPU[s][1];
             auto kc = k + interiorOffsetsGPU[s][2];
 
-            int sign_ = sign(devCellNormals[i+j*nx+k*ny*nx], i,j,k,ic,jc,kc );
+            int sign_ = sign(devCellNormals[inx], i,j,k,ic,jc,kc );
+            grid[inx] += weightBc*((sign_*2*dx*values_[faceNum]/cond)+grid[ic+jc*nx+kc*ny*nx]);}    
+            //applyBc(faceNum, grid[inx], grid[ic+jc*nx+kc*ny*nx], sign_,weightBc);}
 
-            applyBc(faceNum, grid[i+j*nx+k*ny*nx], grid[ic+jc*nx+kc*ny*nx], sign_,weightBc);
         }
 }
