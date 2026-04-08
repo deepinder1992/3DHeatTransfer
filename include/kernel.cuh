@@ -47,7 +47,7 @@ __global__ void maxError( double* oldVal, double* newVal, double* maxBlockError,
 
 __global__ void arraySumReduction (double* a, double* blockSum, std::size_t n);
 
-__global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t ny, std::size_t nz, double dx, 
+__global__ void applyBCsToStencilKern(double* grid, double *oldGrid, std::size_t nx, std::size_t ny, std::size_t nz, double dx, 
                                     std::size_t (*bcIndices)[3], FaceType* faceTypes,std::size_t nBcCells,
                                     NeighbourType* nbrType, std::size_t* nbrOffset, float (*devCellNormals)[3], double  cond, const BCType types_[3],
                                     const double values_[3]);

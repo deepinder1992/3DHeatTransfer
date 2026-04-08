@@ -146,14 +146,10 @@ double arraySum(double* a , std::size_t n){
 }
 
 
-__global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t ny, std::size_t nz, double dx, 
+__global__ void applyBCsToStencilKern(double* grid, double* oldGrid, std::size_t nx, std::size_t ny, std::size_t nz, double dx, 
                                     std::size_t (*bcIndices)[3], FaceType* faceTypes,std::size_t nBcCells,
                                     NeighbourType* nbrType, std::size_t* nbrOffset, float (*devCellNormals)[3],
                                     double  cond, const BCType types_[3], const double values_[3]){
-
-        auto applyBc = [=] __device__ (int face, double& cell, double interior, int sign, double weightBc){
-                if (types_[face]==BCType::Dirichlet){cell += weightBc*values_[face];}
-                else if (types_[face]==BCType::Neumann){ cell += weightBc*((sign*2*dx*values_[face]/cond)+interior);} };
         
         auto sign = [=] __device__ (float cellNormal[3],
                                     std::size_t i, std::size_t j, std::size_t k,
@@ -182,7 +178,8 @@ __global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t 
         //__syncthreads();
         grid[inx] = 0.0;            
         for (std::size_t idx = start; idx < end; ++idx) {
-            if(types_[faceNum]==BCType::Dirichlet){grid[inx] += weightBc*values_[faceNum];}
+            if(types_[faceNum]==BCType::Dirichlet){
+                grid[inx] +=weightBc*values_[faceNum];}
             else if (types_[faceNum]==BCType::Neumann){
                 NeighbourType& neighbour = nbrType[idx];
 
@@ -192,8 +189,6 @@ __global__ void applyBCsToStencilKern(double* grid, std::size_t nx, std::size_t 
             auto kc = k + interiorOffsetsGPU[s][2];
 
             int sign_ = sign(devCellNormals[inx], i,j,k,ic,jc,kc );
-            grid[inx] += weightBc*((sign_*2*dx*values_[faceNum]/cond)+grid[ic+jc*nx+kc*ny*nx]);}    
-            //applyBc(faceNum, grid[inx], grid[ic+jc*nx+kc*ny*nx], sign_,weightBc);}
-
+            grid[inx] += weightBc*((sign_*2*dx*values_[faceNum]/cond)+oldGrid[ic+jc*nx+kc*ny*nx]);}    
         }
 }

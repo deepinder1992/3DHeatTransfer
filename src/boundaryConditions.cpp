@@ -88,7 +88,7 @@ void BoundaryConditions::applyBCsToRhsMatrix(const Grid3D& grid, size_type nx, s
     }
 }
 
-void BoundaryConditions::applyBCsToStencilCUDA(double* grid, double dx, size_type nx, 
+void BoundaryConditions::applyBCsToStencilCUDA(double* grid, double* oldGrid, double dx, size_type nx, 
     size_type ny, size_type nz, size_type(*bcIndices)[3], FaceType* faceTypes, std::size_t nBcCells,
     NeighbourType* devNbrTypes, std::size_t* devNbrOffset, float (*devCellNormals)[3], double cond, dim3 gridCuda, dim3 blockCuda) const 
     {    
@@ -101,7 +101,7 @@ void BoundaryConditions::applyBCsToStencilCUDA(double* grid, double dx, size_typ
         for (int i = 0; i < numFaces; ++i)
             values[i] = values_[i];
 
-        applyBCsToStencilKern<<<gridCuda, blockCuda>>>(grid, nx, ny, nz, dx, bcIndices, faceTypes,
+        applyBCsToStencilKern<<<gridCuda, blockCuda>>>(grid, oldGrid, nx, ny, nz, dx, bcIndices, faceTypes,
              nBcCells, devNbrTypes, devNbrOffset, devCellNormals, cond, types, values);
         cudaDeviceSynchronize();
     }
