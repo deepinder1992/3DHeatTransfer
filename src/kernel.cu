@@ -182,13 +182,12 @@ __global__ void applyBCsToStencilKern(double* grid, double* oldGrid, std::size_t
                 grid[inx] +=weightBc*values_[faceNum];}
             else if (types_[faceNum]==BCType::Neumann){
                 NeighbourType& neighbour = nbrType[idx];
+                int  s  = static_cast<int>(neighbour);
+                auto ic = i + interiorOffsetsGPU[s][0];
+                auto jc = j + interiorOffsetsGPU[s][1];
+                auto kc = k + interiorOffsetsGPU[s][2];
 
-            int  s  = static_cast<int>(neighbour);
-            auto ic = i + interiorOffsetsGPU[s][0];
-            auto jc = j + interiorOffsetsGPU[s][1];
-            auto kc = k + interiorOffsetsGPU[s][2];
-
-            int sign_ = sign(devCellNormals[inx], i,j,k,ic,jc,kc );
-            grid[inx] += weightBc*((sign_*2*dx*values_[faceNum]/cond)+oldGrid[ic+jc*nx+kc*ny*nx]);}    
+                int sign_ = sign(devCellNormals[inx], i,j,k,ic,jc,kc );
+                grid[inx] += weightBc*((sign_*2*dx*values_[faceNum]/cond)+oldGrid[ic+jc*nx+kc*ny*nx]);}    
         }
 }

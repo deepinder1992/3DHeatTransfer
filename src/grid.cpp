@@ -1,4 +1,5 @@
 #include "grid.hpp"
+#include <algorithm>
 #include <iostream>
 
 Grid3D::Grid3D(size_type nx, size_type ny, size_type nz, double dx)
@@ -141,11 +142,28 @@ void Grid3D::detectBoundaries(){
 void Grid3D::constructNeigbourMap(SolverType solver){
     std::size_t idx = INVALID;
 
+
+    std::vector<NeighbourType> solidNebrVect;
     for (auto ijk:boundaryIndices_){
         auto [i,j,k] =ijk;
+
         idx = index(i,j,k);
+
+        auto removeCondition = [&](const NeighbourType& neighbour){
+            int  s  = static_cast<int>(neighbour);
+            auto ic = i + interiorOffsets[s][0];
+            auto jc = j + interiorOffsets[s][1];
+            auto kc = k + interiorOffsets[s][2];
+            return cellType(ic,jc,kc)==CellType::SOLID;};
           
-        solidNebrMap_[idx] = findSolidNeighbours(i, j, k);
+        solidNebrVect =  findSolidNeighbours(i, j, k);
+        solidNebrVect.erase(
+            std::remove_if(solidNebrVect.begin(), solidNebrVect.end(),
+                            [&](const NeighbourType n){ 
+                                return removeCondition(n);}), 
+            solidNebrVect.end());
+
+        solidNebrMap_[idx] = solidNebrVect;
         if(solidNebrMap_[idx].size()==0){
             std::cout<<"Cell centered at "<<i<<", "<<j<<", "<<k
             <<" is boundary but no solid neigbours found!"<<std::endl;}
@@ -163,7 +181,8 @@ void Grid3D::constructNeigbourMap(SolverType solver){
 
 }
 
-std::vector<NeighbourType> Grid3D::findSolidNeighbours(std::size_t i, std::size_t j, std::size_t k){
+
+std::vector<NeighbourType> Grid3D::findSolidNeighbours(std::size_t i, std::size_t j, std::size_t k) const{
         std::vector<NeighbourType> solidsVect;
         if (i > 0     && cellType(i-1,j,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::X_PREV);
         if (i < nx_-1 && cellType(i+1,j,k) == CellType::SOLID)  solidsVect.push_back(NeighbourType::X_NEXT);
@@ -227,7 +246,6 @@ void Grid3D::assignNoneCells(){
             for(size_type i=0; i<nx_; ++i){
                 if(cellType(i,j,k) == CellType::BOUNDARY && faceType(i,j,k) == FaceType::NONE){
                  faceType(i,j,k)=FaceType::WALL;
-                 ++numBoundaryCells_; 
                 }
             }
         }

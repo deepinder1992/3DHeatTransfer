@@ -36,7 +36,7 @@ inline SparseMatrix implicitMatrix(const Grid3D& grid, size_type nx, size_type n
             double diag = 1+6.0*coeff;
             //handle boundaries
             if(grid.cellType(i,j,k) == CellType::BOUNDARY){
-                const std::vector<NeighbourType> solidNeighbors = grid.getSolidNeighbours(i, j, k);
+                const std::vector<NeighbourType> solidNeighbors = grid.findSolidNeighbours(i, j, k);
                 int faceNum = static_cast<int>(grid.faceType(i,j,k))-1;
                 for (NeighbourType neighbour :solidNeighbors){
                         if(neighbour==NeighbourType::X_PREV) applyBC(faceNum, i+1,j,k, diag);

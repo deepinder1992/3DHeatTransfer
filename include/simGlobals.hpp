@@ -37,6 +37,10 @@ enum class NeighbourType
     Z_PREV = 4,
     Z_NEXT = 5 
 };
+        
+static const std::array<int,3> interiorOffsets[6] = {{+2,0,0}, {-3,0,0}, {0,+2,0},
+                                                        {0,-3,0}, {0,0,+2}, {0,0,-3}};
+
 const std::size_t INVALID = std::numeric_limits<std::size_t>::max();
 
 struct SimulationGlobals {
@@ -45,11 +49,12 @@ struct SimulationGlobals {
     static constexpr int VERB_HIGH   = 1 << 2;
 
     SolverType solver = SolverType::CUDA_STENCIL; // default solver
-    std::string stlFileloc  = "../stlFiles/cube/cube.stl"; //todo make it os agnostic
+    std::string stlFileloc  = "../stlFiles/cylinder/cylinder.stl"; //todo make it os agnostic
                              // "../stlFiles/cube/cube.stl"
                              // "../stlFiles/L_Channel/l.stl"
                              //"../stlFiles/cylinder/cylinder.stl"
                              //   "../stlFiles/sphere/sphere.stl"
+                             //   "../stlFiles/semiCylinder/semicylinder.stl"
     
     int t = 0;
     int steps = 10000;

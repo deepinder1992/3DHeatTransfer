@@ -35,7 +35,6 @@ struct Vector{
 };
 #pragma pack(pop)
 
-
 class Grid3D{
     public:
         Grid3D(size_type nx, size_type ny, size_type nz, double dx);
@@ -61,7 +60,7 @@ class Grid3D{
         const std::vector<std::size_t>& offsetsNeighbourTypes()const;
 
         std::vector<NeighbourType> getSolidNeighbours(std::size_t i, std::size_t j, std::size_t k) const;
-        std::vector<NeighbourType> findSolidNeighbours(std::size_t i, std::size_t j, std::size_t k);
+        std::vector<NeighbourType> findSolidNeighbours(std::size_t i, std::size_t j, std::size_t k) const;
 
         size_type nx() const noexcept {return nx_;}
         size_type ny() const noexcept {return ny_;}

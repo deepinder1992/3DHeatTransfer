@@ -24,12 +24,9 @@ void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const Simul
     const std::size_t nx = current.nx();
     const std::size_t ny = current.ny();
     const std::size_t nz = current.nz();
-   // const double dx = current.dx();
-    
     //auto deep copy
     Grid3D bufferGrid = current;//(nx,ny,nz,dx);
-    //bufferGrid.fill(0.0);
-
+    
     // old/ new here just mean the internal prev and next itertions of this time step in for loop below,
     // current and next signify timesteps
     Grid3D* oldGrid = &bufferGrid;
@@ -50,9 +47,7 @@ void HeatSolverCPUStencil::step(const Grid3D& current, Grid3D& next, const Simul
         std::swap(oldGrid,newGrid);
         linAlgebra_.adjustMaxItersIfNeeded(iter);
     }
-    if (newGrid !=&next) next = *newGrid;
-    
-    //bc.applyBCsToStencil(next, globs.dx, globs.k);    
+    if (newGrid !=&next) next = *newGrid;   
 }   
 
 

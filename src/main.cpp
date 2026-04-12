@@ -40,18 +40,21 @@ void runSimulation(
         }
 
         std::swap(current, next);
-
+        std::size_t imax = 0, jmax = 0, kmax = 0;
         maxDiff = 0.0;
         for (auto& cell:current.activeIndices()) {
             auto [i,j,k] = cell;
             double diff = std::abs(current(i,j,k) - next(i,j,k));
-            if (diff > maxDiff)
-                maxDiff = diff;
+            if (diff > maxDiff){
+                imax = i;
+                jmax = j;
+                kmax = k;
+                maxDiff = diff;}
         }
 
         std::cout << "Step " << globs.t + 1
                   << ": center " << current(globs.nx/2, globs.ny/2, globs.nz/2)
-                  << ", Max Diff: " << maxDiff << std::endl;
+                  << ", Max Diff: " << maxDiff << " at cell: " <<imax<<" "<<jmax<<" "<<kmax<< std::endl;
 
         if (maxDiff < globs.globalTol) break;
     }
@@ -84,10 +87,11 @@ int main(int argc, char** argv) {
     current.assignNoneCells();
     current.constructNeigbourMap(globs.solver);
     
+    current.fill(75.0);
     // auto deep copy
     Grid3D next = current;
 
-    current.fill(75.0);
+    
 
     BoundaryConditions bc(globs.types, globs.values);
     //bc.applyBCsToStencil(current, current.dx(), globs.k);
@@ -161,7 +165,7 @@ void parseCLI(int argc, char** argv, SimulationGlobals& g) {
                                     g.types[2]  = static_cast<BCType>(std::stoi(argv[++i]));}
         else if (arg == "--bcVals") {g.values[0]  = std::stoi(argv[++i]);
                                     g.values[1]  = std::stoi(argv[++i]);}
-        else if (arg == "--stlFilePath") g.stlFileloc = std::stoi(argv[++i]);
+        else if (arg == "--stlPath") g.stlFileloc = std::stoi(argv[++i]);
         else if (arg == "--help") {
             std::cout << "Usage: ./heatSolver [options]\n\n";
             std::cout << "Options:\n";
@@ -191,7 +195,7 @@ void parseCLI(int argc, char** argv, SimulationGlobals& g) {
                       << "                       eg. --bcTypes 2 1 2 for inlet, wall and outlet respectively \n";
             std::cout << "  --bcVals             respective values of BC at inlet, wall and outlet patches\n"
                       << "                       eg. --bcVals 1000 100 -1000 for inlet, wall and outlet respectively \n";
-            std::cout << "  --binaryStlFilePath  Location of the stl file, just provide the stl geometry file name \n"
+            std::cout << "  --stlPath  Location of the stl file, just provide the stl geometry file name \n"
                       << "                       make sure the inlet,outlet wall files are present in samelocation with \n"
                       << "                       _inlet, _outlet,_wall appedned to the name of geometry file. \n"
                       << "                       eg. cylinder.stl, cylinder_inlet.stl, cylinder_outlet.stl, cylinder_wall.stl \n";

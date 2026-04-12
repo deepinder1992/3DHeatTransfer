@@ -1,9 +1,5 @@
 #include "boundaryConditions.hpp"
-
-static const std::array<int,3> interiorOffsets[6] = {{+2,0,0}, {-3,0,0}, {0,+2,0},
-                                                        {0,-3,0}, {0,0,+2}, {0,0,-3}};
         
-
 BoundaryConditions::BoundaryConditions(std::array<BCType,3>types,std::array<double,3>values)
            :types_(types),values_(values){};
 
@@ -18,9 +14,6 @@ int BoundaryConditions::sign(Vector cellNormal, const std::array<size_type,3>&  
 };
 
 void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) const{
-    const size_type nx = grid.nx();
-    const size_type ny = grid.ny();
-    const size_type nz = grid.nz();
     const std::vector<std::array<size_type,3>>& boundaryIdxs = grid.boundaryIndices();
 
     for (const std::array<size_type,3>& idx:boundaryIdxs){
@@ -30,8 +23,7 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
         int numSolidNeigbours = solidNeighbors.size();
 
         if(numSolidNeigbours==0)continue;
-
-        float weightBc = 1.0/numSolidNeigbours;
+        double weightBc = 1.0/numSolidNeigbours;
         
         Vector norm = grid.cellFaceNormalized(i,j,k);
         grid(i,j,k) = 0.0; //reset so we dont accumulate previous values
@@ -71,7 +63,7 @@ void BoundaryConditions::applyBCsToRhsMatrix(const Grid3D& grid, size_type nx, s
         size_type idx = i + nx*(j+ny*k);
         size_type row =  compactLookup[idx];
 
-        const std::vector<NeighbourType> solidNeighbors = grid.getSolidNeighbours(i, j, k);
+        const std::vector<NeighbourType> solidNeighbors = grid.findSolidNeighbours(i, j, k);
         
         int faceNum = static_cast<int>(grid.faceType(i,j,k))-1;
         Vector norm = grid.cellFaceNormalized(i,j,k);
