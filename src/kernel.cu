@@ -97,8 +97,7 @@ __global__ void maxError( double* oldVal, double* newVal, double* maxBlockError,
           std::size_t j = ijk[1];
           std::size_t k = ijk[2];
           std::size_t idx = i + j*nx + k*nx*ny;
-          double xxxx = fabs(oldVal[idx] - newVal[idx]);
-        sData[lTid] =xxxx; }
+          sData[lTid] = fabs(oldVal[idx] - newVal[idx]);}
 
     __syncthreads();
 

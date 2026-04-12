@@ -144,9 +144,9 @@ int main() {
         std::vector<double> randA =  randomVector(N, min, max);
         std::vector<double> randB =  randomVector(N, min, max);
 
-        dim3 blockDim1D(globs.blockDimX*globs.blockDimY*globs.blockDimZ);
-        dim3 gridDim1D((N+globs.blockDimX*globs.blockDimY*globs.blockDimZ-1)
-                        /(globs.blockDimX*globs.blockDimY*globs.blockDimZ));
+        dim3 blockDim1D(globs.blockDim);
+        dim3 gridDim1D((N+globs.blockDim-1)
+                        /(globs.blockDim));
 
         
         double* devBVector = nullptr;

@@ -27,9 +27,9 @@ void LinearAlgebra::conjugateGradientCUDA(const SparseMatrix& A, const std::vect
     std::size_t aValSize = A.values().size();
     std::size_t aRowPtrSize = A.rowPtr().size();
     std::size_t aColIdxSize = A.colIndex().size();
-    dim3 blockDim1D(globs.blockDimX*globs.blockDimY*globs.blockDimZ);
-    dim3 gridDim1D((N+globs.blockDimX*globs.blockDimY*globs.blockDimZ-1)
-                        /(globs.blockDimX*globs.blockDimY*globs.blockDimZ));
+    dim3 blockDim1D(globs.blockDim);
+    dim3 gridDim1D((N+globs.blockDim-1)
+                        /(globs.blockDim));
 
 
     double fac  = 1.0;

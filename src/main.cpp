@@ -9,6 +9,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <CLI/CLI.hpp>
 
 // Forward declaration for CLI parser
 void parseCLI(int argc, char** argv, SimulationGlobals& g);
@@ -130,83 +131,67 @@ int main(int argc, char** argv) {
 }
 
 // ------------------ CLI parser ------------------
-void parseCLI(int argc, char** argv, SimulationGlobals& g) {
-    for (int i = 1; i < argc; i++) {
-        std::string arg = argv[i];
+void parseCLI(int argc, char** argv, SimulationGlobals& globs) {
+    CLI::App app{"Heat3D Solver"};
+    
+    app.add_option("--solver", globs.solver, "Select solver type:\n"
+                                        "  1 = CPU_STENCIL\n"
+                                        "  2 = CPU_MATRIX\n"
+                                        "  3 = CUDA_STENCIL\n"
+                                        "  4 = CUDA_MATRIX")->check(CLI::Range(1,4));
+                                        
+    app.add_option("--nx", globs.nx, "Grid size (uniform in x, y, z).");
 
-        if (arg == "--solver") {
-            int s = std::stoi(argv[++i]);
-            if (s < 1 || s > 4) {
-                std::cerr << "Solver must be between 1 and 4\n";
-                exit(1);
-            }
-            g.solver = static_cast<SolverType>(s);
-        }
-        else if (arg == "--nx"){
-                g.nx = std::stoi(argv[++i]);
-                g.ny = g.nx;  // enforce equal dimensions. the solver is capable to handle different
-                g.nz = g.nx;    // but we need dx dy and dz separately. This will be enchanced later
-            }
-        else if (arg == "--ny") g.ny = std::stoi(argv[++i]);
-        else if (arg == "--nz") g.nz = std::stoi(argv[++i]);
-        else if (arg == "--steps") g.steps = std::stoi(argv[++i]);
-        else if (arg == "--dt") g.dt = std::stod(argv[++i]);
-        else if (arg == "--jacobiTol") g.tol = std::stod(argv[++i]);
-        else if (arg == "--globalTol") g.globalTol = std::stod(argv[++i]);
-       // else if (arg == "--lx") g.lx = std::stod(argv[++i]);
-        else if (arg == "--maxIters") g.maxIters = std::stoi(argv[++i]);
-        else if (arg == "--verbosity") g.verbosity = std::stoi(argv[++i]);
-        else if (arg == "--writeInterval") g.writeInterval = std::stoi(argv[++i]);
-        else if (arg == "--blockx") g.blockDimX = std::stoi(argv[++i]);
-        else if (arg == "--blocky") g.blockDimY = std::stoi(argv[++i]);
-        else if (arg == "--blockz") g.blockDimZ = std::stoi(argv[++i]);
-        else if (arg == "--bcTypes"){g.types[0]  = static_cast<BCType>(std::stoi(argv[++i]));
-                                    g.types[1]  = static_cast<BCType>(std::stoi(argv[++i]));
-                                    g.types[2]  = static_cast<BCType>(std::stoi(argv[++i]));}
-        else if (arg == "--bcVals") {g.values[0]  = std::stoi(argv[++i]);
-                                    g.values[1]  = std::stoi(argv[++i]);}
-        else if (arg == "--stlPath") g.stlFileloc = std::stoi(argv[++i]);
-        else if (arg == "--help") {
-            std::cout << "Usage: ./heatSolver [options]\n\n";
-            std::cout << "Options:\n";
-            std::cout << "  --solver [1-4]       Select solver type:\n";
-            std::cout << "                       1 = CPU_STENCIL\n";
-            std::cout << "                       2 = CPU_MATRIX\n";
-            std::cout << "                       3 = CUDA_STENCIL\n";
-            std::cout << "                       4 = CUDA_MATRIX\n";
-            std::cout << "  --nx N               Number of grid points in x (ny and nz are set equal to nx by default)\n";
-            std::cout << "  --ny N               Number of grid points in y (optional, will override default nx)\n";
-            std::cout << "  --nz N               Number of grid points in z (optional, will override default nx)\n";
-            std::cout << "  --steps N            Maximum number of time steps\n";
-            std::cout << "  --dt VALUE           Time step size\n";
-            std::cout << "  --jacobiTol VALUE    Tolerance for Jacobi iterations (if using iterative solver)\n";
-            std::cout << "  --globalTol VALUE    Global convergence tolerance for the simulation\n";
-            //std::cout << "  --lx VALUE           Physical domain size in x (length units)\n";
-            std::cout << "  --maxIters N         Maximum number of iterations per time step\n";
-            std::cout << "  --verbosity LEVEL    Output verbosity level (bitmask):\n";
-            std::cout << "                       1 = low, 2 = medium, 4 = high (can combine e.g., 3 = low+medium)\n";
-            std::cout << "  --writeInterval N    Write output every N steps\n";
-            std::cout << "  --blockx N           CUDA block size in x (for GPU solvers)\n";
-            std::cout << "  --blocky N           CUDA block size in y\n";
-            std::cout << "  --blockz N           CUDA block size in z\n";
-            std::cout << "  --bcTypes            respective types of BC at inlet, wall and outlet patches\n"
-                      << "                       1 = Dirichlet \n"
-                      << "                       2 = Neumann \n"
-                      << "                       eg. --bcTypes 2 1 2 for inlet, wall and outlet respectively \n";
-            std::cout << "  --bcVals             respective values of BC at inlet, wall and outlet patches\n"
-                      << "                       eg. --bcVals 1000 100 -1000 for inlet, wall and outlet respectively \n";
-            std::cout << "  --stlPath  Location of the stl file, just provide the stl geometry file name \n"
-                      << "                       make sure the inlet,outlet wall files are present in samelocation with \n"
-                      << "                       _inlet, _outlet,_wall appedned to the name of geometry file. \n"
-                      << "                       eg. cylinder.stl, cylinder_inlet.stl, cylinder_outlet.stl, cylinder_wall.stl \n";
-            std::cout << "  --help               Show this help message\n\n";
-            std::cout << "Cmd Examples:\n";
-            std::cout << "  ./heatSolver --solver 2 --nx 128 --steps 10000 --dt 0.01 --verbosity 3\n";
-            std::cout << "  ./heatSolver --solver 4 --nx 256 --writeInterval 100 --blockx 16 --blocky 16 --blockz 16\n";
-            exit(0);
-        }
-    }
+    app.add_option("--steps", globs.steps, "Maximum number of time steps.");
 
-    // recompute dependent values
-    //g.dx = g.lx / g.nx;
+    app.add_option("--dt", globs.dt, "Time step size (s).");
+
+    app.add_option("--jacobiTol", globs.tol, "Tolerance for Jacobi iterations.");
+
+    app.add_option("--globalTol", globs.globalTol, "Global convergence tolerance for the simulation.");
+
+    app.add_option("--verbosity", globs.verbosity, "Output verbosity level (bitmask):\n" 
+                                                    "1 = low, 2 = medium, 4 = high (can combine e.g., 3 = low+medium)\n");
+
+    app.add_option("--writeInterval", globs.writeInterval, "Write output every N steps.");
+
+    app.add_option("--blockDim", globs.blockDim, "CUDA block size (for GPU solvers).");
+    
+
+    app.add_option("--bcTypeInlet", globs.types[0], "BC type at Inlet face: \n"
+                                                    "  1 = Dirichlet \n"
+                                                    "  2 = Neumann")->check(CLI::Range(1,2));                
+
+    app.add_option("--bcTypeOutlet", globs.types[1], "BC type at Outlet face: \n"
+                                                    "  1 = Dirichlet \n"
+                                                    "  2 = Neumann")->check(CLI::Range(1,2));
+        
+    app.add_option("--bcTypeWall", globs.types[2], "BC type at Wall face: \n"
+                                                    "  1 = Dirichlet \n"
+                                                    "  2 = Neumann")->check(CLI::Range(1,2));
+    
+    app.add_option("--bcValInlet", globs.values[0], "BC value at Inlet face.");              
+
+    app.add_option("--bcValOutlet", globs.values[1], "BC value at Outelet face");
+    
+    app.add_option("--bcValWall", globs.values[2], "BC value at Wall face");  
+
+    app.add_option("--stlPath", globs.stlFileloc, "Location of the stl file, just provide the stl geometry file name \n"
+                                                  "make sure the inlet,outlet wall files are present in samelocation with \n"
+                                                  "_inlet, _outlet,_wall appedned to the name of geometry file. \n"
+                                                  "eg. cylinder.stl, cylinder_inlet.stl, cylinder_outlet.stl, cylinder_wall.stl \n");
+
+    try {
+        app.parse(argc, argv);}
+    catch (const CLI::ParseError &e) {
+        std::exit(app.exit(e)); }
+
+    globs.solver = static_cast<SolverType>(globs.solver);
+
+    // enforce uniform grid
+    globs.ny = globs.nx;
+    globs.nz = globs.nx;
+    for (auto& t : globs.types) {
+    t = static_cast<BCType>(static_cast<int>(t)-1);}
+
 }
