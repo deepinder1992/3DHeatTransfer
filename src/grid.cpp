@@ -134,9 +134,6 @@ void Grid3D::detectBoundaries(){
     }
     //make look up internal cells 
     compactLookup();
-    std::cout <<"INNNNN" <<numActiveCells_<< std::endl;
-    std::cout <<"BNNNNN" <<numBoundaryCells_<< std::endl;
-    std::cout <<"SNNNNN" <<numBoundaryCells_<< std::endl;
 }
 
 void Grid3D::constructNeigbourMap(SolverType solver){
@@ -223,9 +220,6 @@ void Grid3D::diagnostics()const{
                 if(faceType(i,j,k) == FaceType::OUTLET) ++numOutletCells;
                 if(faceType(i,j,k) == FaceType::WALL) ++numWallCells;
                 if(cellType(i,j,k) == CellType::BOUNDARY && faceType(i,j,k) == FaceType::NONE) ++numNoneCells;
-                // if(cellType(i,j,k) == CellType::SOLID){//&&(i==0||j==0||k==0||i==nx_-1||j==ny_-1||k==nz_-1)){
-                //     std::cout <<i<<" "<<j<<" "<<k<<std::endl;
-                // }
             }
         }
     }

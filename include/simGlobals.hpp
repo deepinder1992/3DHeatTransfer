@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <string>
+#include <filesystem>
 
 enum class SolverType
 {
@@ -49,12 +50,13 @@ struct SimulationGlobals {
     static constexpr int VERB_HIGH   = 1 << 2;
 
     SolverType solver = SolverType::CUDA_STENCIL; // default solver
-    std::string stlFileloc  = "../stlFiles/cylinder/cylinder.stl"; //todo make it os agnostic
+    std::string stlFilePathStr = "../stlFiles/cylinder/cylinder.stl"; //todo make it os agnostic
                              // "../stlFiles/cube/cube.stl"
                              // "../stlFiles/L_Channel/l.stl"
                              //"../stlFiles/cylinder/cylinder.stl"
                              //   "../stlFiles/sphere/sphere.stl"
                              //   "../stlFiles/semiCylinder/semicylinder.stl"
+    std::filesystem::path stlFileloc = std::filesystem::path(stlFilePathStr);
     
     int t = 0;
     int steps = 10000;

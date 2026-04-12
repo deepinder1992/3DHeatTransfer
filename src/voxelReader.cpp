@@ -147,7 +147,7 @@ void VoxelReader::voxelizeGrid(Grid3D& grid, const std::vector<Triangle>& triang
     double dx = grid.dx();
     double dy = grid.dx();
     double dz = grid.dx();
-    int kkkk = 0;
+
     auto isInside = [&](const Vector& voxelCenter, const std::vector<Triangle>& triangles){
         Vector rayDir = {1.0,0,0};
         int crossCount = 0;
@@ -155,7 +155,6 @@ void VoxelReader::voxelizeGrid(Grid3D& grid, const std::vector<Triangle>& triang
             if(rayIntersectsTriangle(voxelCenter,rayDir, tri)){               
                       crossCount++;}
         }
-        if((crossCount%2)==1)kkkk+=1;
         return (crossCount%2)==1; 
     };
 
@@ -170,7 +169,6 @@ void VoxelReader::voxelizeGrid(Grid3D& grid, const std::vector<Triangle>& triang
             }
         }
     }
-    std::cout<<kkkk<<std::endl;
 }
 
 void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& triangles,const FaceType faceType){
@@ -181,7 +179,6 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
     double dx = grid.dx();
     double dy = grid.dx();
     double dz = grid.dx();
-    int kkkk = 0;
 
     for(const Triangle& tri:triangles){
         float xmin = 0.0f, xmax = 0.0f, ymin = 0.0f, ymax = 0.0f, zmin = 0.0f, zmax = 0.0f;
@@ -202,14 +199,11 @@ void VoxelReader::voxelizePatch(Grid3D& grid, const std::vector<Triangle>& trian
                          && isInterSecting(x, y, z, dx/2.0,tri )){
                         // && distanceFromCentroid(x, y, z, tri)<=(dx+1e-3f)){
                             grid.faceType(i,j,k) = faceType;
-                            grid.cellFaceNormal(i,j,k) = tri.normal;
-                            ++kkkk;
-                        
+                            grid.cellFaceNormal(i,j,k) = tri.normal;                        
                     }                 
                 }
             }
         }}
-    std::cout<<"iiii"<<kkkk<<std::endl;
 }
 
 void VoxelReader::boundingBox(const Triangle& tri, float& minX,float& maxX, float& minY,

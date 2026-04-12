@@ -159,16 +159,16 @@ void parseCLI(int argc, char** argv, SimulationGlobals& globs) {
     
 
     app.add_option("--bcTypeInlet", globs.types[0], "BC type at Inlet face: \n"
-                                                    "  1 = Dirichlet \n"
-                                                    "  2 = Neumann")->check(CLI::Range(1,2));                
+                                                    "  0 = Dirichlet \n"
+                                                    "  1 = Neumann")->check(CLI::Range(0,1));                
 
     app.add_option("--bcTypeOutlet", globs.types[1], "BC type at Outlet face: \n"
-                                                    "  1 = Dirichlet \n"
-                                                    "  2 = Neumann")->check(CLI::Range(1,2));
+                                                    "  0 = Dirichlet \n"
+                                                    "  1 = Neumann")->check(CLI::Range(0,1));
         
     app.add_option("--bcTypeWall", globs.types[2], "BC type at Wall face: \n"
-                                                    "  1 = Dirichlet \n"
-                                                    "  2 = Neumann")->check(CLI::Range(1,2));
+                                                    "  0 = Dirichlet \n"
+                                                    "  1 = Neumann")->check(CLI::Range(0,1));
     
     app.add_option("--bcValInlet", globs.values[0], "BC value at Inlet face.");              
 
@@ -176,7 +176,7 @@ void parseCLI(int argc, char** argv, SimulationGlobals& globs) {
     
     app.add_option("--bcValWall", globs.values[2], "BC value at Wall face");  
 
-    app.add_option("--stlPath", globs.stlFileloc, "Location of the stl file, just provide the stl geometry file name \n"
+    app.add_option("--stlPath", globs.stlFilePathStr, "Location of the stl file, just provide the stl geometry file name \n"
                                                   "make sure the inlet,outlet wall files are present in samelocation with \n"
                                                   "_inlet, _outlet,_wall appedned to the name of geometry file. \n"
                                                   "eg. cylinder.stl, cylinder_inlet.stl, cylinder_outlet.stl, cylinder_wall.stl \n");
@@ -192,6 +192,6 @@ void parseCLI(int argc, char** argv, SimulationGlobals& globs) {
     globs.ny = globs.nx;
     globs.nz = globs.nx;
     for (auto& t : globs.types) {
-    t = static_cast<BCType>(static_cast<int>(t)-1);}
-
+    t = static_cast<BCType>(static_cast<int>(t));}
+    globs.stlFileloc = std::filesystem::path(globs.stlFilePathStr);
 }
