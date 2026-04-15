@@ -54,7 +54,6 @@ struct SimulationGlobals {
                              // "../stlFiles/cube/cube.stl"
                              // "../stlFiles/L_Channel/l.stl"
                              //"../stlFiles/cylinder/cylinder.stl"
-                             //   "../stlFiles/sphere/sphere.stl"
                              //   "../stlFiles/semiCylinder/semicylinder.stl"
     std::filesystem::path stlFileloc = std::filesystem::path(stlFilePathStr);
     
@@ -95,10 +94,8 @@ struct SimulationGlobals {
                                     -500.0, //outlet
                                     100.0}; //wall
     // make sure blockdims are power of 2 _best practice
-    // std::size_t blockDimX = 8;
-    // std::size_t blockDimY = 8;
-    // std::size_t blockDimZ = 8;
-    std::size_t blockDim = 216;
+
+    std::size_t blockDim = 512;
     mutable int totalIters = 0;   
 
     
