@@ -76,6 +76,10 @@ CUDA implementations parallelize both approaches for execution on GPUs.
 * C++17 compatible compiler
 * CMake ≥ 3.20
 * CUDA toolkit (optional, for GPU solvers)
+### Install Requirements
+bash installDeps.sh   # Ubuntu
+installDeps.bat       # Windows (MSYS2)
+./build.sh
 
 ### Build
 
