@@ -26,7 +26,7 @@ git clone https://github.com/deepinder1992/3DHeatTransfer.git
 cd 3DHeatTransfer
 ./build.sh
 
-### 2. Run the solver
+## 2. Run the solver
 cd build
 
 # Run with default settings
