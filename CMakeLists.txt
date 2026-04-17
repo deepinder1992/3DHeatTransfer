@@ -58,11 +58,15 @@ src/main.cpp
 add_executable(heat3d ${SOURCES})
 
 # Include directories
-target_include_directories(heat3d PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    /usr/local/cuda/include
-)
-
+if (WIN32)
+    target_include_directories(heat3d PRIVATE
+        $ENV{CUDA_PATH}/include
+    )
+else()
+    target_include_directories(heat3d PRIVATE
+        /usr/local/cuda/include
+    )
+endif()
 ### tests
 add_executable(test_heat
     tests/tests_main.cu
