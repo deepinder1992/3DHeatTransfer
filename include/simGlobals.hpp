@@ -50,7 +50,7 @@ struct SimulationGlobals {
     static constexpr int VERB_HIGH   = 1 << 2;
 
     SolverType solver = SolverType::CUDA_STENCIL; // default solver
-    std::string stlFilePathStr = "../stlFiles/cylinder/cylinder.stl"; //todo make it os agnostic
+    std::string stlFilePathStr = "../stlFiles/cube/cube.stl"; //todo make it os agnostic
                              // "../stlFiles/cube/cube.stl"
                              // "../stlFiles/L_Channel/l.stl"
                              //"../stlFiles/cylinder/cylinder.stl"
