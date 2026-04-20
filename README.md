@@ -162,6 +162,8 @@ Associated boundary files are automatically detected.
 Simulation results are written in VTK format and can be visualized using ParaView.
 
 ---
+## Sample Output
+Here the geometries simulated by the solver will be displayed
 
 ## Contributing
 
