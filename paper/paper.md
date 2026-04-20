@@ -29,8 +29,6 @@ The software targets researchers and engineers working in thermal management, en
 
 # Statement of Need
 
-# Statement of Need
-
 Accurate modeling of three-dimensional heat conduction in complex geometries is essential across numerous scientific and engineering domains, including electronics cooling, battery thermal management, additive manufacturing, heat exchanger design, and materials processing. However, researchers and engineers often face a significant gap between overly simplistic tools and overly complex general-purpose simulation suites.
 
 Commercial software such as ANSYS and COMSOL Multiphysics provide powerful capabilities but come with high licensing costs and steep learning curves, limiting accessibility for many academic and small-scale research groups. On the open-source side, general-purpose CFD frameworks like OpenFOAM [@weller2007openfoam; @jasak2007openfoam] and FEniCS [@logg2012automated] are highly capable but tend to be heavyweight for pure conduction problems. They require extensive setup for meshing, case configuration, and solver tuning, even when fluid flow and convection are not needed. Many existing open-source finite-difference heat solvers are limited to simple Cartesian or regular domains, lack native support for complex STL-based geometries, or do not offer flexible GPU acceleration options [@miotti2021meshless; @zhang2015gpu].
