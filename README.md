@@ -38,7 +38,7 @@ Accurate simulation of heat conduction in complex geometries is essential in app
 * **Geometry handling:**
 
   * Arbitrary 3D geometries via STL files
-  * Automatic detection of inlet, outlet, and wall patches
+  * Assign inlet, outlet, and wall patches
 
 * **Boundary conditions:**
 
