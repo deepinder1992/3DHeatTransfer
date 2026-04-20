@@ -9,11 +9,11 @@ tags:
   - Jacobi solver
   - multi-backend
 authors:
-  - name: Deepinder Singh
-    orcid: https://orcid.org/0000-0000-0000-0000   # ← Change or remove if you don't have one
+  - name: Deepinder Jot Singh Aulakh
+    orcid: https://orcid.org/0000-0002-5140-2064
     affiliation: 1
 affiliations:
-  - name: Independent Researcher / University of Calgary   # ← Edit this
+  - name: Queen's University, Kingston, Canada
     index: 1
 date: 20 April 2026
 bibliography: paper.bib
