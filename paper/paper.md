@@ -21,7 +21,7 @@ bibliography: paper.bib
 
 # Summary
 
-**3DHeatTransfer** is a lightweight, high-performance C++ solver for steady-state and transient 3D heat conduction problems in complex geometries. It imports arbitrary 3D domains from STL files (with automatic patch detection) and supports mixed Dirichlet and Neumann boundary conditions. 
+**3DHeatTransfer** is a lightweight, high-performance C++ solver for steady-state and transient 3D heat conduction problems in complex geometries. It imports arbitrary 3D domains from STL files (with patch assignment: inlet, outlet, and  wall) and supports mixed Dirichlet and Neumann boundary conditions. 
 
 The software provides **four interchangeable solver backends** — CPU and CUDA implementations of both stencil-based and matrix-based Jacobi iterative solvers — allowing users to select the best combination of speed, memory usage, and hardware availability. Results are exported in VTK format for easy visualization in ParaView.
 
@@ -29,9 +29,19 @@ The software targets researchers and engineers working in thermal management, en
 
 # Statement of Need
 
-Accurate modeling of heat conduction in complex three-dimensional geometries is critical in many scientific and engineering applications, including electronics cooling, additive manufacturing, battery thermal management, and heat exchanger design. While powerful general-purpose tools such as OpenFOAM or ANSYS exist, they can be heavyweight for pure conduction problems.
+Accurate modeling of three-dimensional heat conduction in complex geometries is essential across numerous scientific and engineering domains, including electronics cooling, battery thermal management, additive manufacturing, heat exchanger design, and materials processing. However, researchers and engineers often face a significant gap between overly simplistic tools and overly complex general-purpose simulation suites.
 
-**3DHeatTransfer** fills this gap by providing a specialized, easy-to-use, and highly performant open-source solver focused exclusively on the 3D heat equation, with flexible multi-backend solver selection and native STL geometry support.
+Commercial software such as ANSYS and COMSOL Multiphysics provide powerful capabilities but come with high licensing costs and steep learning curves, limiting accessibility for many academic and small-scale research groups. On the open-source side, general-purpose CFD frameworks like OpenFOAM [@weller2007openfoam; @jasak2007openfoam] and FEniCS [@logg2012automated] are highly capable but tend to be heavyweight for pure conduction problems. They require extensive setup for meshing, case configuration, and solver tuning, even when fluid flow and convection are not needed. Many existing open-source finite-difference heat solvers are limited to simple Cartesian or regular domains, lack native support for complex STL-based geometries, or do not offer flexible GPU acceleration options [@miotti2021meshless; @zhang2015gpu].
+
+Specialized open-source tools for heat conduction are relatively scarce. While some GPU-accelerated finite-difference implementations exist, they are often proof-of-concept codes without robust geometry import, mixed boundary condition support, or multiple solver backends [@wei2014fast; @richter2013gpu]. Meshless approaches such as RBF-FD have shown promise for arbitrary geometries defined by STL files but typically require more complex setup and lack the performance-oriented multi-backend design needed for rapid parametric studies [@miotti2021meshless].
+
+**3DHeatTransfer** addresses these limitations by providing a **lightweight, focused, and high-performance open-source solver** dedicated exclusively to steady-state and transient 3D heat conduction. Key innovations include:
+- Direct import of complex geometries from STL files with automatic boundary patch detection,
+- Support for mixed Dirichlet and Neumann boundary conditions,
+- Four interchangeable solver backends (CPU/GPU stencil-based and matrix-based Jacobi solvers) that let users balance memory usage, stability, and speed on different hardware,
+- Simple command-line interface and VTK output for seamless integration with ParaView.
+
+By combining these features in a single, easy-to-compile C++ package with CMake, the software lowers the barrier for researchers who need fast, reproducible conduction simulations without the overhead of full multiphysics frameworks. This makes it particularly valuable for parametric studies, teaching, and early-stage thermal design in both academia and industry.
 
 # Software Design
 
