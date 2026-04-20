@@ -21,7 +21,7 @@ bibliography: paper.bib
 
 # Summary
 
-**3DHeatTransfer** is a lightweight, high-performance C++ solver for steady-state and transient 3D heat conduction problems in complex geometries. It imports arbitrary 3D domains from STL files (with automatic patch detection) and supports mixed Dirichlet and Neumann boundary conditions. 
+**3DHeatTransfer** is a lightweight, high-performance C++ solver for steady-state and transient 3D heat conduction problems in complex geometries. It imports arbitrary 3D domains from STL files (with patch assignment: inlet, outlet, and  wall) and supports mixed Dirichlet and Neumann boundary conditions. 
 
 The software provides **four interchangeable solver backends** — CPU and CUDA implementations of both stencil-based and matrix-based Jacobi iterative solvers — allowing users to select the best combination of speed, memory usage, and hardware availability. Results are exported in VTK format for easy visualization in ParaView.
 
