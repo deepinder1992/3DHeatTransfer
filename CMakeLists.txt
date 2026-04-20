@@ -6,21 +6,18 @@ project(Heat3D LANGUAGES CXX CUDA)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Detect packages
-find_package(CUDAToolkit REQUIRED)
-if(OpenMP_CXX_FOUND)
-    message(STATUS "CUDA Toolkit found! Enabling flags.")
-endif()
-
-find_package(OpenMP REQUIRED)
-if(OpenMP_CXX_FOUND)
-    message(STATUS "OpenMP found! Enabling flags.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
 # Default build type = Release
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
+# Detect packages
+find_package(CUDAToolkit REQUIRED)
+find_package(OpenMP REQUIRED)
+
+if(OpenMP_CXX_FOUND)
+    message(STATUS "OpenMP found! Enabling flags.")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
 # Set compiler flags per build type
@@ -58,6 +55,9 @@ src/main.cpp
 add_executable(heat3d ${SOURCES})
 
 # Include directories
+target_include_directories(heat3d PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 if (WIN32)
     target_include_directories(heat3d PRIVATE
         $ENV{CUDA_PATH}/include
