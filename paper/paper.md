@@ -10,12 +10,12 @@ tags:
   - multi-backend
 authors:
   - name: Deepinder Singh
-    orcid: **[EDIT: add your ORCID if available]**
+    orcid: https://orcid.org/0000-0000-0000-0000   # ← Change or remove if you don't have one
     affiliation: 1
 affiliations:
-  - name: **[EDIT: Your affiliation / institution]**
+  - name: Independent Researcher / University of Calgary   # ← Edit this
     index: 1
-date: 19 April 2026
+date: 20 April 2026
 bibliography: paper.bib
 ---
 
