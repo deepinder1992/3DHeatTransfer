@@ -75,6 +75,9 @@ Performance comparisons on a representative test case (cube geometry, steady-sta
 
 On typical hardware, the CUDA stencil solver achieves **8–25× speedup** compared to the CPU stencil solver for grids larger than 80³, while still offering good performance on laptops via the CPU backends. This flexibility makes the software suitable for both rapid prototyping and large-scale simulations.
 
+# Simulations
+Here the few shapes simulated by solver will be displayed
+
 # State of the Field
 
 Several open-source heat transfer codes exist, but most are either limited to simple domains, lack GPU acceleration, or are part of much larger CFD frameworks. **3DHeatTransfer** stands out by combining automatic STL support, mixed boundary conditions, and four optimized solver backends in a single lightweight and easy-to-use package.
