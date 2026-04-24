@@ -70,7 +70,7 @@ Performance comparisons on a representative test case (cube geometry, steady-sta
 ![CPU vs GPU Speedup](images/timing_bars.svg)  
 **Figure 1:** Execution time comparison of the four solvers for a 100×100×100 grid (lower is better). CUDA backends demonstrate substantial speedup over CPU versions.
 
-![Strong Scaling](performance/strong_scaling.png)  
+![Strong Scaling](images/scaling_plots.svg)  
 **Figure 2:** Strong scaling with increasing grid resolution (50³ to 200³). The GPU stencil backend maintains excellent performance thanks to its low memory overhead.
 
 On typical hardware, the CUDA stencil solver achieves **8–25× speedup** compared to the CPU stencil solver for grids larger than 80³, while still offering good performance on laptops via the CPU backends. This flexibility makes the software suitable for both rapid prototyping and large-scale simulations.
