@@ -67,7 +67,7 @@ One of the key strengths of **3DHeatTransfer** is its **multi-backend design**, 
 
 Performance comparisons on a representative test case (cube geometry, steady-state convergence) are shown below:
 
-![CPU vs GPU Speedup](performance/cpu_vs_gpu_speedup.png)  
+![CPU vs GPU Speedup](images/timing_bars.svg)  
 **Figure 1:** Execution time comparison of the four solvers for a 100×100×100 grid (lower is better). CUDA backends demonstrate substantial speedup over CPU versions.
 
 ![Strong Scaling](performance/strong_scaling.png)  

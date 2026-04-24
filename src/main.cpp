@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
     current.assignNoneCells();
     current.constructNeigbourMap(globs.solver);
     
-    current.fill(75.0);
+    current.fill(100.0);
     // auto deep copy
     Grid3D next = current;
 
