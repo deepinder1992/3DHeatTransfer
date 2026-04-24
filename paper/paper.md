@@ -63,18 +63,6 @@ Meshless approaches such as RBF-FD [@fornberg2015solving; @miotti2021meshless] p
 
 This combination distinguishes it from both heavyweight multiphysics frameworks and minimal research prototypes.
 
-# Statement of Need
-
-Accurate modeling of three-dimensional heat conduction in complex geometries is essential across numerous scientific and engineering domains, including electronics cooling, battery thermal management, additive manufacturing, heat exchanger design, and materials processing. However, researchers and engineers often face a significant gap between overly simplistic tools and overly complex general-purpose simulation suites.
-
-Commercial software such as ANSYS and COMSOL Multiphysics provide powerful capabilities but come with high licensing costs and steep learning curves, limiting accessibility for many academic and small-scale research groups. On the open-source side, general-purpose CFD frameworks like OpenFOAM [@weller2007openfoam; @jasak2007openfoam] and FEniCS [@logg2012automated] are highly capable but tend to be heavyweight for pure conduction problems. They require extensive setup for meshing, case configuration, and solver tuning, even when fluid flow and convection are not needed. Many existing open-source finite-difference heat solvers are limited to simple Cartesian or regular domains, lack native support for complex STL-based geometries, or do not offer flexible GPU acceleration options [@miotti2021meshless; @zhang2015gpu].
-
-Specialized open-source tools for heat conduction are relatively scarce. While some GPU-accelerated finite-difference implementations exist, they are often proof-of-concept codes without robust geometry import, mixed boundary condition support, or multiple solver backends [@wei2014fast; @richter2013gpu]. Meshless approaches such as RBF-FD have shown promise for arbitrary geometries defined by STL files but typically require more complex setup and lack the performance-oriented multi-backend design needed for rapid parametric studies [@miotti2021meshless].
-
-
-
-By combining these features in a single, easy-to-compile C++ package with CMake, the software lowers the barrier for researchers who need fast, reproducible conduction simulations without the overhead of full multiphysics frameworks. This makes it particularly valuable for parametric studies, teaching, and early-stage thermal design in both academia and industry.
-
 # Software Design
 
 The codebase follows a clean, modular structure written in modern C++17 with optional CUDA support. The main directories are organized as follows:
@@ -109,10 +97,6 @@ All tests were conducted on the following hardware: CPU — 11th Gen Intel® Cor
 
 # Simulations
 Here the few shapes simulated by solver will be displayed
-
-# State of the Field
-
-Several open-source heat transfer codes exist, but most are either limited to simple domains, lack GPU acceleration, or are part of much larger CFD frameworks. **3DHeatTransfer** stands out by combining automatic STL support, mixed boundary conditions, and four optimized solver backends in a single lightweight and easy-to-use package.
 
 # Research Impact Statement
 
