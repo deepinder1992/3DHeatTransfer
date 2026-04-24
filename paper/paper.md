@@ -21,11 +21,47 @@ bibliography: paper.bib
 
 # Summary
 
-**HeatTransfer3D** is a lightweight, high-performance C++ solver for 3D heat conduction problems. It imports arbitrary 3D domains from STL files (with patch assignment: inlet, outlet, and  wall) and supports mixed Dirichlet and Neumann boundary conditions. 
+`HeatTransfer3D` is a lightweight, high-performance C++ solver for 3D heat conduction problems. It imports arbitrary 3D domains from STL files (with patch assignment: inlet, outlet, and  wall) and supports mixed Dirichlet and Neumann boundary conditions. 
 
 The software provides **four interchangeable solver backends** — CPU and CUDA implementations of both stencil-based and matrix-based Jacobi iterative solvers — allowing users to select the best combination of speed, memory usage, and hardware availability. Results are exported in VTK format for easy visualization in ParaView.
 
 The software targets researchers and engineers working in thermal management, energy systems, materials processing, electronics cooling, and related fields.
+
+# Statement of Need
+
+Modeling three-dimensional heat conduction in complex geometries is a common requirement in applications such as electronics cooling, battery thermal management, additive manufacturing, and heat exchanger design. Despite its importance, existing tools present a trade-off between accessibility and flexibility.
+
+Commercial multiphysics platforms such as ANSYS and COMSOL Multiphysics provide comprehensive capabilities but are often inaccessible due to licensing costs and complexity. Open-source frameworks such as OpenFOAM [@weller2007openfoam; @jasak2007openfoam] and FEniCS [@logg2012automated] are highly flexible, but they are designed for general-purpose multiphysics simulations and require substantial setup even for pure conduction problems.
+
+In contrast, many lightweight finite-difference solvers are restricted to regular Cartesian domains and lack support for complex geometries, mixed boundary conditions, or hardware acceleration. GPU-enabled implementations do exist, but they are often research prototypes without extensible design or ease of use.
+
+`HeatTransfer3D` addresses these limitations by providing a **lightweight, focused, and high-performance open-source solver** dedicated exclusively to steady-state and transient 3D heat conduction. Key innovations include:
+- Direct import of complex geometries from STL files with automatic boundary patch detection,
+- Support for mixed Dirichlet and Neumann boundary conditions,
+- Four interchangeable solver backends (CPU/GPU stencil-based and matrix-based Jacobi solvers) that let users balance memory usage, stability, and speed on different hardware,
+- Simple command-line interface and VTK output for seamless integration with ParaView.
+
+This makes the software particularly suitable for rapid prototyping, parametric studies, and educational use, where ease of setup and computational efficiency are both critical.
+
+# State of the Field
+
+Existing tools for heat conduction simulation can be broadly categorized into three groups: general-purpose multiphysics frameworks, mesh-based finite element tools, and specialized research codes.
+
+General-purpose frameworks such as OpenFOAM [@weller2007openfoam; @jasak2007openfoam] and FEniCS [@logg2012automated] provide extensive flexibility and support for coupled physics problems. However, they typically require substantial configuration effort, including mesh generation, solver selection, and case setup, which can be excessive for problems focused solely on heat conduction.
+
+Finite element and mesh-based tools offer strong support for complex geometries, but often involve additional preprocessing steps and may not prioritize performance for structured-grid finite-difference formulations.
+
+On the other end of the spectrum, lightweight finite-difference solvers are computationally efficient but are often restricted to structured Cartesian domains and typically do not include native support for STL-based geometries or flexible boundary condition handling [@patankar1980numerical; @leveque2007finite]. GPU-accelerated finite-difference approaches have been explored to improve performance on structured grids [@micikevicius2009stencil; @wei2014fast; @richter2013gpu], but these implementations are generally focused on performance optimization and do not provide integrated support for geometry handling or multiple interchangeable solver strategies.
+
+Meshless approaches such as RBF-FD [@fornberg2015solving; @miotti2021meshless] provide increased geometric flexibility and can operate on scattered nodes derived from complex geometries. However, they introduce additional complexity in formulation, parameter selection, and implementation, which can limit their accessibility for routine engineering applications.
+
+`HeatTransfer3D` occupies a middle ground between these categories by combining:
+- The geometric flexibility typically associated with mesh-based methods (via STL import),
+- The simplicity and efficiency of structured finite-difference discretization,
+- A multi-backend design enabling both CPU and GPU execution,
+- A lightweight, focused implementation tailored specifically for heat conduction.
+
+This combination distinguishes it from both heavyweight multiphysics frameworks and minimal research prototypes.
 
 # Statement of Need
 
@@ -35,11 +71,7 @@ Commercial software such as ANSYS and COMSOL Multiphysics provide powerful capab
 
 Specialized open-source tools for heat conduction are relatively scarce. While some GPU-accelerated finite-difference implementations exist, they are often proof-of-concept codes without robust geometry import, mixed boundary condition support, or multiple solver backends [@wei2014fast; @richter2013gpu]. Meshless approaches such as RBF-FD have shown promise for arbitrary geometries defined by STL files but typically require more complex setup and lack the performance-oriented multi-backend design needed for rapid parametric studies [@miotti2021meshless].
 
-**HeatTransfer3D** addresses these limitations by providing a **lightweight, focused, and high-performance open-source solver** dedicated exclusively to steady-state and transient 3D heat conduction. Key innovations include:
-- Direct import of complex geometries from STL files with automatic boundary patch detection,
-- Support for mixed Dirichlet and Neumann boundary conditions,
-- Four interchangeable solver backends (CPU/GPU stencil-based and matrix-based Jacobi solvers) that let users balance memory usage, stability, and speed on different hardware,
-- Simple command-line interface and VTK output for seamless integration with ParaView.
+
 
 By combining these features in a single, easy-to-compile C++ package with CMake, the software lowers the barrier for researchers who need fast, reproducible conduction simulations without the overhead of full multiphysics frameworks. This makes it particularly valuable for parametric studies, teaching, and early-stage thermal design in both academia and industry.
 
