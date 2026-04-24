@@ -21,7 +21,7 @@ bibliography: paper.bib
 
 # Summary
 
-**3DHeatTransfer** is a lightweight, high-performance C++ solver for steady-state and transient 3D heat conduction problems in complex geometries. It imports arbitrary 3D domains from STL files (with patch assignment: inlet, outlet, and  wall) and supports mixed Dirichlet and Neumann boundary conditions. 
+**HeatTransfer3D** is a lightweight, high-performance C++ solver for 3D heat conduction problems. It imports arbitrary 3D domains from STL files (with patch assignment: inlet, outlet, and  wall) and supports mixed Dirichlet and Neumann boundary conditions. 
 
 The software provides **four interchangeable solver backends** — CPU and CUDA implementations of both stencil-based and matrix-based Jacobi iterative solvers — allowing users to select the best combination of speed, memory usage, and hardware availability. Results are exported in VTK format for easy visualization in ParaView.
 
@@ -35,7 +35,7 @@ Commercial software such as ANSYS and COMSOL Multiphysics provide powerful capab
 
 Specialized open-source tools for heat conduction are relatively scarce. While some GPU-accelerated finite-difference implementations exist, they are often proof-of-concept codes without robust geometry import, mixed boundary condition support, or multiple solver backends [@wei2014fast; @richter2013gpu]. Meshless approaches such as RBF-FD have shown promise for arbitrary geometries defined by STL files but typically require more complex setup and lack the performance-oriented multi-backend design needed for rapid parametric studies [@miotti2021meshless].
 
-**3DHeatTransfer** addresses these limitations by providing a **lightweight, focused, and high-performance open-source solver** dedicated exclusively to steady-state and transient 3D heat conduction. Key innovations include:
+**HeatTransfer3D** addresses these limitations by providing a **lightweight, focused, and high-performance open-source solver** dedicated exclusively to steady-state and transient 3D heat conduction. Key innovations include:
 - Direct import of complex geometries from STL files with automatic boundary patch detection,
 - Support for mixed Dirichlet and Neumann boundary conditions,
 - Four interchangeable solver backends (CPU/GPU stencil-based and matrix-based Jacobi solvers) that let users balance memory usage, stability, and speed on different hardware,
@@ -57,23 +57,23 @@ The solver uses a uniform Cartesian grid with finite-difference discretization o
 1. **Stencil-based solvers** — Direct Jacobi iterations on the temperature field (low memory footprint, high performance).
 2. **Matrix-based solvers** — Explicit assembly of a sparse coefficient matrix followed by Jacobi iterations (more flexible for extensions).
 
-Each approach has both a CPU and a highly optimized CUDA (GPU) implementation. Users can select any of the four backends at runtime using a simple command-line flag (`--solver 1..4`). CUDA kernels are optimized for coalesced memory access and make use of shared memory where beneficial. The geometry pipeline automatically detects and labels boundary patches from separate STL files, simplifying the application of different boundary conditions.
+Each approach has both a CPU and CUDA (GPU) implementation. Users can select any of the four backends at runtime using a simple command-line flag (`--solver 1..4`). CUDA kernels are optimized for coalesced memory access and make use of shared memory where beneficial. The geometry pipeline automatically detects and labels boundary patches from separate STL files, simplifying the application of different boundary conditions.
 
 CMake is used for building, with convenient `build.sh` and `installDeps` scripts provided.
 
 # Performance
 
-One of the key strengths of **3DHeatTransfer** is its **multi-backend design**, which lets users dynamically choose the optimal solver for their hardware and problem size.
+One of the key strengths of **HeatTransfer3D** is its **multi-backend design**, which allows users to dynamically select the most suitable solver based on the available hardware and problem size.
 
-Performance comparisons on a representative test case (cube geometry, steady-state convergence) are shown below:
+Performance comparisons for a representative test case (cube geometry with steady-state convergence) are shown below:
 
 ![CPU vs GPU Speedup](images/timing_bars.svg)  
-**Figure 1:** Execution time comparison of the four solvers for a 100×100×100 grid (lower is better). CUDA backends demonstrate substantial speedup over CPU versions.
+**Figure 1:** Execution time comparison of the four solvers for a 100 × 100 × 100 grid (lower is better). CUDA backends demonstrate substantial speedups over CPU implementations.
 
 ![Strong Scaling](images/scaling_plot.svg)  
-**Figure 2:** Strong scaling with increasing grid resolution (50³ to 200³). The GPU stencil backend maintains excellent performance thanks to its low memory overhead.
+**Figure 2:** Strong scaling with increasing grid resolution (50³ to 150³). The GPU stencil backend maintains strong performance due to its low memory overhead.
 
-On typical hardware, the CUDA stencil solver achieves **8–25× speedup** compared to the CPU stencil solver for grids larger than 80³, while still offering good performance on laptops via the CPU backends. This flexibility makes the software suitable for both rapid prototyping and large-scale simulations.
+All tests were conducted on the following hardware: CPU — 11th Gen Intel® Core™ i5-11400H @ 2.70 GHz; GPU — NVIDIA GeForce RTX 3050. The CUDA stencil solver achieves an **8–20× speedup** compared to the CPU stencil solver for grid sizes larger than 80³, while still providing reliable performance on CPU backends. This flexibility makes the software suitable for both rapid prototyping and large-scale simulations.
 
 # Simulations
 Here the few shapes simulated by solver will be displayed
