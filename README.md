@@ -1,4 +1,4 @@
-# 3DHeatTransfer
+# HeatTransfer3D
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Language](https://img.shields.io/badge/language-C++17-blue.svg)](https://isocpp.org/)
@@ -19,7 +19,7 @@ The solver supports mixed Dirichlet and Neumann boundary conditions and provides
 
 Accurate simulation of heat conduction in complex geometries is essential in applications such as thermal management, energy systems, and materials processing. Existing general-purpose CFD tools are often complex and not optimized for standalone heat conduction problems.
 
-**3DHeatTransfer** addresses this by providing:
+**HeatTransfer3D** addresses this by providing:
 - A lightweight structured-grid heat conduction solver
 - STL-based geometry handling via voxelization onto Cartesian grids
 - Mixed boundary condition support (Dirichlet and Neumann)
