@@ -6,7 +6,8 @@ tags:
   - CUDA
   - GPU acceleration
   - STL geometry
-  - Jacobi solver
+  - conjugate gradient
+  - Implicit Jacobi
   - multi-backend
 authors:
   - name: Deepinder Jot Singh Aulakh
@@ -91,6 +92,10 @@ All solvers share a common interface defined in `solver.hpp`. Results are export
 
 The project builds with CMake. Helper scripts `build.sh` and `installDeps.sh` simplify compilation on Linux systems with optional CUDA support.
 
+# Quality control
+
+Correctness is ensured through unit tests, analytical verification cases, and convergence checks in the `tests/` directory. Tests validate STL voxelization accuracy, boundary patch labeling, correct application of mixed Dirichlet/Neumann conditions, and consistency of results across all four solver backends. Analytical solutions for 1D and 3D heat conduction problems are used to verify second-order spatial accuracy. The test suite can be executed with `ctest` after building.
+
 # Performance
 
 One of the key strengths of `HeatTransfer3D` is its **multi-backend design**, which allows users to dynamically select the most suitable solver based on the available hardware and problem size.
@@ -108,10 +113,6 @@ All tests were conducted on the following hardware: CPU — 11th Gen Intel® Cor
 # Simulations
 
 The software has been tested on several sample geometries provided in the `stlFiles/` directory, including a cube, cylinder, L-shaped channel, and semi-cylinder. These cases demonstrate correct geometry import, boundary condition application, and solver convergence. Example temperature fields and convergence histories are shown in the repository documentation and can be reproduced using the supplied input files.
-
-# Research Impact Statement
-
-By offering high performance together with flexible solver selection, `HeatTransfer3D` enables faster design iterations and parametric studies in thermal engineering research. The open-source MIT license and modular structure also facilitate community contributions and integration into larger multiphysics workflows.
 
 # Research Impact Statement
 
