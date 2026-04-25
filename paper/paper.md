@@ -44,16 +44,17 @@ In contrast, many lightweight finite-difference solvers are restricted to regula
 This makes the software particularly suitable for rapid prototyping, parametric studies, and educational use, where ease of setup and computational efficiency are both critical.
 
 # State of the Field
-
 Existing tools for heat conduction simulation can be broadly categorized into three groups: general-purpose multiphysics frameworks, mesh-based finite element tools, and specialized research codes.
 
 General-purpose frameworks such as OpenFOAM [@weller2007openfoam; @jasak2007openfoam] and FEniCS [@logg2012automated] provide extensive flexibility and support for coupled physics problems. However, they typically require substantial configuration effort, including mesh generation, solver selection, and case setup, which can be excessive for problems focused solely on heat conduction.
 
-Finite element and mesh-based tools offer strong support for complex geometries, but often involve additional preprocessing steps and may not prioritize performance for structured-grid finite-difference formulations.
+On the other end of the spectrum, lightweight finite-difference and finite-volume solvers are computationally efficient and widely used for heat conduction and diffusion-dominated problems due to their straightforward implementation on structured Cartesian or logically structured grids [@leveque2007finite; @patankar1980numerical]. However, these methods are primarily formulated for regular domains and do not natively support unstructured surface representations such as STL geometries without additional preprocessing steps, embedded boundary methods, or geometry-mapping techniques.
 
-On the other end of the spectrum, lightweight finite-difference solvers are computationally efficient but are often restricted to structured Cartesian domains and typically do not include native support for STL-based geometries or flexible boundary condition handling [@patankar1980numerical; @leveque2007finite]. GPU-accelerated finite-difference approaches have been explored to improve performance on structured grids [@micikevicius2009stencil; @wei2014fast; @richter2013gpu], but these implementations are generally focused on performance optimization and do not provide integrated support for geometry handling or multiple interchangeable solver strategies.
+A number of GPU-accelerated finite-difference approaches have been developed to improve performance on structured grids. For example, phase-change heat conduction simulations on GPUs demonstrate substantial acceleration but remain restricted to structured 3D grids and do not support flexible geometric representations [@gpu_phasechange_heat]. Similarly, fast and interactive GPU-based heat conduction simulators have been proposed for two-dimensional problems, prioritizing real-time performance and interactivity over geometric generality or extensibility [@gpu_heat_2d_interactive]. These approaches typically focus on optimized stencil execution and do not provide integrated geometry handling or modular solver architectures.
 
-Meshless approaches such as RBF-FD [@fornberg2015solving; @miotti2021meshless] provide increased geometric flexibility and can operate on scattered nodes derived from complex geometries. However, they introduce additional complexity in formulation, parameter selection, and implementation, which can limit their accessibility for routine engineering applications.
+In addition, simplified and educational solvers such as FDiff3 emphasize numerical understanding and clarity of implementation for heat conduction problems, primarily in structured and pedagogical settings without GPU acceleration or support for complex geometries [@fdiff3]. Similarly, sustainable and educational Python-based frameworks for two-dimensional heat transfer conduction focus on accessibility and teaching purposes, rather than scalability, parallel performance, or advanced geometric flexibility [@python_2d_heat_edu].
+
+Meshless approaches such as radial basis function finite differences (RBF-FD) enable simulation on scattered nodes and can handle arbitrary three-dimensional geometries without requiring structured grids [@fornberg2015solving; @miotti2021meshless]. However, these methods are typically CPU-based, involve increased formulation complexity, and require careful parameter selection.
 
 `HeatTransfer3D` occupies a middle ground between these categories by combining:
 - The geometric flexibility typically associated with mesh-based methods (via STL import),
@@ -61,7 +62,7 @@ Meshless approaches such as RBF-FD [@fornberg2015solving; @miotti2021meshless] p
 - A multi-backend design enabling both CPU and GPU execution,
 - A lightweight, focused implementation tailored specifically for heat conduction.
 
-This combination distinguishes it from both heavyweight multiphysics frameworks and minimal research prototypes.
+This combination distinguishes it from both heavyweight multiphysics frameworks and minimal research or educational prototypes.
 
 # Software Design
 
