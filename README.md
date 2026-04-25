@@ -9,7 +9,7 @@
 
 ## Summary
 
-**3DHeatTransfer** is a high-performance solver for steady-state and transient heat conduction in three-dimensional domains on structured Cartesian grids. The software imports geometries defined via STL files and maps them onto the computational grid using a voxelization procedure, where grid cells are classified into internal, external, and boundary regions.
+`HeatTransfer3D` is a high-performance solver for steady-state and transient heat conduction in three-dimensional domains on structured Cartesian grids. The software imports geometries defined via STL files and maps them onto the computational grid using a voxelization procedure, where grid cells are classified into internal, external, and boundary regions.
 
 The solver supports mixed Dirichlet and Neumann boundary conditions and provides both CPU and GPU implementations of iterative solvers. It is written in C++17 with optional CUDA acceleration and is designed for reproducibility and extensibility in heat conduction simulations.
 
