@@ -67,7 +67,7 @@ This combination positions it as a focused engineering tool that bridges structu
 
 # Software Design
 
-The codebase follows a clean, modular structure written in modern C++17 with optional CUDA support. The main directories are organized as follows:
+The codebase follows a modular structure written in C++17 with optional CUDA support. The main directories are organized as follows:
 
 - **`src/`**: Core implementation files, including the main driver, geometry processing, boundary condition handling, solver kernels, and VTK output routines.
 - **`include/`**: Header files defining classes and functions for the grid, solvers, STL importer, and utilities.
