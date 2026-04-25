@@ -69,6 +69,12 @@ else()
     target_compile_options(heat3d PRIVATE -O3 -march=native -Wall -Wextra)
 endif()
 
+# Tests
+add_executable(test_heat
+    tests/tests_main.cpp
+    ${COMMON_SOURCES}
+)
+
 target_include_directories(test_heat PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(test_heat PRIVATE OpenMP::OpenMP_CXX)
 
