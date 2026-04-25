@@ -7,7 +7,7 @@
 
 ## Summary
 
-**3DHeatTransfer** is a high-performance solver for steady-state and transient heat conduction in three-dimensional domains. The software supports complex geometries defined via STL files and enables mixed Dirichlet and Neumann boundary conditions.
+**3DHeatTransfer** is a high-performance solver for steady-state and transient heat conduction in three-dimensional domains. The software supports arbitrary geometries defined via STL files and enables mixed Dirichlet and Neumann boundary conditions.
 
 It provides both CPU and GPU implementations of implicit solvers, allowing users to balance flexibility, memory usage, and performance. The code is written in C++17 with optional CUDA acceleration and is designed for extensibility and reproducibility in computational heat transfer research.
 
@@ -15,7 +15,7 @@ It provides both CPU and GPU implementations of implicit solvers, allowing users
 
 ## Statement of Need
 
-Accurate simulation of heat conduction in complex geometries is essential in applications such as thermal management, energy systems, and materials processing. Existing general-purpose CFD tools are often heavyweight or not optimized for pure conduction problems.
+Accurate simulation of heat conduction in arbitrary geometries is essential in applications such as thermal management, energy systems, and materials processing. Existing general-purpose CFD tools are often heavyweight or not optimized for pure conduction problems.
 
 **3DHeatTransfer** addresses this gap by providing:
 
