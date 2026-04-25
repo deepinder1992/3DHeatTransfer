@@ -22,7 +22,7 @@ jobs:
         run: bash installDeps.sh
 
       - name: Configure CMake
-        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENABLE_CUDA=OFF
 
       - name: Build
         run: cmake --build build --config Release -j2
