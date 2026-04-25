@@ -90,6 +90,7 @@ cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENABLE_CUDA=OFF
 cmake --build build --config Release -j4
 
 ```
+To enable CUDA (if you have the CUDA Toolkit installed), use -DENABLE_CUDA=ON instead of -DENABLE_CUDA=OFF.
 
 ---
 
