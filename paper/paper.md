@@ -98,17 +98,18 @@ Correctness is ensured through unit tests, analytical verification cases, and co
 
 # Performance
 
-One of the key strengths of `HeatTransfer3D` is its **multi-backend design**, which allows users to dynamically select the most suitable solver based on the available hardware and problem size.
+`HeatTransfer3D` offers four solver backends to balance speed and memory usage depending on hardware and problem size.
 
-Performance comparisons for a representative test case (cube geometry with steady-state convergence) are shown below:
+Performance was evaluated on a cube geometry with a residual tolerance of \(10^{-6}\).
 
-![CPU vs GPU Speedup](images/timing_bars.png)  
-**Figure 1:** Execution time comparison of the four solvers for a 100 × 100 × 100 grid (lower is better). CUDA backends demonstrate substantial speedups over CPU implementations.
+![Execution time comparison](images/timing_bars.png)
+**Figure 1:** Wall-clock time (s) for the four solvers on a \(100^3\) grid. CUDA backends show a clear advantage.
 
-![Strong Scaling](images/scaling_plot.png)  
-**Figure 2:** Strong scaling with increasing grid resolution (50³ to 150³). The GPU stencil backend maintains strong performance due to its low memory overhead.
+![Strong scaling](images/scaling_plot.png)
 
-All tests were conducted on the following hardware: CPU — 11th Gen Intel® Core™ i5-11400H @ 2.70 GHz; GPU — NVIDIA GeForce RTX 3050. The global tolerance was set as $1 \times 10^{-6}$. The CUDA stencil solver achieves an **8–20× speedup** compared to the CPU stencil solver, while still providing reliable performance on CPU backends. This flexibility makes the software suitable for both rapid prototyping and large-scale simulations.
+**Figure 2:** Strong scaling from \(50^3\) to \(150^3\) grid resolution.
+
+Tests were performed on an Intel Core i5-11400H CPU and NVIDIA GeForce RTX 3050 GPU. The CUDA stencil backend delivers **8–20× speedup** over the CPU stencil version. Matrix-based Conjugate Gradient solvers provide faster convergence than Jacobi iterations for larger systems, while stencil solvers remain more memory-efficient.
 
 # Simulations
 
