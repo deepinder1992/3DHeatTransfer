@@ -160,6 +160,17 @@ Associated boundary files are automatically detected.
 ## Output
 
 Simulation results are written in VTK format and can be visualized using ParaView.
+## 📊 Visualizing Results in ParaView
+
+Simulation results are exported as `.vti` (VTK Image Data) files on a full Cartesian grid.
+
+To view the actual geometry in ParaView:
+
+- Open the `.vti` file  
+- Apply a **Threshold** filter  
+- Select the appropriate mask field (e.g., domain/solid indicator) to extract the region of interest  
+
+After filtering, you can visualize temperature or other fields as usual.
 
 ---
 ## Sample Output
