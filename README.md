@@ -77,10 +77,8 @@ CUDA implementations accelerate both approaches on GPUs.
 * CMake ≥ 3.20
 * CUDA toolkit (optional, for GPU solvers)
 ### Install Requirements
-#### Ubuntu
-bash installDeps.sh   
-#### Windows (MSYS2)
-installDeps.bat       
+  #### Ubuntu:    bash installDeps.sh   
+  #### Windows (MSYS2) installDeps.bat       
 
 ./build.sh
 
