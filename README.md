@@ -86,7 +86,9 @@ Run the following commands to install the requirements for the code to build and
 ```bash
 git clone https://github.com/deepinder1992/3DHeatTransfer.git
 cd 3DHeatTransfer
-./build.sh
+cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENABLE_CUDA=OFF
+cmake --build build --config Release -j4
+
 ```
 
 ---
