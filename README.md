@@ -81,8 +81,6 @@ Run the following commands to install the requirements for the code to build and
   1. **Ubuntu**:    bash installDeps.sh   
   2. **Windows (MSYS2)**: installDeps.bat       
 
-./build.sh
-
 ### Build
 
 ```bash
