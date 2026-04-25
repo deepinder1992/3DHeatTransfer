@@ -87,10 +87,10 @@ One of the key strengths of **HeatTransfer3D** is its **multi-backend design**, 
 
 Performance comparisons for a representative test case (cube geometry with steady-state convergence) are shown below:
 
-![CPU vs GPU Speedup](images/timing_bars.svg)  
+![CPU vs GPU Speedup](images/timing_bars.pdf)  
 **Figure 1:** Execution time comparison of the four solvers for a 100 × 100 × 100 grid (lower is better). CUDA backends demonstrate substantial speedups over CPU implementations.
 
-![Strong Scaling](images/scaling_plot.svg)  
+![Strong Scaling](images/scaling_plot.pdf)  
 **Figure 2:** Strong scaling with increasing grid resolution (50³ to 150³). The GPU stencil backend maintains strong performance due to its low memory overhead.
 
 All tests were conducted on the following hardware: CPU — 11th Gen Intel® Core™ i5-11400H @ 2.70 GHz; GPU — NVIDIA GeForce RTX 3050. The global tolerance was set as $1 \times 10^{-6}$. The CUDA stencil solver achieves an **8–20× speedup** compared to the CPU stencil solver, while still providing reliable performance on CPU backends. This flexibility makes the software suitable for both rapid prototyping and large-scale simulations.
