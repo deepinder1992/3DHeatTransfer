@@ -1,82 +1,87 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.20)
 
-project(Heat3D LANGUAGES CXX CUDA)
+option(ENABLE_CUDA "Enable CUDA support for GPU solvers" OFF)
+
+project(HeatTransfer3D LANGUAGES CXX)
+
+if(ENABLE_CUDA)
+    enable_language(CUDA)
+    find_package(CUDAToolkit REQUIRED)
+    add_definitions(-DENABLE_CUDA)
+    message(STATUS "CUDA enabled")
+else()
+    message(STATUS "CUDA disabled - building CPU-only version")
+endif()
 
 # C++ Standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Default build type = Release
+# Default build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
-# Detect packages
-find_package(CUDAToolkit REQUIRED)
+# Find dependencies
 find_package(OpenMP REQUIRED)
 
-if(OpenMP_CXX_FOUND)
-    message(STATUS "OpenMP found! Enabling flags.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
-# Set compiler flags per build type
-set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -O0")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native -Wall -Wextra")
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
-
-# CUDA debug flags
-set(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -G -g -O0")
-
-set(SHARED_SOURCES
+# Source files
+set(COMMON_SOURCES
     src/grid.cpp
     src/boundaryConditions.cpp
     src/solverCPU.cpp
     src/linearAlgebraCPU.cpp
-    src/kernel.cu
     src/voxelReader.cpp
-)
-
-set_source_files_properties(
-    src/boundaryConditions.cpp
-    PROPERTIES LANGUAGE CUDA
-)
-# Source files
-set(SOURCES
-src/main.cpp
-    src/solverCUDAStencil.cpp
-    src/solverCUDAMatrix.cpp
     src/outputWriter.cpp
-    src/linearAlgebraGPU.cu
-    ${SHARED_SOURCES}  
 )
 
-# Create executable
-add_executable(heat3d ${SOURCES})
-
-# Include directories
-target_include_directories(heat3d PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+set(SOURCES
+    src/main.cpp
+    ${COMMON_SOURCES}
 )
-if (WIN32)
-    target_include_directories(heat3d PRIVATE
-        $ENV{CUDA_PATH}/include
-    )
-else()
-    target_include_directories(heat3d PRIVATE
-        /usr/local/cuda/include
+
+if(ENABLE_CUDA)
+    list(APPEND SOURCES
+        src/solverCUDAStencil.cpp
+        src/solverCUDAMatrix.cpp
+        src/linearAlgebraGPU.cu
+        src/kernel.cu
     )
 endif()
-### tests
+
+# Main executable
+add_executable(heat3d ${SOURCES})
+
+target_include_directories(heat3d PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+target_link_libraries(heat3d PRIVATE OpenMP::OpenMP_CXX)
+
+if(ENABLE_CUDA)
+    target_link_libraries(heat3d PRIVATE CUDA::cudart)
+    set_target_properties(heat3d PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+endif()
+
+# Compiler flags
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(heat3d PRIVATE -Wall -Wextra -O0)
+else()
+    target_compile_options(heat3d PRIVATE -O3 -march=native -Wall -Wextra)
+endif()
+
+# Tests
 add_executable(test_heat
-    tests/tests_main.cu
-	${SHARED_SOURCES}  
-	)
-target_include_directories(test_heat PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    tests/tests_main.cpp
+    ${COMMON_SOURCES}
 )
 
-target_link_libraries(test_heat PRIVATE
-    OpenMP::OpenMP_CXX
-    CUDA::cudart
-)
+target_include_directories(test_heat PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(test_heat PRIVATE OpenMP::OpenMP_CXX)
+
+if(ENABLE_CUDA)
+    target_sources(test_heat PRIVATE tests/tests_main.cu)
+    target_link_libraries(test_heat PRIVATE CUDA::cudart)
+endif()
+
+enable_testing()
+add_test(NAME heat_tests COMMAND test_heat)
