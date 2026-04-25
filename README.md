@@ -1,4 +1,4 @@
-# 3DHeatTransfer
+# HeatTransfer3D
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Language](https://img.shields.io/badge/language-C++17-blue.svg)](https://isocpp.org/)
@@ -9,7 +9,7 @@
 
 ## Summary
 
-**3DHeatTransfer** is a high-performance solver for steady-state and transient heat conduction in three-dimensional domains on structured Cartesian grids. The software imports geometries defined via STL files and maps them onto the computational grid using a voxelization procedure, where grid cells are classified into internal, external, and boundary regions.
+`HeatTransfer3D` is a high-performance solver for steady-state and transient heat conduction in three-dimensional domains on structured Cartesian grids. The software imports geometries defined via STL files and maps them onto the computational grid using a voxelization procedure, where grid cells are classified into internal, external, and boundary regions.
 
 The solver supports mixed Dirichlet and Neumann boundary conditions and provides both CPU and GPU implementations of iterative solvers. It is written in C++17 with optional CUDA acceleration and is designed for reproducibility and extensibility in heat conduction simulations.
 
@@ -19,7 +19,7 @@ The solver supports mixed Dirichlet and Neumann boundary conditions and provides
 
 Accurate simulation of heat conduction in complex geometries is essential in applications such as thermal management, energy systems, and materials processing. Existing general-purpose CFD tools are often complex and not optimized for standalone heat conduction problems.
 
-**3DHeatTransfer** addresses this by providing:
+**HeatTransfer3D** addresses this by providing:
 - A lightweight structured-grid heat conduction solver
 - STL-based geometry handling via voxelization onto Cartesian grids
 - Mixed boundary condition support (Dirichlet and Neumann)

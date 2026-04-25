@@ -6,7 +6,8 @@ tags:
   - CUDA
   - GPU acceleration
   - STL geometry
-  - Jacobi solver
+  - conjugate gradient
+  - Implicit Jacobi
   - multi-backend
 authors:
   - name: Deepinder Jot Singh Aulakh
@@ -69,42 +70,64 @@ This combination positions it as a focused engineering tool that integrates geom
 
 # Software Design
 
-The codebase follows a modular structure written in C++17 with optional CUDA support. The main directories are organized as follows:
+`HeatTransfer3D` is implemented in C++17 with optional CUDA support for GPU acceleration. The codebase has a clean modular structure:
 
-- **`src/`**: Core implementation files, including the main driver, geometry processing, boundary condition handling, solver kernels, and VTK output routines.
-- **`include/`**: Header files defining classes and functions for the grid, solvers, STL importer, and utilities.
-- **`tests/`**: Unit and integration tests.
-- **`stlFiles/`**: Sample geometries (cube, cylinder, L_Channel, semiCylinder) with associated boundary patch files.
+- `src/`: Main driver, geometry processing, boundary condition setup, solver kernels, and VTK output.
+- `include/`: Core headers including `grid.hpp`, `boundaryConditions.hpp`, `sparseMatrix.hpp`, `heatMatrixBuilder.hpp`, `linearAlgebra.hpp`, `solver.hpp`, `solverCPU.hpp`, and `solverCUDA.hpp`.
+- `tests/`: Unit and integration tests.
+- `stlFiles/`: Example geometries with separate boundary patch files.
 
-The solver uses a uniform Cartesian grid with finite-difference discretization of the heat equation. Two fundamental algorithmic approaches are implemented:
+The steady 3D heat equation is discretized on a uniform Cartesian grid using the finite difference method. Geometry is incorporated from STL files via a ray-tracing voxelization routine. Each simulation requires four STL files: the main geometry plus three boundary patch files (`name_inlet.stl`, `name_outlet.stl`, `name_wall.stl`). Grid cells are classified as internal or assigned to one of the three boundary patches (inlet, outlet, wall).
 
-1. **Stencil-based solvers** — Direct Jacobi iterations on the temperature field (low memory footprint, high performance).
-2. **Matrix-based solvers** — Explicit assembly of a sparse coefficient matrix followed by Jacobi iterations (more flexible for extensions).
+**Boundary conditions** are applied as follows:
+- Each patch (inlet, outlet, wall) can independently be set to Dirichlet (fixed temperature) or Neumann (fixed heat flux) using command-line flags `--bcTypeInlet`/`--bcTypeOutlet`/`--bcTypeWall` (0 = Dirichlet, 1 = Neumann) and the corresponding `--bcValXXX` values.
+- These conditions are incorporated by modifying stencil coefficients (in stencil solvers) or the right-hand side and matrix entries (in matrix-based solvers) at boundary cells.
 
-Each approach has both a CPU and a CUDA (GPU) implementation. Users can select any of the four backends at runtime using a simple command-line flag (`--solver 1..4`). CUDA kernels are optimized for coalesced memory access and make use of shared memory where beneficial. The geometry pipeline automatically detects and labels boundary patches from separate STL files, simplifying the application of different boundary conditions.
+Four solver backends are available, selected at runtime with the `--solver` flag (1–4):
 
-CMake is used for building, with convenient `build.sh` and `installDeps` scripts provided.
+- **Stencil-based Jacobi solvers** (CPU with OpenMP, CUDA with coalesced memory access and shared memory): Perform Jacobi iterations directly on the temperature field using a 7-point stencil. These have a low memory footprint.
+- **Matrix-based solvers** (CPU and CUDA): Explicitly assemble a sparse coefficient matrix using `sparseMatrix.hpp` and `heatMatrixBuilder.hpp`. The resulting linear system is solved using the **Conjugate Gradient** method implemented in `linearAlgebra.hpp` / `linearAlgebraCPU.cpp` (and the corresponding GPU version). This provides faster convergence compared to Jacobi iteration, especially for larger problems.
+
+All solvers share a common interface defined in `solver.hpp`. Results are exported in legacy VTK format for visualization in ParaView.
+
+The project builds with CMake. Helper scripts `build.sh` and `installDeps.sh` simplify compilation on Linux systems with optional CUDA support.
+
+# Quality control
+
+Correctness is ensured through unit tests, analytical verification cases, and convergence checks in the `tests/` directory. Tests validate STL voxelization accuracy, boundary patch labeling, correct application of mixed Dirichlet/Neumann conditions, and consistency of results across all four solver backends. Analytical solutions for 1D and 3D heat conduction problems are used to verify second-order spatial accuracy. The test suite can be executed with `ctest` after building.
 
 # Performance
 
-One of the key strengths of `HeatTransfer3D` is its **multi-backend design**, which allows users to dynamically select the most suitable solver based on the available hardware and problem size.
+`HeatTransfer3D` offers four solver backends to balance speed and memory usage depending on hardware and problem size.
 
-Performance comparisons for a representative test case (cube geometry with steady-state convergence) are shown below:
+Performance was evaluated on a cube geometry with a residual tolerance of \(10^{-6}\).
 
-![CPU vs GPU Speedup](images/timing_bars.png)  
-**Figure 1:** Execution time comparison of the four solvers for a 100 × 100 × 100 grid (lower is better). CUDA backends demonstrate substantial speedups over CPU implementations.
+![Execution time comparison](images/timing_bars.png)
 
-![Strong Scaling](images/scaling_plot.png)  
-**Figure 2:** Strong scaling with increasing grid resolution (50³ to 150³). The GPU stencil backend maintains strong performance due to its low memory overhead.
+**Figure 1:** Wall-clock time (s) for the four solvers on a \(100^3\) grid. CUDA backends show a clear advantage.
 
-All tests were conducted on the following hardware: CPU — 11th Gen Intel® Core™ i5-11400H @ 2.70 GHz; GPU — NVIDIA GeForce RTX 3050. The global tolerance was set as $1 \times 10^{-6}$. The CUDA stencil solver achieves an **8–20× speedup** compared to the CPU stencil solver, while still providing reliable performance on CPU backends. This flexibility makes the software suitable for both rapid prototyping and large-scale simulations.
+![Strong scaling](images/scaling_plot.png)
+
+**Figure 2:** Strong scaling from \(50^3\) to \(150^3\) grid resolution.
+
+Tests were performed on an Intel Core i5-11400H CPU and NVIDIA GeForce RTX 3050 GPU. The CUDA stencil backend delivers **8–20× speedup** over the CPU stencil version. Matrix-based Conjugate Gradient solvers provide faster convergence than Jacobi iterations for larger systems, while stencil solvers remain more memory-efficient.
 
 # Simulations
-Here, the few shapes simulated by the solver will be displayed
+
+The software has been tested on several sample geometries provided in the `stlFiles/` directory, including a cube, cylinder, L-shaped channel, and semi-cylinder. These cases demonstrate correct geometry import, boundary condition application, and solver convergence. Example temperature fields and convergence histories are shown in the repository documentation and can be reproduced using the supplied input files.
 
 # Research Impact Statement
 
-By offering high performance together with flexible solver selection, `HeatTransfer3D` enables faster design iterations and parametric studies in thermal engineering research. The open-source MIT license and modular structure also facilitate community contributions and integration into larger multiphysics workflows.
+`HeatTransfer3D` fills an important gap by providing a lightweight, easy-to-use, yet high-performance tool for 3D steady-state heat conduction on complex STL geometries. Unlike full-featured CFD packages (e.g., OpenFOAM) that are heavy to install and learn, or simple 1D/2D educational codes that lack realistic geometry support, this software combines straightforward voxelization from separate inlet/outlet/wall STL files, flexible Dirichlet/Neumann boundary conditions per patch, and multiple high-performance solvers (stencil Jacobi and matrix-based Conjugate Gradient on both CPU and GPU) in a single package.
+
+The ability to switch between low-memory stencil solvers and faster-converging Conjugate Gradient matrix solvers enables users to balance speed and memory usage depending on hardware and problem size. This makes the software particularly valuable for:
+
+- Parametric thermal studies in electronics cooling and heat sink design
+- Battery thermal management simulations
+- Materials processing and casting applications
+- Rapid prototyping of thermal designs before moving to more expensive full-physics solvers
+
+This solver lowers the barrier for researchers and engineers to perform reproducible 3D heat transfer simulations. The modular design (especially the shared sparse matrix infrastructure) also makes it straightforward to extend with additional physics modules in the future. By releasing the software openly, we hope to encourage community contributions and adoption in both academic research and industrial workflows where fast turnaround on moderately complex geometries is needed.
 
 # AI Usage Disclosure
 
@@ -113,6 +136,13 @@ AI-based tools were used to assist with debugging, syntax support, and language 
 The following tools were used:
 - ChatGPT (GPT-4o)
 - Grok
+  
+# Availability
+
+The source code is openly available under the MIT license at  
+https://github.com/deepinder1992/3DHeatTransfer.  
+
+Installation is performed via CMake on Linux systems supporting C++17 and optional CUDA. Detailed instructions, including dependency installation and build commands, are provided in the repository README.
 
 # Acknowledgements
 
