@@ -133,6 +133,7 @@ cd build
 | `--bcValOutlet`   | Outlet BC value                        | -500.0                   |
 | `--bcValWall`     | Wall BC value                          | 100.0                    |
 | `--stlPath`       | Base STL geometry file                 | ../stlFiles/cylinder/... |
+|  `-h,--help`      | Print this summary                     | NA                       |
 
 ---
 
@@ -160,7 +161,7 @@ Associated boundary files are automatically detected.
 ## Output
 
 Simulation results are written in VTK format and can be visualized using ParaView.
-## 📊 Visualizing Results in ParaView
+## Visualizing Results in ParaView
 
 Simulation results are exported as `.vti` (VTK Image Data) files on a full Cartesian grid.
 
