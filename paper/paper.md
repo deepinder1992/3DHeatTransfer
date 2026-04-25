@@ -103,6 +103,7 @@ Correctness is ensured through unit tests, analytical verification cases, and co
 Performance was evaluated on a cube geometry with a residual tolerance of \(10^{-6}\).
 
 ![Execution time comparison](images/timing_bars.png)
+
 **Figure 1:** Wall-clock time (s) for the four solvers on a \(100^3\) grid. CUDA backends show a clear advantage.
 
 ![Strong scaling](images/scaling_plot.png)
