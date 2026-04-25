@@ -5,67 +5,67 @@
 [![CUDA](https://img.shields.io/badge/CUDA-Enabled-76B900.svg)](https://developer.nvidia.com/cuda-toolkit)
 [![CMake](https://img.shields.io/badge/CMake-3.20+-green.svg)](https://cmake.org/)
 
+---
+
 ## Summary
 
-**3DHeatTransfer** is a high-performance solver for steady-state and transient heat conduction in three-dimensional domains. The software supports arbitrary geometries defined via STL files and enables mixed Dirichlet and Neumann boundary conditions.
+**3DHeatTransfer** is a high-performance solver for steady-state and transient heat conduction in three-dimensional domains on structured Cartesian grids. The software imports geometries defined via STL files and maps them onto the computational grid using a voxelization procedure, where grid cells are classified into internal, external, and boundary regions.
 
-It provides both CPU and GPU implementations of implicit solvers, allowing users to balance flexibility, memory usage, and performance. The code is written in C++17 with optional CUDA acceleration and is designed for extensibility and reproducibility in computational heat transfer research.
+The solver supports mixed Dirichlet and Neumann boundary conditions and provides both CPU and GPU implementations of iterative solvers. It is written in C++17 with optional CUDA acceleration and is designed for reproducibility and extensibility in heat conduction simulations.
 
 ---
 
 ## Statement of Need
 
-Accurate simulation of heat conduction in arbitrary geometries is essential in applications such as thermal management, energy systems, and materials processing. Existing general-purpose CFD tools are often heavyweight or not optimized for pure conduction problems.
+Accurate simulation of heat conduction in complex geometries is essential in applications such as thermal management, energy systems, and materials processing. Existing general-purpose CFD tools are often complex and not optimized for standalone heat conduction problems.
 
-**3DHeatTransfer** addresses this gap by providing:
+**3DHeatTransfer** addresses this by providing:
+- A lightweight structured-grid heat conduction solver
+- STL-based geometry handling via voxelization onto Cartesian grids
+- Mixed boundary condition support (Dirichlet and Neumann)
+- Multiple interchangeable solver backends (CPU/GPU, stencil-based and matrix-based Jacobi iterations)
 
-* A lightweight, focused conduction solver
-* Native support for STL-based geometries
-* Multiple interchangeable solver backends (CPU/GPU, stencil/matrix)
-* Straightforward integration into research workflows
+This design enables efficient simulation workflows while maintaining a simple and reproducible setup for research and engineering applications.
 
 ---
 
 ## Features
 
-* **Implicit solvers (unconditionally stable):**
+### Solvers
+- CPU stencil-based Jacobi iteration
+- CUDA stencil-based Jacobi iteration
+- CPU matrix-based Jacobi solver
+- CUDA matrix-based Jacobi solver
 
-  * CPU stencil-based Jacobi solver
-  * CUDA stencil-based Jacobi solver
-  * CPU matrix-based solver
-  * CUDA matrix-based solver
+### Geometry Handling
+- STL-based geometry input
+- Geometry mapped onto structured grids using voxelization
+- Boundary regions defined as inlet, outlet, and wall through grid classification
 
-* **Geometry handling:**
+### Boundary Conditions
+- Mixed Dirichlet and Neumann conditions
+- Independent specification for inlet, outlet, and wall regions
 
-  * Arbitrary 3D geometries via STL files
-  * Assign inlet, outlet, and wall patches
-
-* **Boundary conditions:**
-
-  * Mixed Dirichlet and Neumann conditions
-  * Independent specification for inlet, outlet, and walls
-
-* **Performance and usability:**
-
-  * GPU acceleration using CUDA
-  * Configurable solver parameters via command line
-  * VTK output for visualization in ParaView
+### Performance and Usability
+- GPU acceleration via CUDA
+- Configurable solver parameters via command line
+- VTK output for visualization in ParaView
 
 ---
 
 ## Implementation
 
-The solver uses a structured Cartesian grid and a finite-difference discretization of the heat equation.
+The solver is based on a structured Cartesian grid discretization of the heat equation.
 
-Two approaches are implemented:
+Two iterative approaches are implemented:
 
-* **Stencil-based solvers:**
-  Perform Jacobi iterations directly on the grid without assembling a global matrix, minimizing memory usage.
+- **Stencil-based solvers**  
+  Jacobi iterations are performed directly on the grid without explicit matrix assembly, minimizing memory overhead.
 
-* **Matrix-based solvers:**
-  Assemble the linear system explicitly and solve using Jacobi iterations, enabling greater flexibility at the cost of higher memory consumption.
+- **Matrix-based solvers**  
+  The discretized system is explicitly assembled and solved using Jacobi iterations, enabling more explicit control at the cost of higher memory usage.
 
-CUDA implementations parallelize both approaches for execution on GPUs.
+CUDA implementations accelerate both approaches on GPUs.
 
 ---
 
