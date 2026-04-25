@@ -48,19 +48,20 @@ Existing tools for heat conduction simulation can be broadly categorized into th
 
 General-purpose frameworks such as OpenFOAM [@weller2007openfoam; @jasak2007openfoam] and FEniCS [@logg2012automated] provide extensive flexibility and support for coupled physics problems. However, they typically require substantial configuration effort, including mesh generation, solver selection, and case setup, which can be excessive for problems focused solely on heat conduction.
 
-On the other end of the spectrum, lightweight finite-difference and finite-volume solvers are computationally efficient and widely used for heat conduction and diffusion-dominated problems due to their straightforward implementation on structured Cartesian or logically structured grids [@leveque2007finite; @patankar1980numerical]. However, these methods are primarily formulated for regular domains and do not natively support unstructured surface representations such as STL geometries without additional preprocessing steps, embedded boundary methods, or geometry-mapping techniques.
+On the other end of the spectrum, lightweight finite-difference and finite-volume solvers are computationally efficient and widely used for heat conduction and diffusion-dominated problems due to their straightforward implementation on structured Cartesian or logically structured grids [@leveque2007finite; @patankar1980numerical]. More advanced structured-grid frameworks, such as OpenSBLI [@howell2016opensbli], extend this class of methods to high-performance computing environments. However, such frameworks are designed as general-purpose PDE toolchains and typically require additional abstraction layers and configuration to define application-specific workflows.
 
-A number of GPU-accelerated finite-difference approaches have been developed to improve performance on structured grids. For example, phase-change heat conduction simulations on GPUs demonstrate substantial acceleration but remain restricted to structured 3D grids and do not support flexible geometric representations [@gpu_phasechange_heat]. Similarly, fast and interactive GPU-based heat conduction simulators have been proposed for two-dimensional problems, prioritizing real-time performance and interactivity over geometric generality or extensibility [@gpu_heat_2d_interactive]. These approaches typically focus on optimized stencil execution and do not provide integrated geometry handling or modular solver architectures.
+A number of GPU-accelerated finite-difference approaches have been developed to improve performance on structured grids. For example, phase-change heat conduction simulations on GPUs demonstrate substantial acceleration through optimized stencil execution, but do not support arbitrary or unstructured geometry representations [@gpu_phasechange_heat]. Similarly, fast and interactive GPU-based heat conduction simulators have been proposed for two-dimensional problems, prioritizing real-time performance and interactivity over geometric generality and flexibility [@gpu_heat_2d_interactive]. These approaches are typically designed around specific research applications and optimized stencil implementations, and do not provide modular solver architectures for extensible simulation workflows.
 
-In addition, simplified and educational solvers such as FDiff3 emphasize numerical understanding and clarity of implementation for heat conduction problems, primarily in structured and pedagogical settings without GPU acceleration or support for complex geometries [@fdiff3]. Similarly, sustainable and educational Python-based frameworks for two-dimensional heat transfer conduction focus on accessibility and teaching purposes, rather than scalability, parallel performance, or advanced geometric flexibility [@python_2d_heat_edu].
+In addition, simplified and educational solvers such as FDiff3 emphasize numerical understanding and clarity of implementation for heat conduction problems, primarily in pedagogical settings [@fdiff3]. Similarly, Python-based educational frameworks for two-dimensional heat transfer focus on accessibility and teaching purposes rather than modularity or extensibility [@python_2d_heat_edu].
 
 Meshless approaches such as radial basis function finite differences (RBF-FD) enable simulation on scattered nodes and can handle arbitrary three-dimensional geometries without requiring structured grids [@fornberg2015solving; @miotti2021meshless]. However, these methods are typically CPU-based, involve increased formulation complexity, and require careful parameter selection.
 
-`HeatTransfer3D` occupies a middle ground between these categories by combining:
-- The geometric flexibility typically associated with mesh-based methods (via STL import),
-- The simplicity and efficiency of structured finite-difference discretization,
-- A multi-backend design enabling both CPU and GPU execution,
-- A lightweight, focused implementation tailored specifically for heat conduction.
+HeatTransfer3D occupies a middle ground between these categories by combining:
+
+The geometric flexibility typically associated with mesh-based workflows (via STL-based preprocessing),
+The simplicity and efficiency of structured finite-difference discretization,
+A multi-backend design enabling both CPU and GPU execution,
+A lightweight, focused implementation tailored specifically for heat conduction.
 
 This combination distinguishes it from both heavyweight multiphysics frameworks and minimal research or educational prototypes.
 
@@ -101,14 +102,18 @@ Here the few shapes simulated by solver will be displayed
 
 # Research Impact Statement
 
-By offering high performance together with flexible solver selection, **3DHeatTransfer** enables faster design iterations and parametric studies in thermal engineering research. The open-source MIT license and modular structure also facilitate community contributions and integration into larger multiphysics workflows.
+By offering high performance together with flexible solver selection, **HeatTransfer3D** enables faster design iterations and parametric studies in thermal engineering research. The open-source MIT license and modular structure also facilitate community contributions and integration into larger multiphysics workflows.
 
 # AI Usage Disclosure
 
-No AI tools were used in the development or writing of this software/paper beyond standard grammar and spell-checking assistance.
+AI-based tools were used to assist with debugging, syntax support, and language refinement during development and writing of this work. All scientific decisions, implementation design, and results validation were performed and verified by the authors.
+
+The following tools were used:
+- ChatGPT (GPT-4o)
+- Grok
 
 # Acknowledgements
 
-We thank the open-source community for the tools that made this project possible.
+Author thanks the open-source community for the tools that made this project possible.
 
 # References
