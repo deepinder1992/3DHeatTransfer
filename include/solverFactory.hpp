@@ -17,12 +17,12 @@ std::unique_ptr<HeatSolver> CreateSolver(SolverType solverType, double alpha, Gr
         #ifdef ENABLE_CUDA
             case SolverType::CUDA_STENCIL: {
                 LinearAlgebraCUDA linAlgebraCUDA(maxIters);
-                retunr std::make_unique<HeatSolverCUDAStencil>(alpha, current.dx(), dt, linAlgebraCUDA);
+                return std::make_unique<HeatSolverCUDAStencil>(alpha, current.dx(), dt, linAlgebraCUDA);
             }
             case SolverType::CUDA_MATRIX: {
-                LinearAlgebraCUDA linAlgebraCUDA(globs.maxIters);
+                LinearAlgebraCUDA linAlgebraCUDA(maxIters);
                 return std::make_unique<HeatSolverCUDAMatrix>(current, current.nx(), current.ny(), current.nz(), alpha, current.dx(),
-                                dt, k, bc, linAlgebra); 
+                                dt, k, bc, linAlgebraCUDA); 
                 }
         #endif 
         default:

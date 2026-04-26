@@ -63,7 +63,7 @@ struct SimulationGlobals {
     double globalTol = 1e-8;
     int verbosity = VERB_LOW;
 
-    double dt = 1000;
+    double dt = 10000;
     //double lx = 60; //  =ly,lz
 
     std::size_t nx = 50;
