@@ -13,7 +13,8 @@ sudo apt-get install -y \
     build-essential \
     cmake \
     git \
-    libomp-dev
+    libomp-dev \
+    libcli11-dev
 
 echo ""
 echo "NOTE:"

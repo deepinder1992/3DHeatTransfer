@@ -21,6 +21,7 @@ pacman -S --noconfirm ^
     mingw-w64-x86_64-gcc ^
     mingw-w64-x86_64-cmake ^
     mingw-w64-x86_64-openmp ^
+    mingw-w64-x86_64-cli11 ^
     git
 
 echo.
