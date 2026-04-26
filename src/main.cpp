@@ -1,15 +1,16 @@
-#include "grid.hpp"
-#include "solverCPU.hpp"
-#include "solverCUDA.hpp"
-#include "boundaryConditions.hpp"
-#include "outputWriter.hpp"
-#include "simGlobals.hpp"
-#include "voxelReader.hpp"
 #include <chrono>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <CLI/CLI.hpp>
+
+#include "grid.hpp"
+#include "boundaryConditions.hpp"
+#include "outputWriter.hpp"
+#include "simGlobals.hpp"
+#include "voxelReader.hpp"
+
+#include "solverFactory.hpp"
 
 // Forward declaration for CLI parser
 void parseCLI(int argc, char** argv, SimulationGlobals& g);
@@ -23,7 +24,7 @@ void runSimulation(
     SimulationGlobals& globs,
     BoundaryConditions& bc)
 {
-    std::cout << "Running: "  << solver.name() << " Solver!"<< std::endl;
+    std::cout << "Running: "  << solver->name() << " Solver!"<< std::endl;
     
     BinaryWriter binWriter("../BinaryOutput", "temperature");
     VTKWriter vtkWriter("../VTKOutput", "temperature");
@@ -33,7 +34,7 @@ void runSimulation(
     auto start = std::chrono::high_resolution_clock::now();
 
     for (globs.t = 0; globs.t < globs.steps; ++globs.t) {
-        solver.step(current, next, globs, bc);
+        solver->step(current, next, globs, bc);
 
         if (globs.t % globs.writeInterval == 0) {
             binWriter.write(next, globs.t);
@@ -63,10 +64,10 @@ void runSimulation(
     auto end = std::chrono::high_resolution_clock::now();
     double elapsed = std::chrono::duration<double>(end - start).count();
 
-    std::cout << solver.name() << " Total simulation time: " << elapsed << " seconds\n";
+    std::cout << solver->name() << " Total simulation time: " << elapsed << " seconds\n";
 
     if (globs.verbosity & SimulationGlobals::VERB_HIGH) {
-        std::cout << solver.name() << " Total Internal Iters: " << globs.totalIters << std::endl;
+        std::cout << solver->name() << " Total Internal Iters: " << globs.totalIters << std::endl;
     }
 }
 
@@ -90,41 +91,14 @@ int main(int argc, char** argv) {
     
     current.fill(100.0);
     // auto deep copy
-    Grid3D next = current;
-
-    
+    Grid3D next = current;    
 
     BoundaryConditions bc(globs.types, globs.values);
     //bc.applyBCsToStencil(current, current.dx(), globs.k);
 
-    LinearAlgebra linAlgebra(globs.maxIters);
-
     // Select solver based on CLI input
-    switch (globs.solver) {
-        case SolverType::CPU_STENCIL: {
-            HeatSolverCPUStencil solver(globs.alpha, current.dx(), globs.dt, linAlgebra);
-            runSimulation(solver, current, next, globs, bc);
-            break;
-        }
-        case SolverType::CPU_MATRIX: {
-            HeatSolverCPUMatrix solver(current, nx, ny, nz, globs.alpha, current.dx(), globs.dt, globs.k, bc, linAlgebra);
-            runSimulation(solver, current, next, globs, bc);
-            break;
-        }
-        case SolverType::CUDA_STENCIL: {
-            HeatSolverCUDAStencil solver(globs.alpha, current.dx(), globs.dt, linAlgebra);
-            runSimulation(solver, current, next, globs, bc);
-            break;
-        }
-        case SolverType::CUDA_MATRIX: {
-            HeatSolverCUDAMatrix solver(current, nx, ny, nz, globs.alpha, current.dx(), globs.dt, globs.k, bc, linAlgebra);
-            runSimulation(solver, current, next, globs, bc);
-            break;
-        }
-        default:
-            std::cerr << "Unknown solver selected!" << std::endl;
-            return 1;
-    }
+    std::unique_ptr<HeatSolver> solver = CreateSolver(globs.solver, globs.alpha, current, globs.dt, globs.k, globs.maxIters, bc);
+    runSimulation(solver, current, next, globs, bc);
 
     std::cout << "Simulation completed in " << globs.t << " iterations!" << std::endl;
     return 0;

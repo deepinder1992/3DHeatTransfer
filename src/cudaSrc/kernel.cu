@@ -1,4 +1,4 @@
-#include "kernel.cuh"
+#include "cudaHeaders/kernel.cuh"
 #include <stdexcept>
 #include <cstddef>
 #include <cmath>

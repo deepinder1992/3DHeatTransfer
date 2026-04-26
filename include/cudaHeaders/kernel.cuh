@@ -53,9 +53,3 @@ __global__ void applyBCsToStencilKern(double* grid, double *oldGrid, std::size_t
                                     const double values_[3]);
 
 double arraySum(double* d_a, std::size_t n);
-
-
-
-
-
-

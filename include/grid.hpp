@@ -4,7 +4,6 @@
 #include<cassert>
 #include<cstddef>
 #include <cmath>
-#include "cuda_runtime.h"
 #include "simGlobals.hpp"
 
 

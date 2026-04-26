@@ -1,15 +1,15 @@
-#include "linearAlgebra.hpp"
-#include "kernel.cuh"
+#include "cudaHeaders/kernel.cuh"
+#include "cudaHeaders/linearAlgebra.cuh"
 
 
-void LinearAlgebra::implicitJacobiCUDA(double* oldVal, double* newVal, double* currentVal,  std::size_t (*intIndices)[3], std::size_t nIntIdxs,
+void LinearAlgebraCUDA::implicitJacobiCUDA(double* oldVal, double* newVal, double* currentVal,  std::size_t (*intIndices)[3], std::size_t nIntIdxs,
                                          std::size_t nx, std::size_t ny, std::size_t nz, double coeff_, dim3 grid, dim3 block)
     {         
         implicitJacobiKernel<<<grid, block>>>(oldVal, newVal, currentVal, intIndices, nIntIdxs, nx, ny, nz, coeff_);
         cudaDeviceSynchronize();
     }
 
-void LinearAlgebra::maxErrorCUDA(double* oldVal, double* newVal,  double* maxBlockError, std::size_t (*intIndices)[3], std::size_t nIntIdxs, std::size_t nx, std::size_t ny,
+void LinearAlgebraCUDA::maxErrorCUDA(double* oldVal, double* newVal,  double* maxBlockError, std::size_t (*intIndices)[3], std::size_t nIntIdxs, std::size_t nx, std::size_t ny,
                     dim3 grid, dim3 block, size_t sharedMemSize)
     {
         maxError<<<grid, block, sharedMemSize>>>(oldVal, newVal, maxBlockError, intIndices, nIntIdxs, nx, ny);
@@ -18,7 +18,7 @@ void LinearAlgebra::maxErrorCUDA(double* oldVal, double* newVal,  double* maxBlo
 
 
 
-void LinearAlgebra::conjugateGradientCUDA(const SparseMatrix& A, const std::vector<double>& b,
+void LinearAlgebraCUDA::conjugateGradientCUDA(const SparseMatrix& A, const std::vector<double>& b,
                             std::vector<double>& x, const SimulationGlobals& globs)
 {
     std::size_t N = b.size();

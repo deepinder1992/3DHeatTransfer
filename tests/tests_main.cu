@@ -1,11 +1,10 @@
 #include <iostream>
 #include <vector>
-
 #include <cuda_runtime.h>
 #include "tests_utils.hpp"
 #include "../include/simGlobals.hpp"
-#include "../include/linearAlgebra.hpp"
-#include "../include/kernel.cuh"
+#include "../include/cudaHeaders/linearAlgebra.cuh"
+#include "../include/cudaHeaders/kernel.cuh"
 
 
 int main_cuda_tests() {

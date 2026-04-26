@@ -43,10 +43,10 @@ set(SOURCES
 
 if(ENABLE_CUDA)
     list(APPEND SOURCES
-        src/solverCUDAStencil.cpp
-        src/solverCUDAMatrix.cpp
-        src/linearAlgebraGPU.cu
-        src/kernel.cu
+        src/cudaSrc/solverCUDAStencil.cu
+        src/cudaSrc/solverCUDAMatrix.cu
+        src/cudaSrc/linearAlgebraGPU.cu
+        src/cudaSrc/kernel.cu
         src/cudaSrc/boundaryConditions.cu
     )
 endif()

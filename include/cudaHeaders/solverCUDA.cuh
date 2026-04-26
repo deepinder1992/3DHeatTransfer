@@ -1,13 +1,13 @@
 #pragma once
 #include "solver.hpp"
-#include "linearAlgebra.hpp"
 #include "sparseMatrix.hpp"
 #include "cudaHeaders/boundaryConditions.cuh"
+#include "cudaHeaders/linearAlgebra.cuh"
 #include <iostream>
 
 class HeatSolverCUDAStencil final: public HeatSolver{
     public:
-        HeatSolverCUDAStencil(double alpha, double dx, double dt, const LinearAlgebra& linAlgebra);
+        HeatSolverCUDAStencil(double alpha, double dx, double dt, const LinearAlgebraCUDA& linAlgebraCUDA);
         ~HeatSolverCUDAStencil()
                         {
                             if(devCurrent) cudaFree(devCurrent);
@@ -27,7 +27,7 @@ class HeatSolverCUDAStencil final: public HeatSolver{
 
     private:
         double alpha_, dx_,dt_,coeff_;
-        LinearAlgebra linAlgebra_;
+        LinearAlgebraCUDA linAlgebraCUDA_;
         BoundaryConditionsCUDA bcCUDA_;
 
         double *devCurrent = nullptr, *devNext = nullptr, *devOld = nullptr,
@@ -49,7 +49,7 @@ class HeatSolverCUDAStencil final: public HeatSolver{
 class HeatSolverCUDAMatrix final: public HeatSolver{
     public:
         HeatSolverCUDAMatrix(const Grid3D& grid, size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k,
-                                            const BoundaryConditions& bc, const LinearAlgebra& linAlgebra);
+                                            const BoundaryConditions& bc, const LinearAlgebraCUDA& linAlgebraCUDA);
 
 
         void step(const Grid3D& current, Grid3D & next,const SimulationGlobals& globs, const BoundaryConditions& bc) override;
@@ -59,7 +59,7 @@ class HeatSolverCUDAMatrix final: public HeatSolver{
     private:
         SparseMatrix A_;
         double alpha_, dx_, dt_, coeff_, cond_;
-        LinearAlgebra linAlgebra_;
+        LinearAlgebraCUDA linAlgebraCUDA_;
 
 };
 
