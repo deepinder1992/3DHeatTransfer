@@ -32,8 +32,7 @@ void HeatSolverCUDAMatrix::step(const Grid3D& current, Grid3D& next,const Simula
         ++counter;
     }
     
-    bc.applyBCsToRhsMatrix(current, current.nx(), current.ny(), current.nz(), dx_,
-                            coeff_, cond_, b);
+    bc.applyBCsToRhsMatrix(current, current.nx(), current.ny(), dx_, coeff_, cond_, b);
                              
     std::vector<double> x(N,0.0);
     

@@ -47,6 +47,7 @@ if(ENABLE_CUDA)
         src/solverCUDAMatrix.cpp
         src/linearAlgebraGPU.cu
         src/kernel.cu
+        src/cudaSrc/boundaryConditions.cu
     )
 endif()
 
@@ -60,6 +61,7 @@ target_link_libraries(heat3d PRIVATE OpenMP::OpenMP_CXX)
 if(ENABLE_CUDA)
     target_link_libraries(heat3d PRIVATE CUDA::cudart)
     set_target_properties(heat3d PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
 endif()
 
 # Compiler flags

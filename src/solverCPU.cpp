@@ -78,7 +78,7 @@ void HeatSolverCPUMatrix::step(const Grid3D& current, Grid3D& next,const Simulat
         ++counter;
     }
 
-    bc.applyBCsToRhsMatrix(current, current.nx(), current.ny(), current.nz(), dx_,
+    bc.applyBCsToRhsMatrix(current, current.nx(), current.ny(), dx_,
                             coeff_, cond_, b);
                              
     std::vector<double> x(N,0.0);

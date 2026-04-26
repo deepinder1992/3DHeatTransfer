@@ -1,9 +1,9 @@
 #include <iostream>
 #include <cmath>
 #include <cassert>
-#include <random>
 #include <algorithm>
 #include <vector>
+#include "tests_utils.hpp"
 #include "../include/grid.hpp"
 #include "../include/simGlobals.hpp"
 #include "../include/boundaryConditions.hpp"
@@ -18,18 +18,6 @@ double analytical_1d(double x, double t, double alpha) {
 
 bool approx_equal(double a, double b, double tol = 1e-4) {
     return std::abs(a - b) < tol;
-}
-
-// Random vector generator
-template<typename T>
-std::vector<T> randomVector(std::size_t num, T min, T max) {
-    std::vector<T> randVec(num);
-    std::mt19937 gen(std::random_device{}());
-    std::uniform_real_distribution<T> dist(min, max);
-    for (auto &x : randVec) {
-        x = dist(gen);
-    }
-    return randVec;
 }
 
 int main() {

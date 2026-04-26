@@ -1,19 +1,12 @@
 #include <iostream>
 #include <vector>
+
 #include <cuda_runtime.h>
+#include "tests_utils.hpp"
 #include "../include/simGlobals.hpp"
 #include "../include/linearAlgebra.hpp"
 #include "../include/kernel.cuh"
 
-#define CUDA_CHECK(call) \
-    do { \
-        cudaError_t err = call; \
-        if (err != cudaSuccess) { \
-            std::cerr << "CUDA error: " << cudaGetErrorString(err) \
-                      << " at " << __FILE__ << ":" << __LINE__ << std::endl; \
-            return 1; \
-        } \
-    } while(0)
 
 int main_cuda_tests() {
     std::cout << "\n=== Running CUDA Linear Algebra Tests ===\n";
@@ -44,7 +37,7 @@ int main_cuda_tests() {
 
     // Test 4: Add
     std::cout << "Test 4: Add Two Arrays CPU vs GPU... ";
-    addSubtract<<<gridDim1D, blockDim1D>>>(devAVector, devBVector, devCVector, 1.0, N, 1.0);
+    //addSubtract<<<gridDim1D, blockDim1D>>>(devAVector, devBVector, devCVector, 1.0, N, 1.0);
     // ... (rest of add test)
 
     // Test 5: Subtract

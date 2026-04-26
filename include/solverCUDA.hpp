@@ -2,6 +2,7 @@
 #include "solver.hpp"
 #include "linearAlgebra.hpp"
 #include "sparseMatrix.hpp"
+#include "cudaHeaders/boundaryConditions.cuh"
 #include <iostream>
 
 class HeatSolverCUDAStencil final: public HeatSolver{
@@ -27,6 +28,7 @@ class HeatSolverCUDAStencil final: public HeatSolver{
     private:
         double alpha_, dx_,dt_,coeff_;
         LinearAlgebra linAlgebra_;
+        BoundaryConditionsCUDA bcCUDA_;
 
         double *devCurrent = nullptr, *devNext = nullptr, *devOld = nullptr,
                 *devMaxBlockError = nullptr;
