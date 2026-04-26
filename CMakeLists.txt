@@ -36,13 +36,9 @@ set(COMMON_SOURCES
     src/outputWriter.cpp
 )
 
-set(SOURCES
-    src/main.cpp
-    ${COMMON_SOURCES}
-)
 
 if(ENABLE_CUDA)
-    list(APPEND SOURCES
+    list(APPEND COMMON_SOURCES
         src/cudaSrc/solverCUDAStencil.cu
         src/cudaSrc/solverCUDAMatrix.cu
         src/cudaSrc/linearAlgebraGPU.cu
@@ -52,7 +48,9 @@ if(ENABLE_CUDA)
 endif()
 
 # Main executable
-add_executable(heat3d ${SOURCES})
+add_executable(heat3d 
+    src/main.cpp
+    ${COMMON_SOURCES})
 
 target_include_directories(heat3d PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -81,7 +79,7 @@ target_include_directories(test_heat PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
 target_link_libraries(test_heat PRIVATE OpenMP::OpenMP_CXX)
 
 if(ENABLE_CUDA)
-    target_sources(test_heat PRIVATE tests/tests_main.cu)
+    target_sources(test_heat  PRIVATE tests/tests_cuda.cu)
     target_link_libraries(test_heat PRIVATE CUDA::cudart)
 endif()
 

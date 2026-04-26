@@ -20,6 +20,10 @@ bool approx_equal(double a, double b, double tol = 1e-4) {
     return std::abs(a - b) < tol;
 }
 
+#ifdef ENABLE_CUDA
+int main_cuda_tests();
+#endif
+
 int main() {
     std::cout << "=== Running HeatTransfer3D Tests ===\n\n";
 
@@ -113,5 +117,9 @@ int main() {
     }
 
     std::cout << "All CPU tests passed!\n";
+
+    #ifdef ENABLE_CUDA
+        main_cuda_tests();
+    #endif
     return 0;
 }
