@@ -39,7 +39,7 @@ class HeatSolverCUDAStencil final: public HeatSolver{
 
         std::size_t (*devIntIndices)[3] = nullptr, (*devBcIndices)[3] = nullptr, *devNbrOffset = nullptr;
 
-        size_type devMemCurrGrdSize = 0, devMemNextGrdSize = 0, devMemOldGrdSize = 0,
+        std::size_t devMemCurrGrdSize = 0, devMemNextGrdSize = 0, devMemOldGrdSize = 0,
                   devMemBcIndSize = 0, devMemIntIndSize = 0, devMemBlockErrorSize = 0,
                   devMemFaceTypeSize = 0, devMemNbrSize = 0,  devMemNbrOffsetSize =0,
                   devMemCellNormalSize = 0;
@@ -48,7 +48,7 @@ class HeatSolverCUDAStencil final: public HeatSolver{
 
 class HeatSolverCUDAMatrix final: public HeatSolver{
     public:
-        HeatSolverCUDAMatrix(const Grid3D& grid, size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k,
+        HeatSolverCUDAMatrix(const Grid3D& grid, std::size_t nx, std::size_t ny, std::size_t nz, double alpha, double dx, double dt, double k,
                                             const BoundaryConditions& bc, const LinearAlgebraCUDA& linAlgebraCUDA);
 
 

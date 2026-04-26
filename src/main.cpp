@@ -77,9 +77,9 @@ int main(int argc, char** argv) {
     // Parse CLI arguments
     parseCLI(argc, argv, globs);
 
-    size_type nx = globs.nx;
-    size_type ny = globs.ny;
-    size_type nz = globs.nz;
+    std::size_t nx = globs.nx;
+    std::size_t ny = globs.ny;
+    std::size_t nz = globs.nz;
     double dx = globs.dx;
 
     Grid3D current(nx, ny, nz, dx);

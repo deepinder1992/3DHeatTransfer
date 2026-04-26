@@ -6,7 +6,7 @@
 
 
 //Implict Matrix Solver
-HeatSolverCUDAMatrix::HeatSolverCUDAMatrix(const Grid3D& grid, size_type nx, size_type ny, size_type nz, double alpha, double dx, double dt, double k,
+HeatSolverCUDAMatrix::HeatSolverCUDAMatrix(const Grid3D& grid, std::size_t nx, std::size_t ny, std::size_t nz, double alpha, double dx, double dt, double k,
                                             const BoundaryConditions& bc, const LinearAlgebraCUDA& linAlgebraCUDA):
                                             A_(grid.totalCellsInGeometry()),alpha_(alpha), dx_(dx), dt_(dt), cond_(k),
                                             linAlgebraCUDA_(linAlgebraCUDA){
@@ -21,7 +21,7 @@ HeatSolverCUDAMatrix::HeatSolverCUDAMatrix(const Grid3D& grid, size_type nx, siz
 
 void HeatSolverCUDAMatrix::step(const Grid3D& current, Grid3D& next,const SimulationGlobals& globs,const BoundaryConditions& bc){
 
-    size_type N = current.totalCellsInGeometry();
+    std::size_t N = current.totalCellsInGeometry();
     assert(N == A_.rows());
     std::vector<double> b(N, 0.0);
     std::size_t counter = 0;

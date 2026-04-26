@@ -13,7 +13,7 @@ HeatSolverCUDAStencil::HeatSolverCUDAStencil(double alpha, double dx, double dt,
 
 void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const SimulationGlobals& globs, const BoundaryConditions& bc){
 
-    size_type N =  current.size();
+    std::size_t N =  current.size();
     const std::size_t nx = current.nx();
     const std::size_t ny = current.ny();
     const std::size_t nz = current.nz();
@@ -58,7 +58,7 @@ void HeatSolverCUDAStencil::step(const Grid3D& current, Grid3D& next, const Simu
     dim3 gridDims((nIntIdxs+globs.blockDim-1)/globs.blockDim);
 
 
-    size_type numBlocks = gridDims.x;
+    std::size_t numBlocks = gridDims.x;
 
     ::allocateMemory(devMaxBlockError, devMemBlockErrorSize, numBlocks);
     

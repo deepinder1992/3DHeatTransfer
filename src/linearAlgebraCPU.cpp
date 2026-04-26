@@ -2,7 +2,7 @@
 
 double LinearAlgebra::dot (const std::vector<double>& a, const std::vector<double>& b){
     double sum = 0.0;
-    for (size_type i = 0; i <a.size();++i)
+    for (std::size_t i = 0; i <a.size();++i)
             sum+=a[i]*b[i];
     return sum;
 }
@@ -14,9 +14,9 @@ void LinearAlgebra::SparseMultiply (const SparseMatrix& A, const double* x, doub
     const auto& cols   = A.colIndex();
     const auto& rowPtr = A.rowPtr();
 
-    for (size_type row = 0; row < A.rows(); ++row){
+    for (std::size_t row = 0; row < A.rows(); ++row){
         double sum = 0.0;       
-        for (size_type idx = rowPtr[row]; idx <rowPtr[row+1]; ++idx){
+        for (std::size_t idx = rowPtr[row]; idx <rowPtr[row+1]; ++idx){
             sum+=values[idx]*x[cols[idx]];
         }
         y[row] = sum;
@@ -61,12 +61,12 @@ void LinearAlgebra::conjugateGradient(const SparseMatrix& A,
     }
 }
 
-void LinearAlgebra::implicitJacobiCPU(size_type nx, size_type ny, size_type nz, const double coeff_, double& maxErr,
+void LinearAlgebra::implicitJacobiCPU(std::size_t nx, std::size_t ny, std::size_t nz, const double coeff_, double& maxErr,
                                      Grid3D* oldGrid, Grid3D* newGrid, const Grid3D& current){
         #pragma omp parallel for collapse(3) reduction(max:maxErr)
-        for (size_type k = 1; k < nz-1; ++k){
-            for (size_type j = 1; j < ny-1; ++j ){
-                for (size_type i = 1; i < nx-1 ; ++i){
+        for (std::size_t k = 1; k < nz-1; ++k){
+            for (std::size_t j = 1; j < ny-1; ++j ){
+                for (std::size_t i = 1; i < nx-1 ; ++i){
                     if(current.cellType(i,j,k)!=CellType::INTERIOR) continue;
                     const double rhs  = current(i,j,k);
                     

@@ -15,7 +15,7 @@ class LinearAlgebra{
         void conjugateGradient(const SparseMatrix& A, const std::vector<double>& b,
                                 std::vector<double>& x, const SimulationGlobals& globs);
 
-        void implicitJacobiCPU(size_type nx, size_type ny, size_type nz, const double coeff_, double& maxerror,
+        void implicitJacobiCPU(std::size_t nx, std::size_t ny, std::size_t nz, const double coeff_, double& maxerror,
                                  Grid3D* oldGrid, Grid3D* newGrid, const Grid3D& current);
 
         int maxIters() const noexcept{return _maxIters;}

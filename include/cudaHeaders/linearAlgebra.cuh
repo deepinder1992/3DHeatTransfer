@@ -45,7 +45,7 @@ private:
 
     std::size_t *devSparseMatRowPtr = nullptr, *devSparseMatCols = nullptr;
 
-    size_type devMemSpMatVals = 0, devMemSpMatRowPtr = 0, devMemSpMatCols = 0,
+    std::size_t devMemSpMatVals = 0, devMemSpMatRowPtr = 0, devMemSpMatCols = 0,
               devMemBVector = 0, devMemXVector = 0, devMemApVector = 0,
               devMemRVector = 0, devMemBlockSums = 0, devMemSum = 0,
               devMemSum2 = 0, devMemPVector = 0;
