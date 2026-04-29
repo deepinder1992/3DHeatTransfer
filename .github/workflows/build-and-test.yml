@@ -29,4 +29,4 @@ jobs:
 
       - name: Test
         working-directory: build
-        run: ctest --output-on-failure -V
+        run: ctest -V
