@@ -31,4 +31,5 @@ class HeatSolverCPUMatrix final : public HeatSolver{
         SparseMatrix A_;
         double alpha_, dx_, dt_, coeff_, cond_;
         LinearAlgebra linAlgebra_;
+        int t = 0; //current time step
 };
