@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "tests_utils.hpp"
 #include "../include/grid.hpp"
+#include<iostream>
 
 TEST(GridTest, BasicTest) {
     Grid3D g(10, 12, 8, 0.1);
@@ -17,10 +18,28 @@ TEST(GridTest, FillFunction) {
 
 };
 
-TEST(GridTest, Index) {
+TEST(GridTest, IndexFuncs) {
     Grid3D g(10, 12, 8, 0.1);
     g(5,6,5) = 44;
     EXPECT_EQ(g(5,6,5), 44);
 
+    g.cellType(5,6,5) = CellType::BOUNDARY;
+    EXPECT_EQ(g.cellType(5,6,5), CellType::BOUNDARY);
+
+    g.faceType(5,6,5) = FaceType::INLET;
+    EXPECT_NE(g.faceType(5,6,5), FaceType::WALL);
+
+    g.cellFaceNormal(1,3,5) = {1.0, 1.0, 1.0}; 
+
+    Vector result = g.cellFaceNormalized(1, 3, 5);
+
+    EXPECT_NEAR(result.x, 0.577, 1e-3) 
+        << "Expected x = 0.577, but got x = " << result.x;
+
+    EXPECT_NEAR(result.y, 0.577, 1e-3) 
+        << "Expected y = 0.577, but got y = " << result.y;
+
+    EXPECT_NEAR(result.z, 0.577, 1e-3) 
+        << "Expected z = 0.577, but got z = " << result.z;
 };
 
