@@ -112,8 +112,7 @@ VoxelReader::VoxelReader(const std::string& fileName, Grid3D& grid){
 
 bool VoxelReader::loadBinaryStl(const std::string& fileName, std::vector<Triangle>& triangles ){
     if(!voxelReadBinaryStl(fileName, triangles)){
-        std::cout << "Error: failed to read binary STL file " << fileName << "\n";
-        std::exit(EXIT_FAILURE); }
+        throw std::runtime_error("File does not exist or cannot be opened: " + fileName);}
     return true;}
 
 bool VoxelReader::voxelReadBinaryStl(const std::string& fileName, std::vector<Triangle>& triangles){

@@ -114,7 +114,8 @@ void parseCLI(int argc, char** argv, SimulationGlobals& globs) {
                                         "  3 = CUDA_STENCIL\n"
                                         "  4 = CUDA_MATRIX")->check(CLI::Range(1,4));
                                         
-    app.add_option("--nx", globs.nx, "Grid size (uniform in x, y, z).");
+    app.add_option("--nx", globs.nx, "Grid size (uniform in x, y, z).")
+    ->check(CLI::Range(1, 1000000));
 
     app.add_option("--steps", globs.steps, "Maximum number of time steps.");
 

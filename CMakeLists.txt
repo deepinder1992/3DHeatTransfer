@@ -85,6 +85,7 @@ FetchContent_MakeAvailable(googletest)
 add_executable(test_heat
     tests/tests_main.cpp
     tests/tests_grid.cpp
+    tests/tests_VoxelReader.cpp
     ${COMMON_SOURCES}
 )
 

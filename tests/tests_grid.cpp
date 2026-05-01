@@ -43,3 +43,8 @@ TEST(GridTest, IndexFuncs) {
         << "Expected z = 0.577, but got z = " << result.z;
 };
 
+TEST(GridTest, Constructor_ThrowsOnInvalidDimensions) {
+    EXPECT_THROW(Grid3D g(0, 10, 10, 0.1), std::invalid_argument);
+    EXPECT_THROW(Grid3D g(10, 10, 10, 0.0), std::invalid_argument);
+    EXPECT_THROW(Grid3D g(10, 10, 10, -0.1), std::invalid_argument);
+}
