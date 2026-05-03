@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include "tests_utils.hpp"
 #include "../include/grid.hpp"
 #include<iostream>
 
@@ -46,5 +45,6 @@ TEST(GridTest, IndexFuncs) {
 TEST(GridTest, Constructor_ThrowsOnInvalidDimensions) {
     EXPECT_THROW(Grid3D g(0, 10, 10, 0.1), std::invalid_argument);
     EXPECT_THROW(Grid3D g(10, 10, 10, 0.0), std::invalid_argument);
+    EXPECT_THROW(Grid3D g(-10, 10, 10, 0.0), std::length_error);
     EXPECT_THROW(Grid3D g(10, 10, 10, -0.1), std::invalid_argument);
 }

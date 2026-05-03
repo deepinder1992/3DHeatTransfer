@@ -11,16 +11,6 @@ class OutputWriter{
         virtual void write(const Grid3D& grid, const int& t)= 0;
 };
 
-class BinaryWriter: public OutputWriter{
-    public:
-        BinaryWriter(const std::string directory,const std::string& prefix):directory_(directory),prefix_(prefix)
-                    {std::filesystem::create_directories(directory_);}
-        
-        void write(const Grid3D& grid, const int& t) override;
-    
-    private:
-        std::string directory_,prefix_;
-};
 
 class VTKWriter: public OutputWriter{
     public:

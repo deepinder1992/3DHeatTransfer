@@ -1,10 +1,5 @@
 #include "outputWriter.hpp"
 
-void BinaryWriter::write(const Grid3D& grid, const int& t){
-    std::ofstream out(directory_+"/"+ prefix_ +"_"+ std::to_string(t) + ".bin", std::ios::binary);
-    out.write(reinterpret_cast<const char*>(grid.data()), grid.size()*sizeof(double));
-}
-
 void VTKWriter::write(const Grid3D& grid, const int& t){
     std::ofstream file;
     std::stringstream filename;

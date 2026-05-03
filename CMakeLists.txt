@@ -86,6 +86,13 @@ add_executable(test_heat
     tests/tests_main.cpp
     tests/tests_grid.cpp
     tests/tests_VoxelReader.cpp
+    tests/tests_cpuLinearAlgebra.cpp
+    tests/tests_sparseMatrix.cpp
+    tests/tests_boundaryConditions.cpp
+    tests/test_stencilFulltest.cpp
+    tests/test_matrixFulltest.cpp
+    tests/tests_vtkWriter.cpp
+    tests/tests_utils.cpp
     ${COMMON_SOURCES}
 )
 

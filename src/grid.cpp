@@ -204,8 +204,8 @@ std::vector<NeighbourType> Grid3D::findSolidNeighbours(std::size_t i, std::size_
 std::vector<NeighbourType>  Grid3D::getSolidNeighbours(std::size_t i, std::size_t j, std::size_t k) const{
     auto it = solidNebrMap_.find(index(i,j,k));
     if (it == solidNebrMap_.end()) {
-        throw std::runtime_error("No solid neigbour at index: "
-            + std::to_string(i) +" "+ std::to_string(i)+ " " + std::to_string(k));
+        std::cerr << "No solid neighbour at index: "
+                << i << " " << j << " " << k << std::endl;
     }
     return it->second;
 }

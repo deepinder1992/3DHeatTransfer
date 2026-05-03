@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include "tests_utils.hpp"
 #include "../include/grid.hpp"
 #include "../include/voxelReader.hpp"
 #include<iostream>

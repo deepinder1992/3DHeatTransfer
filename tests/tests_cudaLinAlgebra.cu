@@ -2,19 +2,12 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <vector>
-#include "tests_utils.hpp"
+#include "./include/tests_utils.hpp"
 #include "../include/cudaHeaders/linearAlgebra.cuh"
 #include "../include/cudaHeaders/kernel.cuh"
 #include "../include/linearAlgebra.hpp"
 
-// Helper function to generate random vector
-std::vector<double> randomVector(std::size_t n, double min_val, double max_val) {
-    std::vector<double> vec(n);
-    std::uniform_real_distribution<double> dist(min_val, max_val);
-    std::mt19937 gen(42);  
-    std::generate(vec.begin(), vec.end(), [&]() { return dist(gen); });
-    return vec;
-}
+
 
 
 TEST(CudaLinearAlgebraTest, AddTwoArrays_CPU_vs_GPU) {

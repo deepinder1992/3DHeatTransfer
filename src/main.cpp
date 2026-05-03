@@ -26,7 +26,6 @@ void runSimulation(
 {
     std::cout << "Running: "  << solver->name() << " Solver!"<< std::endl;
     
-    BinaryWriter binWriter("../BinaryOutput", "temperature");
     VTKWriter vtkWriter("../VTKOutput", "temperature");
 
     double maxDiff = 0.0;                      
@@ -37,7 +36,6 @@ void runSimulation(
         solver->step(current, next, globs, bc);
 
         if (globs.t % globs.writeInterval == 0) {
-            binWriter.write(next, globs.t);
             vtkWriter.write(next, globs.t);
         }
 
@@ -55,7 +53,7 @@ void runSimulation(
         }
 
         std::cout << "Step " << globs.t + 1
-                  << ": center " << current(globs.nx/2, globs.ny/2, globs.nz/2)
+                  << ": center " << current(current.nx()/2, current.ny()/2, current.nz()/2)
                   << ", Max Diff: " << maxDiff << " at cell: " <<imax<<" "<<jmax<<" "<<kmax<< std::endl;
 
         if (maxDiff < globs.globalTol) break;
@@ -65,6 +63,7 @@ void runSimulation(
     double elapsed = std::chrono::duration<double>(end - start).count();
 
     std::cout << solver->name() << " Total simulation time: " << elapsed << " seconds\n";
+    vtkWriter.write(next, globs.t);
 
     if (globs.verbosity & SimulationGlobals::VERB_HIGH) {
         std::cout << solver->name() << " Total Internal Iters: " << globs.totalIters << std::endl;

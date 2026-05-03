@@ -29,4 +29,4 @@ jobs:
 
       - name: Test
         working-directory: build
-        run: ctest -V
+        run: ctest 
