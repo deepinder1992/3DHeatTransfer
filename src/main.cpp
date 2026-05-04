@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
     std::unique_ptr<HeatSolver> solver = CreateSolver(globs.solver, globs.alpha, current, globs.dt, globs.k, globs.maxIters, bc);
     runSimulation(solver, current, next, globs, bc);
 
-    std::cout << "Simulation completed in " << globs.t << " iterations!" << std::endl;
+    std::cout << "Simulation completed in " << globs.t+1 << " iterations!" << std::endl;
     return 0;
 }
 
