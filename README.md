@@ -123,12 +123,15 @@ cd build
 | `--solver`        | Solver type (1–4)                      | 3 (CUDA_STENCIL)         |
 | `--nx`            | Grid size (nx × nx × nx)               | 50                       |
 | `--steps`         | Maximum number of time steps           | 10000                    |
-| `--dt`            | Time step size (seconds)               | 100                     |
+| `--dt`            | Time step size (seconds)               | 100                      |
 | `--jacobiTol`     | Jacobi iteration tolerance             | 1e-6                     |
 | `--globalTol`     | Global convergence tolerance           | 1e-8                     |
 | `--verbosity`     | Verbosity level (1=low, 2=med, 4=high) | 1                        |
 | `--writeInterval` | Write VTK output every N steps         | 1000                     |
 | `--blockDim`      | CUDA block size                        | 216                      |
+| `--conductivity`  | Conductivity of the material           | 385 W/m.K                |
+| `--density`       | Density of the material                | 8960 kg/m3               |
+| `--cp`            | Specific Heat of the material          | 385 J/kg.K               |
 | `--bcTypeInlet`   | Inlet BC (0=Dirichlet, 1=Neumann)      | 1                        |
 | `--bcTypeOutlet`  | Outlet BC                              | 1                        |
 | `--bcTypeWall`    | Wall BC                                | 0                        |
