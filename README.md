@@ -123,7 +123,7 @@ cd build
 | `--solver`        | Solver type (1–4)                      | 3 (CUDA_STENCIL)         |
 | `--nx`            | Grid size (nx × nx × nx)               | 50                       |
 | `--steps`         | Maximum number of time steps           | 10000                    |
-| `--dt`            | Time step size (seconds)               | 1000                     |
+| `--dt`            | Time step size (seconds)               | 100                     |
 | `--jacobiTol`     | Jacobi iteration tolerance             | 1e-6                     |
 | `--globalTol`     | Global convergence tolerance           | 1e-8                     |
 | `--verbosity`     | Verbosity level (1=low, 2=med, 4=high) | 1                        |
