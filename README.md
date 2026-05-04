@@ -135,8 +135,8 @@ cd build
 | `--bcTypeInlet`   | Inlet BC (0=Dirichlet, 1=Neumann)      | 1                        |
 | `--bcTypeOutlet`  | Outlet BC                              | 1                        |
 | `--bcTypeWall`    | Wall BC                                | 0                        |
-| `--bcValInlet`    | Inlet BC value                         | 500.0                    |
-| `--bcValOutlet`   | Outlet BC value                        | -500.0                   |
+| `--bcValInlet`    | Inlet BC value                         | 100.0                    |
+| `--bcValOutlet`   | Outlet BC value                        | -100.0                   |
 | `--bcValWall`     | Wall BC value                          | 100.0                    |
 | `--stlPath`       | Base STL geometry file                 | ../stlFiles/cylinder/... |
 |  `-h,--help`      | Print this summary                     | NA                       |
