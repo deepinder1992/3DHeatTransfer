@@ -18,19 +18,6 @@ std::vector<T> randomVector(std::size_t num, T min, T max) {
 template std::vector<double> randomVector<double>(std::size_t, double, double);
 template std::vector<float> randomVector<float>(std::size_t, float, float);
 
-// globals (ONLY ONCE HERE)
-std::array<BCType,3> types = {
-    BCType::Neumann,
-    BCType::Neumann,
-    BCType::Dirichlet
-};
-
-std::array<double,3> values = {
-    500.0,
-    -500.0,
-    100.0
-};
-
 // matrix function
 SparseMatrix makeTestMatrix10() {
     SparseMatrix mat(10);

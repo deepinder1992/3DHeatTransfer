@@ -8,8 +8,8 @@
 
 
 TEST(CPUBoundaryConditionsTest, BasicTest) {
-
-    BoundaryConditions bc = BoundaryConditions(types, values);
+    SimulationGlobals globs;
+    BoundaryConditions bc = BoundaryConditions(globs.types, globs.values);
     
     std::array<BCType,3> types_ = bc.types();
     std::array<double,3> values_ = bc.values();
@@ -26,9 +26,10 @@ TEST(CPUBoundaryConditionsTest, BasicTest) {
 
 TEST(CPUBoundaryConditionsTest, ApplyBCToStencil) {
 
-    BoundaryConditions bc = BoundaryConditions(types, values);
+    SimulationGlobals globs;
+    BoundaryConditions bc = BoundaryConditions(globs.types, globs.values);
 
-    Grid3D grid(50, 50, 50, 0.1);
+    Grid3D grid(50, 50, 50);
     std::string stlFilePathStr = "../stlFiles/cube/cube.stl";
     VoxelReader(stlFilePathStr, grid);
     grid.constructNeigbourMap(SolverType::CPU_MATRIX);
@@ -49,9 +50,10 @@ TEST(CPUBoundaryConditionsTest, ApplyBCToStencil) {
 
 TEST(CPUBoundaryConditionsTest, ApplyBCToRHS) {
 
-    BoundaryConditions bc = BoundaryConditions(types, values);
+    SimulationGlobals globs;
+    BoundaryConditions bc = BoundaryConditions(globs.types, globs.values);
 
-    Grid3D grid(50, 50, 50, 0.1);
+    Grid3D grid(50, 50, 50);
     grid.fill(50.0);
     std::string stlFilePathStr = "../stlFiles/cube/cube.stl";
     VoxelReader(stlFilePathStr, grid);

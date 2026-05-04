@@ -9,7 +9,7 @@ TEST(VTKWriterTest, WritesCorrectValues) {
 
     VTKWriter vtkWriter(dir, prefix);;
 
-    Grid3D grid(3,3,3,0.1);
+    Grid3D grid(3,3,3);
 
     grid(0,0,0) = 123.0;
     grid(1,0,0) = 456.0;

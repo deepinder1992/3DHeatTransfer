@@ -49,7 +49,7 @@ struct SimulationGlobals {
     static constexpr int VERB_MEDIUM = 1 << 1;
     static constexpr int VERB_HIGH   = 1 << 2;
 
-    SolverType solver = SolverType::CUDA_STENCIL; // default solver
+    SolverType solver = SolverType::CPU_MATRIX; // default solver
     std::string stlFilePathStr = "../stlFiles/cube/cube.stl"; //todo make it os agnostic
                              // "../stlFiles/cube/cube.stl"
                              // "../stlFiles/L_Channel/l.stl"
@@ -63,18 +63,11 @@ struct SimulationGlobals {
     double globalTol = 1e-8;
     int verbosity = VERB_LOW;
 
-    double dt = 10000;
-    //double lx = 60; //  =ly,lz
+    double dt = 100;
 
     std::size_t nx = 50;
     std::size_t ny = nx;
     std::size_t nz = nx;
-
-    double dx = 0.1; // = dy,dz
-   // double dy = ly/ny;
-   // double dz = lz/nz;
-
-
     
     double k = 385; // W/m.K 
     double density = 8960; //kg/m3

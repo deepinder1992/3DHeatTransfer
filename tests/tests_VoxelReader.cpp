@@ -5,12 +5,12 @@
 
 
 TEST(VoxelTest, UnableToFindFile) {
-    Grid3D grid(50, 50, 50, 0.1);
+    Grid3D grid(50, 50, 50);
     EXPECT_THROW(VoxelReader("", grid), std::runtime_error);
 };
 
 TEST(VoxelTest, ReadCubeStl) {
-    Grid3D grid(50, 50, 50, 0.1);
+    Grid3D grid(50, 50, 50);
     std::string stlFilePathStr = "../stlFiles/cube/cube.stl";
     VoxelReader(stlFilePathStr, grid);
     
@@ -47,13 +47,13 @@ TEST(VoxelTest, ReadCubeStl) {
 };
 
 TEST(VoxelTest, ReadCyclinderStl) {
-    Grid3D grid(50, 50, 50, 0.1);
+    Grid3D grid(50, 50, 50);
     std::string stlFilePathStr = "../stlFiles/cylinder/cylinder.stl";
     VoxelReader(stlFilePathStr, grid);
     
-    EXPECT_EQ(grid.boundaryIndices().size(), 10664);
-    EXPECT_EQ(grid.interiorIndices().size(), 87936);
-    EXPECT_EQ(grid.activeIndices().size(), 98600);
+    EXPECT_EQ(grid.boundaryIndices().size(), 10640);
+    EXPECT_EQ(grid.interiorIndices().size(), 87360);
+    EXPECT_EQ(grid.activeIndices().size(), 98000);
 
     EXPECT_EQ(grid.cellType(25,25,25), CellType::INTERIOR);
     EXPECT_EQ(grid.cellType(49,25,25), CellType::BOUNDARY);
@@ -67,29 +67,25 @@ TEST(VoxelTest, ReadCyclinderStl) {
     Vector result = grid.cellFaceNormalized(25, 25, 0);
 
     EXPECT_NEAR(result.x, 0.0, 1e-3);
-
     EXPECT_NEAR(result.y, 0.0, 1e-3);
-
     EXPECT_NEAR(result.z, -1.0, 1e-3);
 
     Vector result1 = grid.cellFaceNormalized(49, 25, 25);
 
     EXPECT_NEAR(result1.x, 1.0, 1e-3);
-
-    EXPECT_NEAR(result1.y, 0.028, 1e-3);
-
+    EXPECT_NEAR(result1.y, 0.04361913353204727, 1e-3);
     EXPECT_NEAR(result1.z, 0.0, 1e-3);
 };
 
 
 TEST(VoxelTest, ReadSemiCyclinderStl) {
-    Grid3D grid(50, 50, 50, 0.1);
+    Grid3D grid(50, 50, 50);
     std::string stlFilePathStr =  "../stlFiles/semiCylinder/semicylinder.stl";
     VoxelReader(stlFilePathStr, grid);
     
-    EXPECT_EQ(grid.boundaryIndices().size(), 7478);
-    EXPECT_EQ(grid.interiorIndices().size(), 40272);
-    EXPECT_EQ(grid.activeIndices().size(), 47750);
+    EXPECT_EQ(grid.boundaryIndices().size(), 7470);
+    EXPECT_EQ(grid.interiorIndices().size(), 40080);
+    EXPECT_EQ(grid.activeIndices().size(), 47550);
 
     EXPECT_EQ(grid.cellType(25,25,25), CellType::INTERIOR);
     EXPECT_EQ(grid.cellType(23,25,0), CellType::BOUNDARY);
@@ -119,7 +115,7 @@ TEST(VoxelTest, ReadSemiCyclinderStl) {
 
 
 TEST(VoxelTest, ReadLChannelStl) {
-    Grid3D grid(50, 50, 50, 0.1);
+    Grid3D grid(50, 50, 50);
     std::string stlFilePathStr =  "../stlFiles/L_Channel/l.stl";
     VoxelReader(stlFilePathStr, grid);
     

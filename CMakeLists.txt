@@ -93,6 +93,7 @@ add_executable(test_heat
     tests/test_matrixFulltest.cpp
     tests/tests_vtkWriter.cpp
     tests/tests_utils.cpp
+    tests/tests_analytical.cpp
     ${COMMON_SOURCES}
 )
 

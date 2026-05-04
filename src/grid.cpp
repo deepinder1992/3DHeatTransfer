@@ -2,16 +2,13 @@
 #include <algorithm>
 #include <iostream>
 
-Grid3D::Grid3D(std::size_t nx, std::size_t ny, std::size_t nz, double dx)
-:nx_(nx),ny_(ny),nz_(nz), dx_(dx), data_(nx*ny*nz), cellType_(nx*ny*nz, CellType::INTERIOR),
+Grid3D::Grid3D(std::size_t nx, std::size_t ny, std::size_t nz)
+:nx_(nx),ny_(ny),nz_(nz), data_(nx*ny*nz), cellType_(nx*ny*nz, CellType::INTERIOR),
 faceType_(nx*ny*nz, FaceType::NONE),boundaryNormal_(nx*ny*nz), compactLookup_(nx*ny*nz, INVALID),
 offsetsNbrTypes_(1, 0)
 {
     if (nx == 0 || ny == 0 || nz == 0) {
         throw std::invalid_argument("Grid dimensions must be greater than zero. ");
-    }
-    if (dx <= 0.0) {
-        throw std::invalid_argument("Grid spacing dx must be positive.");
     }
 }
 

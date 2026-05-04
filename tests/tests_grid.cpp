@@ -3,7 +3,7 @@
 #include<iostream>
 
 TEST(GridTest, BasicTest) {
-    Grid3D g(10, 12, 8, 0.1);
+    Grid3D g(10, 12, 8);
     EXPECT_EQ(g.nx(), 10);
     EXPECT_EQ(g.ny(), 12);
     EXPECT_EQ(g.nz(), 8);
@@ -11,14 +11,14 @@ TEST(GridTest, BasicTest) {
 };
 
 TEST(GridTest, FillFunction) {
-    Grid3D g(10, 12, 8, 0.1);
+    Grid3D g(10, 12, 8);
     g.fill(42.5);
     EXPECT_EQ(g(5,6,3), 42.5);
 
 };
 
 TEST(GridTest, IndexFuncs) {
-    Grid3D g(10, 12, 8, 0.1);
+    Grid3D g(10, 12, 8);
     g(5,6,5) = 44;
     EXPECT_EQ(g(5,6,5), 44);
 
@@ -43,8 +43,9 @@ TEST(GridTest, IndexFuncs) {
 };
 
 TEST(GridTest, Constructor_ThrowsOnInvalidDimensions) {
-    EXPECT_THROW(Grid3D g(0, 10, 10, 0.1), std::invalid_argument);
-    EXPECT_THROW(Grid3D g(10, 10, 10, 0.0), std::invalid_argument);
-    EXPECT_THROW(Grid3D g(-10, 10, 10, 0.0), std::length_error);
-    EXPECT_THROW(Grid3D g(10, 10, 10, -0.1), std::invalid_argument);
+    EXPECT_THROW(Grid3D g(0, 10, 10), std::invalid_argument);
+    EXPECT_THROW(Grid3D g(10, 0, 10), std::invalid_argument);
+    EXPECT_THROW(Grid3D g(10, 0, 0), std::invalid_argument);
+    EXPECT_THROW(Grid3D g(0, 0, 0), std::invalid_argument);
 }
+

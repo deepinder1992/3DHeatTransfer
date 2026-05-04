@@ -80,10 +80,10 @@ TEST(CPULinearAlgebraTest, ConjugateGradientTest ) {
 TEST(CPULinearAlgebraTest, ImplicitJacobiTest ) {
     //test on grid of 10*10*10
 
-    auto oldGrid = std::make_unique<Grid3D>(10,10,10,0.1); 
-    auto  newGrid = std::make_unique<Grid3D>(10,10,10,0.1); 
+    auto oldGrid = std::make_unique<Grid3D>(10,10,10); 
+    auto  newGrid = std::make_unique<Grid3D>(10,10,10); 
     
-    Grid3D current(10,10,10,0.1);
+    Grid3D current(10,10,10);
     double maxErr = 1e-3;
 
     (*oldGrid).fill(50.0);

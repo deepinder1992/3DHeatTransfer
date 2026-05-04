@@ -79,9 +79,8 @@ int main(int argc, char** argv) {
     std::size_t nx = globs.nx;
     std::size_t ny = globs.ny;
     std::size_t nz = globs.nz;
-    double dx = globs.dx;
 
-    Grid3D current(nx, ny, nz, dx);
+    Grid3D current(nx, ny, nz);
         //load stl file
     VoxelReader(globs.stlFileloc, current);
     current.diagnostics();

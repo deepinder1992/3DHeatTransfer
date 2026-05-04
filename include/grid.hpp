@@ -34,7 +34,7 @@ struct Vector{
 
 class Grid3D{
     public:
-        Grid3D(std::size_t nx, std::size_t ny, std::size_t nz, double dx);
+        Grid3D(std::size_t nx, std::size_t ny, std::size_t nz);
         
         double& operator()(std::size_t i, std::size_t j, std::size_t k);
         const double&  operator()(std::size_t i, std::size_t j, std::size_t k) const;
