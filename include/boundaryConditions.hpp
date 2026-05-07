@@ -15,7 +15,7 @@ class BoundaryConditions{
         void applyBCsToRhsMatrix(const Grid3D& grid, std::size_t nx, std::size_t ny, double dx,
                                      double cond, double coeff, std::vector<double>& b) const;
         
-        int sign(Vector cellNormal, const std::array<std::size_t,3>&  cellIdxs, std::size_t i, std::size_t j, std::size_t k) const;
+       double sign(Vector cellNormal, const std::array<std::size_t,3>&  cellIdxs, std::size_t i, std::size_t j, std::size_t k) const;
  
     private:
         std::array<BCType,3> types_;

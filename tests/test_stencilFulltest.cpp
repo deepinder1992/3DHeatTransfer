@@ -34,7 +34,7 @@ Grid3D runCPUStencil() {
 TEST(CPUStencilTest, FulltestStencilCPU ) {
     Grid3D current = runCPUStencil();
 
-    EXPECT_NEAR(current(45,45,45), 100.03799229143938, 1e-2);
+    EXPECT_NEAR(current(45,45,45), 100.05230433287559, 1e-2);
 
     EXPECT_NEAR(current(10,5,0),   99.802401021107926, 1e-2);
     EXPECT_NEAR(current(20,10,5),  99.807292098812709, 1e-2);
@@ -47,8 +47,8 @@ TEST(CPUStencilTest, FulltestStencilCPU ) {
 
     EXPECT_NEAR(current(5,30,20),  99.981302350706599, 1e-2);
     EXPECT_NEAR(current(10,35,25), 99.992330055712387, 1e-2);
-    EXPECT_NEAR(current(15,40,30), 100.01235966601594, 1e-2);
-    EXPECT_NEAR(current(20,45,35), 100.01959238164703, 1e-2);
+    EXPECT_NEAR(current(15,40,30), 100.02526716219128, 1e-2);
+    EXPECT_NEAR(current(20,45,35), 100.03090059829677, 1e-2);
 
 }
 
@@ -84,7 +84,7 @@ TEST(CUDAStencilSolverTest, FulltestStencilGPU) {
 
     Grid3D current = runGPUStencil();
 
-    EXPECT_NEAR(current(45,45,45), 100.03799229143938, 1e-2);
+    EXPECT_NEAR(current(45,45,45), 100.05230433287559, 1e-2);
 
     EXPECT_NEAR(current(10,5,0),   99.802401021107926, 1e-2);
     EXPECT_NEAR(current(20,10,5),  99.807292098812709, 1e-2);
@@ -97,8 +97,8 @@ TEST(CUDAStencilSolverTest, FulltestStencilGPU) {
 
     EXPECT_NEAR(current(5,30,20),  99.981302350706599, 1e-2);
     EXPECT_NEAR(current(10,35,25), 99.992330055712387, 1e-2);
-    EXPECT_NEAR(current(15,40,30), 100.01235966601594, 1e-2);
-    EXPECT_NEAR(current(20,45,35), 100.01959238164703, 1e-2);
+    EXPECT_NEAR(current(15,40,30), 100.02526716219128, 1e-2);
+    EXPECT_NEAR(current(20,45,35), 100.03090059829677, 1e-2);
 }
 
 

@@ -40,7 +40,7 @@ TEST(CPUMatrixTest, FulltestMatrixCPU) {
 
     Grid3D current = runCPU_Matrix();
 
-    EXPECT_NEAR(current(0,0,0),   99.989253181822718, 1e-2);
+    EXPECT_NEAR(current(0,0,0),   99.915616836642982, 1e-2);
     EXPECT_NEAR(current(5,5,5),   99.939271760700052, 1e-2);
     EXPECT_NEAR(current(10,10,10),99.920903806242876, 1e-2);
     EXPECT_NEAR(current(20,20,20),99.960923805088171, 1e-2);
@@ -99,7 +99,7 @@ TEST(CUDAMatrixTest, FulltestMatrixGPU) {
 
     Grid3D current = runGPU_Matrix();
 
-    EXPECT_NEAR(current(0,0,0),   99.989253181822718, 1e-2);
+    EXPECT_NEAR(current(0,0,0),   99.915616836642982, 1e-2);
     EXPECT_NEAR(current(5,5,5),   99.939271760700052, 1e-2);
     EXPECT_NEAR(current(10,10,10),99.920903806242876, 1e-2);
     EXPECT_NEAR(current(20,20,20),99.960923805088171, 1e-2);

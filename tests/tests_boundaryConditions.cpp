@@ -41,10 +41,10 @@ TEST(CPUBoundaryConditionsTest, ApplyBCToStencil) {
     EXPECT_NEAR(grid(5,0,3), 100, 1e-3);
     EXPECT_NEAR(grid(5,6,0), -0.1, 1e-3);
 
-    EXPECT_NEAR(grid(0,0,0), 0.0333333, 1e-3);
-    EXPECT_NEAR(grid(49,0,0), 0.0333333, 1e-3);
-    EXPECT_NEAR(grid(0,49,0), 0.0333333, 1e-3);
-    EXPECT_NEAR(grid(0,49,49), 49.9667, 1e-3);
+    EXPECT_NEAR(grid(0,0,0), -0.1, 1e-3);
+    EXPECT_NEAR(grid(49,0,0), -0.1333333, 1e-3);
+    EXPECT_NEAR(grid(0,49,0), -0.1333333, 1e-3);
+    EXPECT_NEAR(grid(0,49,49), 50.1333, 1e-3);
 }
 
 
@@ -64,7 +64,7 @@ TEST(CPUBoundaryConditionsTest, ApplyBCToRHS) {
     }
     bc.applyBCsToRhsMatrix(grid,grid.nx(), grid.ny(), 0.1, 385, 100, b);
 
-    EXPECT_NEAR(b[0], 385, 1e-3);
+    EXPECT_NEAR(b[0], -1155, 1e-3);
     EXPECT_NEAR(b[10000], 154010, 1e-3);
     EXPECT_NEAR(b[30000], 154030, 1e-3);
     EXPECT_NEAR(b[40000], 154040, 1e-3);

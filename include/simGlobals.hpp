@@ -39,8 +39,8 @@ enum class NeighbourType
     Z_NEXT = 5 
 };
         
-static const std::array<int,3> interiorOffsets[6] = {{+2,0,0}, {-3,0,0}, {0,+2,0},
-                                                        {0,-3,0}, {0,0,+2}, {0,0,-3}};
+static const std::array<int,3> interiorOffsets[6] = {{+2,0,0}, {-2,0,0}, {0,+2,0},
+                                                        {0,-2,0}, {0,0,+2}, {0,0,-2}};
 
 const std::size_t INVALID = std::numeric_limits<std::size_t>::max();
 

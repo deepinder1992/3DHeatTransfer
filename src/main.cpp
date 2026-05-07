@@ -129,6 +129,12 @@ void parseCLI(int argc, char** argv, SimulationGlobals& globs) {
     app.add_option("--writeInterval", globs.writeInterval, "Write output every N steps.");
 
     app.add_option("--blockDim", globs.blockDim, "CUDA block size (for GPU solvers).");
+
+    app.add_option("--conductivity", globs.k, "Conductivity of the material.");
+
+    app.add_option("--density", globs.density, "Density of the material.");
+
+    app.add_option("--cp", globs.cp, "Specific heat of the material.");
     
 
     app.add_option("--bcTypeInlet", globs.types[0], "BC type at Inlet face: \n"

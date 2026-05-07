@@ -5,9 +5,9 @@
 #include <numeric> 
 #include <vector>
 
-__device__ __constant__ int interiorOffsetsGPU[6][3] =  { {+2,0,0} ,   {-3,0,0}, 
-                                                      {0,+2,0} ,   {0,-3,0}, 
-                                                      {0,0,+2} ,   {0,0,-3}};
+__device__ __constant__ int interiorOffsetsGPU[6][3] =  { {+2,0,0} ,   {-2,0,0}, 
+                                                      {0,+2,0} ,   {0,-2,0}, 
+                                                      {0,0,+2} ,   {0,0,-2}};
 
 
 __global__  void implicitJacobiKernel(double* oldVal, double* newVal, double* currentVal, std::size_t (*intIndices)[3], std::size_t nIntIdxs,
@@ -149,17 +149,7 @@ __global__ void applyBCsToStencilKern(double* grid, double* oldGrid, std::size_t
                                     std::size_t (*bcIndices)[3], FaceType* faceTypes,std::size_t nBcCells,
                                     NeighbourType* nbrType, std::size_t* nbrOffset, float (*devCellNormals)[3],
                                     double  cond, const BCType types_[3], const double values_[3]){
-        
-        auto sign = [=] __device__ (float cellNormal[3],
-                                    std::size_t i, std::size_t j, std::size_t k,
-                                    std::size_t ic, std::size_t jc, std::size_t kc) {
-                float radial[3] =  {static_cast<float>(i) - static_cast<float>(ic),
-                                        static_cast<float>(j) - static_cast<float>(jc),
-                                        static_cast<float>(k) - static_cast<float>(kc)};
-                //dot product 
-                if((radial[0]*cellNormal[0]+radial[1]*cellNormal[1]+radial[2]*cellNormal[2])>0) return 1;
-                return -1; };
-                
+                       
         std::size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
 
         if (tid>=nBcCells) return;
@@ -186,7 +176,6 @@ __global__ void applyBCsToStencilKern(double* grid, double* oldGrid, std::size_t
                 auto jc = j + interiorOffsetsGPU[s][1];
                 auto kc = k + interiorOffsetsGPU[s][2];
 
-                int sign_ = sign(devCellNormals[inx], i,j,k,ic,jc,kc );
-                grid[inx] += weightBc*((sign_*2*dx*values_[faceNum]/cond)+oldGrid[ic+jc*nx+kc*ny*nx]);}    
+                grid[inx] += weightBc*((2*dx*values_[faceNum]/cond)+oldGrid[ic+jc*nx+kc*ny*nx]);}    
         }
 }

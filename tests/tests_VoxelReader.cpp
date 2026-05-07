@@ -56,9 +56,11 @@ TEST(VoxelTest, ReadCyclinderStl) {
     EXPECT_EQ(grid.activeIndices().size(), 98000);
 
     EXPECT_EQ(grid.cellType(25,25,25), CellType::INTERIOR);
+    EXPECT_EQ(grid.cellType(25,25,49), CellType::BOUNDARY);
+    EXPECT_EQ(grid.cellType(25,49,25), CellType::BOUNDARY);
     EXPECT_EQ(grid.cellType(49,25,25), CellType::BOUNDARY);
-    EXPECT_EQ(grid.cellType(0,25,25), CellType::BOUNDARY);
-    EXPECT_EQ(grid.cellType(0,22,20), CellType::BOUNDARY);
+    EXPECT_EQ(grid.cellType(0,25,0), CellType::BOUNDARY);
+    EXPECT_EQ(grid.cellType(0,49,25), CellType::SOLID);
 
     EXPECT_EQ(grid.faceType(25,25,49), FaceType::INLET);
     EXPECT_EQ(grid.faceType(15,0,15), FaceType::NONE);
@@ -73,7 +75,7 @@ TEST(VoxelTest, ReadCyclinderStl) {
     Vector result1 = grid.cellFaceNormalized(49, 25, 25);
 
     EXPECT_NEAR(result1.x, 1.0, 1e-3);
-    EXPECT_NEAR(result1.y, 0.04361913353204727, 1e-3);
+    EXPECT_NEAR(result1.y, 0.042441122233867645, 1e-3);
     EXPECT_NEAR(result1.z, 0.0, 1e-3);
 };
 

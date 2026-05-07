@@ -3,16 +3,6 @@
 BoundaryConditions::BoundaryConditions(std::array<BCType,3>types,std::array<double,3>values)
            :types_(types),values_(values){};
 
-int BoundaryConditions::sign(Vector cellNormal, const std::array<std::size_t,3>&  cellIdxs,
-                                 std::size_t i, std::size_t j, std::size_t k) const {
-    Vector radial {static_cast<float>(cellIdxs[0]) - static_cast<float>(i),
-                    static_cast<float>(cellIdxs[1]) - static_cast<float>(j),
-                    static_cast<float>(cellIdxs[2]) - static_cast<float>(k)};
-    
-    if (radial.dot(cellNormal)>0) return 1;
-    return -1; 
-};
-
 void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) const{
     const std::vector<std::array<std::size_t,3>>& boundaryIdxs = grid.boundaryIndices();
 
@@ -25,7 +15,6 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
         if(numSolidNeigbours==0)continue;
         double weightBc = 1.0/numSolidNeigbours;
         
-        Vector norm = grid.cellFaceNormalized(i,j,k);
         grid(i,j,k) = 0.0; //reset so we dont accumulate previous values
         
         for (NeighbourType neighbour :solidNeighbors)
@@ -41,8 +30,7 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
                 auto ic = i + interiorOffsets[s][0];
                 auto jc = j + interiorOffsets[s][1];
                 auto kc = k + interiorOffsets[s][2];
-                int sign_ = sign(norm,idx,ic,jc,kc);
-                grid(i,j,k)+= weightBc*((sign_*2*dx*values_[faceNum]/cond)+grid(ic,jc,kc));
+                grid(i,j,k)+= weightBc*((2*dx*values_[faceNum]/cond)+grid(ic,jc,kc));
             }
         }
     }
@@ -51,9 +39,9 @@ void BoundaryConditions::applyBCsToStencil(Grid3D& grid,double dx, double cond) 
 void BoundaryConditions::applyBCsToRhsMatrix(const Grid3D& grid, std::size_t nx, std::size_t ny, double dx,
                                                  double coeff, double cond, std::vector<double>& b) const{
 
-    auto applyBC = [&](std::size_t faceInx, std::size_t row, int sign){
+    auto applyBC = [&](std::size_t faceInx, std::size_t row){
                     if(types_[faceInx]==BCType::Dirichlet)b[row] += 2.0*coeff*values_[faceInx];
-                    else if(types_[faceInx]==BCType::Neumann)b[row] += (sign*2.0*coeff*dx/cond)*values_[faceInx]; };  
+                    else if(types_[faceInx]==BCType::Neumann)b[row] += (2.0*coeff*dx/cond)*values_[faceInx]; };  
     
      
     const std::vector<std::size_t>& compactLookup = grid.compactLookup();
@@ -61,39 +49,10 @@ void BoundaryConditions::applyBCsToRhsMatrix(const Grid3D& grid, std::size_t nx,
     for (const std::array<std::size_t,3>& cell:grid.boundaryIndices()){
         auto [i,j,k] = cell;
         std::size_t idx = i + nx*(j+ny*k);
-        std::size_t row =  compactLookup[idx];
-
-        const std::vector<NeighbourType> solidNeighbors = grid.findSolidNeighbours(i, j, k);
-        
+        std::size_t row =  compactLookup[idx]; 
+        const std::vector<NeighbourType> solidNeighbors = grid.findSolidNeighbours(i, j, k);       
         int faceNum = static_cast<int>(grid.faceType(i,j,k))-1;
-        Vector norm = grid.cellFaceNormalized(i,j,k);
 
-        for (NeighbourType neighbour :solidNeighbors)
-        {
-            int  s  = static_cast<int>(neighbour);
-            auto ic = i + interiorOffsets[s][0];
-            auto jc = j + interiorOffsets[s][1];
-            auto kc = k + interiorOffsets[s][2];
-            int sign_ = sign(norm,cell,ic,jc,kc);
-            applyBC(faceNum, row, sign_);
-        }
+        for (NeighbourType neighbour :solidNeighbors) applyBC(faceNum, row);
     }
 }
-
-// void BoundaryConditions::applyBCsToStencilCUDA(double* grid, double* oldGrid, double dx, std::size_t nx, 
-//     std::size_t ny, std::size_t nz, std::size_t(*bcIndices)[3], FaceType* faceTypes, std::size_t nBcCells,
-//     NeighbourType* devNbrTypes, std::size_t* devNbrOffset, float (*devCellNormals)[3], double cond, dim3 gridCuda, dim3 blockCuda) const 
-//     {    
-//         int numFaces = 3;
-//         BCType types[numFaces];
-//         for (int i = 0; i < numFaces; ++i)
-//             types[i] = types_[i];
-
-//         double values[numFaces];
-//         for (int i = 0; i < numFaces; ++i)
-//             values[i] = values_[i];
-
-//         applyBCsToStencilKern<<<gridCuda, blockCuda>>>(grid, oldGrid, nx, ny, nz, dx, bcIndices, faceTypes,
-//              nBcCells, devNbrTypes, devNbrOffset, devCellNormals, cond, types, values);
-//         cudaDeviceSynchronize();
-//     }

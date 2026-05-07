@@ -222,6 +222,10 @@ void Grid3D::diagnostics()const{
                 if(faceType(i,j,k) == FaceType::OUTLET) ++numOutletCells;
                 if(faceType(i,j,k) == FaceType::WALL) ++numWallCells;
                 if(cellType(i,j,k) == CellType::BOUNDARY && faceType(i,j,k) == FaceType::NONE) ++numNoneCells;
+                // if(cellType(i,j,k) == CellType::BOUNDARY && faceType(i,j,k) == FaceType::NONE){
+                //     std::cout<<i<< " "<<j<<" "<<k<<std::endl;
+                // }
+                // if(faceType(i,j,k) == FaceType::WALL)  std::cout<<i<< " "<<j<<" "<<k<<std::endl;
             }
         }
     }
