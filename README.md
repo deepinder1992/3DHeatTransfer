@@ -32,10 +32,31 @@ This design enables efficient simulation workflows while maintaining a simple an
 ## Features
 
 ### Solvers
-- CPU stencil-based Jacobi iteration
-- CUDA stencil-based Jacobi iteration
-- CPU matrix-based Jacobi solver
-- CUDA matrix-based Jacobi solver
+`HeatTransfer3D` uses a **factory pattern** to provide four solver backends, allowing users to choose the best balance between performance, convergence speed, and memory usage.
+
+All solvers are based on the **Implicit Euler** time discretization scheme (unconditionally stable) and support both steady-state and transient simulations.
+
+#### Solver Comparison
+
+| Backend              | Time Scheme     | Linear Solver          | Solve Quality     | Memory Usage         | Best For                              |
+|----------------------|-----------------|------------------------|-------------------|----------------------|---------------------------------------|
+| **Stencil (Jacobi)** | Implicit Euler  | Jacobi iteration       | Approximate       | Very Low `O(1)`      | Large grids, GPU, memory-constrained runs |
+| **Matrix (CG)**      | Implicit Euler  | Conjugate Gradient     | Near-exact        | Higher `O(N)`        | Faster convergence, smaller to medium problems |
+
+#### Detailed Description
+
+**Stencil-based Solvers (CPU + CUDA)**  
+Apply a 7-point finite difference stencil directly on the temperature field and solve the implicit system using **Jacobi iteration**.  
+- Extremely memory efficient  
+- Highly optimized for GPU (coalesced memory access + shared memory)  
+- Ideal for very large grids
+
+**Matrix-based Solvers (CPU + CUDA)**  
+Explicitly assemble a sparse coefficient matrix and solve the linear system using the **Conjugate Gradient** method.  
+- Usually converges in fewer iterations than Jacobi  
+- Higher memory usage (stores the matrix)  
+- Better for cases where faster convergence is desired
+
 
 ### Geometry Handling
 - STL-based geometry input
