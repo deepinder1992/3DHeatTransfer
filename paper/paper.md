@@ -143,12 +143,15 @@ The software has been tested on multiple sample geometries included in the `stlF
 A representative simulation uses a thermal conductivity of 1 W/(m·K), density of 950 kg/m³, and specific heat of 1900 J/(kg·K), with Dirichlet conditions (100°C) at the inlet and outlet, and a Neumann condition (10 W/m² heat flux) at the walls. The resulting temperature fields are visualized as follows.
 
 ![Cube](images/Cube.png)
+
 **Figure 3**(Cube): Temperature distribution with Neumann boundary condition (heat flux) is applied on the four lateral faces, while Dirichlet conditions (fixed temperature) are imposed on the inlet and outlet faces located opposite to each other. (a) Cross-section parallel to the inlet–outlet direction. (b) Cross-section perpendicular to the inlet–outlet direction at the mid-plane.
 
 ![Cylinder](images/Cylinder.png)
+
 **Figure 4**(Cylinder): Temperature field with Dirichlet conditions (100°C) at inlet and outlet, and Neumann heat flux on the curved wall. (a) Plane parallel to cylinder axis. (b) Plane perpendicular to the cylinder axis at the center height.
 
 ![SemiCylinder](images/SemiCylinder.png)
+
 **Figure 5** (Semi-cylinder): Temperature field with Neumann condition applied on the flat rectangular wall. (a) Plane parallel to axis cutting through the rectangular wall. (b) Plane perpendicular to axis at mid-height.
 
 ![LChannel](images/LChannel.png)
