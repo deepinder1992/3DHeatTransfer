@@ -6,8 +6,9 @@ tags:
   - CUDA
   - GPU acceleration
   - STL geometry
-  - conjugate gradient
-  - Implicit Jacobi
+  - Implicit Euler time-stepping
+  - Conjugate gradient
+  - Jacobi
   - multi-backend
 authors:
   - name: Deepinder Jot Singh Aulakh
@@ -22,19 +23,13 @@ bibliography: paper.bib
 
 # Summary
 
-`HeatTransfer3D` is a lightweight, high-performance C++ solver for 3D heat conduction problems on structured Cartesian grids. It imports 3D geometries from STL files and incorporates them into the computational domain using voxelization. Geometry is mapped onto grid cells and used to define internal, external, and boundary regions. The solver supports mixed Dirichlet and Neumann boundary conditions on these regions.
+`HeatTransfer3D` is a lightweight, high-performance C++17 solver for steady-state and transient 3D heat conduction on structured Cartesian grids. 
 
-The software provides **four interchangeable solver backends** — CPU and CUDA implementations of stencil-based and matrix-based Jacobi iterative solvers — allowing users to balance computational speed, memory usage, and hardware availability. Results are exported in VTK format for visualization in ParaView.
+The software offers a **streamlined and easy integration** from STL files to simulation by using a custom ray-tracing voxelization method that directly imports complex geometries and automatically classifies internal, external, and boundary regions. It supports mixed Dirichlet and Neumann boundary conditions on different patches.
 
-The software targets researchers and engineers working in thermal management, materials processing, electronics cooling, and related heat conduction applications.
+A key feature is its **four interchangeable solver backends**: stencil-based and matrix-based solvers, each available on both CPU (with OpenMP) and CUDA (GPU). This multi-backend design allows users to easily trade off between memory usage, convergence speed, and hardware availability. Simulation results are exported in VTK format for easy visualization in ParaView.
 
-# Summary
-
-**HeatTransfer3D** is a lightweight, high-performance C++17 solver for steady-state and transient 3D heat conduction on structured Cartesian grids. The software supports direct import of complex geometries from STL files through a custom ray-tracing voxelization method and handles mixed Dirichlet and Neumann boundary conditions.
-
-A key feature is its **four interchangeable solver backends**: stencil-based and matrix-based Jacobi solvers, each available on both CPU (with OpenMP) and CUDA (GPU). This multi-backend design allows users to trade off between memory usage, convergence speed, and hardware availability. Simulation results are exported in VTK format for easy visualization in ParaView.
-
-HeatTransfer3D targets engineers and researchers in thermal management, electronics cooling, battery systems, and additive manufacturing who need fast, reproducible heat conduction simulations with minimal setup overhead.
+HeatTransfer3D targets engineers and researchers in thermal management, electronics cooling, battery systems, additive manufacturing, and heat exchanger design who need fast, reproducible 3D heat conduction simulations with minimal setup overhead.
 
 # Statement of Need
 
