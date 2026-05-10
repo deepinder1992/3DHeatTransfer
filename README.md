@@ -57,13 +57,6 @@ Explicitly assemble a sparse coefficient matrix and solve the linear system usin
 - Higher memory usage (stores the matrix)  
 - Better for cases where faster convergence is desired
 
-You can select the solver using the `--solver` flag:
-
-```bash
---solver 1   # CPU Stencil (Jacobi)
---solver 2   # CPU Matrix (CG)
---solver 3   # CUDA Stencil (Jacobi)   ← Recommended for most cases
---solver 4   # CUDA Matrix (CG)
 
 ### Geometry Handling
 - STL-based geometry input
