@@ -1,5 +1,5 @@
 ---
-title: 'HeatTransfer3D: A High-Performance Multi-Backend Solver for 3D Heat Conduction with STL Geometry Support'
+title: 'HeatTransfer3D: A Multi-Backend C++ Solver for 3D Heat Conduction with STL Voxelization'
 tags:
   - heat conduction
   - finite difference method
@@ -155,7 +155,7 @@ This solver lowers the barrier for researchers and engineers to perform reproduc
 
 # AI Usage Disclosure
 
-AI-based tools were used to assist with debugging, syntax support, and language refinement during the development and writing of this work. All scientific decisions, implementation design, and results validation were performed and verified by the authors.
+AI-based tools were used to assist with debugging, syntax support, and language refinement during the development and writing of this work. All scientific decisions, implementation design, and results validation were performed and verified by the author.
 
 The following tools were used:
 - ChatGPT (GPT-4o)
