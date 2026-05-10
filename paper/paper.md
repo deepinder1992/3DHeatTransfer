@@ -138,7 +138,9 @@ Tests were performed on an Intel Core i5-11400H CPU and NVIDIA GeForce RTX 3050 
 
 # Simulations
 
-The software has been tested on several sample geometries provided in the `stlFiles/` directory, including a cube, cylinder, L-shaped channel, and semi-cylinder. These cases demonstrate correct geometry import, boundary condition application, and solver convergence. Example temperature fields and convergence histories are shown in the repository documentation and can be reproduced using the supplied input files.
+The software has been tested on multiple sample geometries included in the `stlFiles/` directory (cube, cylinder, L-shaped channel, and semi-cylinder). These examples validate the STL voxelization process and mixed boundary condition handling. 
+
+A representative simulation uses a thermal conductivity of 1 W/(m·K), density of 950 kg/m³, and specific heat of 1900 J/(kg·K), with Dirichlet conditions (100°C) at the inlet and outlet, and a Neumann condition (10 W/m² heat flux) at the walls. Resulting temperature fields are visualized as following.
 
 # Research Impact Statement
 
