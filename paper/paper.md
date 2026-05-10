@@ -28,40 +28,89 @@ The software provides **four interchangeable solver backends** — CPU and CUDA 
 
 The software targets researchers and engineers working in thermal management, materials processing, electronics cooling, and related heat conduction applications.
 
+# Summary
+
+**HeatTransfer3D** is a lightweight, high-performance C++17 solver for steady-state and transient 3D heat conduction on structured Cartesian grids. The software supports direct import of complex geometries from STL files through a custom ray-tracing voxelization method and handles mixed Dirichlet and Neumann boundary conditions.
+
+A key feature is its **four interchangeable solver backends**: stencil-based and matrix-based Jacobi solvers, each available on both CPU (with OpenMP) and CUDA (GPU). This multi-backend design allows users to trade off between memory usage, convergence speed, and hardware availability. Simulation results are exported in VTK format for easy visualization in ParaView.
+
+HeatTransfer3D targets engineers and researchers in thermal management, electronics cooling, battery systems, and additive manufacturing who need fast, reproducible heat conduction simulations with minimal setup overhead.
+
 # Statement of Need
 
-Modeling three-dimensional heat conduction in complex geometries is a common requirement in applications such as electronics cooling, battery thermal management, additive manufacturing, and heat exchanger design. Despite its importance, existing tools often involve trade-offs between ease of use, computational efficiency, and geometric modeling complexity.
+Modeling three-dimensional heat conduction in complex geometries is essential in many engineering applications, including electronics cooling, battery thermal management, additive manufacturing, and heat exchanger design. However, researchers and engineers often face a difficult trade-off: commercial tools such as ANSYS and COMSOL are powerful but expensive and heavyweight, while open-source alternatives usually require complex mesh generation or lack straightforward support for real-world geometries.
 
-Commercial multiphysics platforms such as ANSYS and COMSOL Multiphysics provide comprehensive capabilities but are often inaccessible due to licensing costs and workflow complexity. Open-source frameworks such as OpenFOAM [@weller2007openfoam; @jasak2007openfoam] and FEniCS [@logg2012automated] offer high flexibility and general-purpose multiphysics functionality, but typically require substantial setup effort, including mesh generation and solver configuration, even for pure heat conduction problems.
+General-purpose frameworks such as OpenFOAM [@weller2007openfoam; @jasak2007openfoam] and FEniCS [@logg2012automated] provide high flexibility but involve substantial setup overhead (mesh generation, solver configuration, case setup) even for pure heat conduction problems. Conversely, many lightweight finite-difference solvers are efficient on Cartesian grids but typically assume geometry is already discretized and offer limited geometry import capabilities or backend flexibility.
 
-In contrast, many lightweight finite-difference solvers are computationally efficient but are generally restricted to structured Cartesian grids and assume that the computational geometry is already represented on a grid. While GPU-accelerated implementations exist, they are typically focused on stencil optimization and performance improvement rather than providing an integrated workflow that connects complex geometries to structured-grid heat solvers.
-
-`HeatTransfer3D` addresses this gap by providing a lightweight, focused, and high-performance open-source solver for steady-state and transient 3D heat conduction. The key feature of the software is the integration of geometry into a structured-grid framework using STL-based voxelization, where complex surfaces are mapped onto a Cartesian grid using ray tracing.
-
-Key features include:
-- Geometry handling via STL import with voxelization-based domain construction,
-- Support for mixed Dirichlet and Neumann boundary conditions,
-- Four interchangeable solver backends (CPU and CUDA implementations of stencil-based and matrix-based Jacobi solvers), enabling flexible trade-offs between performance, memory usage, and hardware availability,
-- Simple command-line interface and VTK output for visualization in ParaView.
-
-This makes the software suitable for rapid prototyping, parametric studies, and engineering applications where reproducibility, computational efficiency, and minimal setup overhead are critical.
+`HeatTransfer3D` addresses this gap by providing a lightweight, focused open-source solver for steady-state and transient 3D heat conduction. It combines direct **STL geometry import via voxelization** (using ray tracing) with structured Cartesian grids, support for mixed Dirichlet/Neumann boundary conditions, and four interchangeable high-performance solver backends (CPU + CUDA, stencil-based and matrix-based Jacobi). The software features a simple command-line interface and VTK output for easy visualization in ParaView, making it ideal for rapid prototyping, parametric studies, and engineering workflows where minimal setup and high reproducibility are critical.
 
 # State of the Field
-Existing open-source tools for heat conduction generally fall into two categories: heavyweight multiphysics frameworks and lightweight research/educational codes. General-purpose frameworks such as OpenFOAM [@weller2007openfoam; @jasak2007openfoam] and FEniCS [@logg2012automated] offer great flexibility for coupled physics but require significant effort in mesh generation and case setup, making them heavyweight for pure heat conduction problems. Similarly, structured-grid frameworks like OpenSBLI [@howell2016opensbli] are powerful but demand substantial abstraction layers for application-specific use.
-At the other end, many lightweight finite-difference solvers exist for Cartesian grids [@leveque2007finite], including GPU-accelerated implementations. However, these typically assume the geometry is already discretized on the grid or are limited to simple 2D cases, lack integrated STL geometry support, or provide only a single solver backend. Educational tools (e.g., FDiff3) prioritize clarity over performance and geometric flexibility, while meshless methods (RBF-FD) [@fornberg2015solving] increase complexity and are rarely GPU-accelerated.
-Few tools combine direct STL geometry import via voxelization, structured Cartesian grids, mixed Dirichlet/Neumann boundary conditions, and multiple high-performance backends (CPU + CUDA, stencil vs. matrix-based solvers) in a lightweight package.
-HeatTransfer3D fills this gap by providing a focused, easy-to-use solver that bridges complex surface geometry (via STL voxelization) with efficient structured-grid finite-difference methods and modular GPU-capable solvers. This design targets researchers and engineers who need fast, reproducible 3D heat conduction simulations without the overhead of full multiphysics suites.
+
+Existing open-source tools for heat conduction can be broadly grouped into general-purpose multiphysics frameworks, structured-grid solvers, and specialized/GPU-focused implementations.
+
+Heavyweight frameworks such as OpenFOAM [@weller2007openfoam; @jasak2007openfoam], FEniCS [@logg2012automated], and OpenSBLI [@howell2016opensbli] offer great flexibility for coupled physics but come with significant overhead in meshing and configuration, which is often excessive for pure heat conduction. Lightweight finite-difference codes on Cartesian grids are computationally efficient [@leveque2007finite; @patankar1980numerical] but generally lack integrated support for importing complex STL geometries and flexible boundary condition handling.
+
+Several GPU-accelerated finite-difference solvers have been developed, primarily targeting performance on structured grids. However, most either require pre-discretized geometry, are limited to 2D domains, or are tied to specific research applications without providing modular, interchangeable solver backends.
+
+Meshless methods such as RBF-FD [@fornberg2015solving] offer geometric flexibility but increase implementation complexity and are rarely GPU-accelerated. Educational tools tend to prioritize simplicity for teaching rather than performance or engineering usability.
+
+`HeatTransfer3D` occupies a distinct middle ground by integrating:
+
+- Direct STL voxelization with ray-tracing for geometry handling,
+- Efficient finite-difference discretization on Cartesian grids,
+- A multi-backend architecture (CPU/CUDA + stencil/matrix solvers),
+- Lightweight design focused exclusively on heat conduction.
+
+This combination is relatively uncommon and makes the software particularly suitable for engineers and researchers needing both geometric flexibility and high performance without the overhead of general-purpose frameworks.
 
 # Software Design
 
-`HeatTransfer3D` is implemented in C++17 with optional CUDA support for GPU acceleration. The codebase has a clean modular structure:
+`HeatTransfer3D` is written in modern **C++17** with optional **CUDA** support for GPU acceleration. The codebase follows a modular, extensible design that clearly separates CPU and GPU implementations while maintaining a unified high-level interface.
 
-- `src/`: Main driver, geometry processing, boundary condition setup, solver kernels, and VTK output.
-- `include/`: Core headers including `grid.hpp`, `boundaryConditions.hpp`, `sparseMatrix.hpp`, `heatMatrixBuilder.hpp`, `linearAlgebra.hpp`, `solver.hpp`, `solverCPU.hpp`, and `solverCUDA.hpp`.
-- `tests/`: Unit and integration tests.
-- `stlFiles/`: Example geometries with separate boundary patch files.
+## Project Structure
 
-The steady 3D heat equation is discretized on a uniform Cartesian grid using the finite difference method. Geometry is incorporated from STL files via a ray-tracing voxelization routine. Each simulation requires four STL files: the main geometry plus three boundary patch files (`name_inlet.stl`, `name_outlet.stl`, `name_wall.stl`). Grid cells are classified as internal or assigned to one of the three boundary patches (inlet, outlet, wall).
+The main components are organized as follows:
+
+- **`src/`**: Contains the core implementation
+  - `main.cpp` — Command-line argument parsing and simulation workflow
+  - `grid.cpp`, `voxelReader.cpp` — Grid management and STL voxelization
+  - `boundaryConditions.cpp` — Boundary condition handling
+  - `solverCPU.cpp`, `linearAlgebraCPU.cpp` — CPU solver implementations
+  - **`cudaSrc/`** — All CUDA-specific code:
+    - `solverCUDAStencil.cu`, `solverCUDAMatrix.cu`
+    - `kernel.cu`, `linearAlgebraGPU.cu`, `boundaryConditions.cu`
+
+- **`include/`**: Public headers and interfaces
+  - Core abstractions: `solver.hpp`, `solverFactory.hpp`, `grid.hpp`, `voxelReader.hpp`
+  - CPU-specific: `solverCPU.hpp`
+  - CUDA-specific: `cudaHeaders/` directory containing `.cuh` files
+  - Supporting classes: `sparseMatrix.hpp`, `heatMatrixBuilder.hpp`, `linearAlgebra.hpp`
+
+- **`tests/`**: Comprehensive test suite that uses **GoogleTest (GTest)** and contains **30 tests** covering both CPU and GPU implementations. Key test files include:
+  - `tests_analytical.cpp` — Analytical verification cases
+  - `tests_grid.cpp`, `tests_VoxelReader.cpp` — Grid and voxelization tests
+  - `tests_boundaryConditions.cpp` — Boundary condition validation
+  - `tests_cpuLinearAlgebra.cpp`, `tests_cudaLinAlgebra.cu` — Linear algebra on both backends
+  - `tests_sparseMatrix.cpp`
+  - `test_stencilFulltest.cpp`, `test_matrixFulltest.cpp` — Full solver tests
+  - `tests_vtkWriter.cpp` — Output writer validation
+
+#### Architecture Highlights
+
+The software uses a **factory pattern** (`solverFactory.hpp`) to instantiate one of four solver backends at runtime: 1. CPU Stencil, 2. CPU Matrix 3. GPU Stencil 4. GPU Matrix. This allows users to choose between performance and memory trade-offs. All backends are based on the **Implicit Euler** time discretization scheme (for both steady-state and transient simulations), which is unconditionally stable.
+
+The four backends are:
+
+| Backend              | Time Scheme     | Linear Solver          | Solve Quality     | Memory Usage      | Best For                     |
+|----------------------|-----------------|------------------------|-------------------|-------------------|------------------------------|
+| **Stencil (Jacobi)** | Implicit Euler  | Jacobi iteration       | Approximate       | O(1)              | Large grids, GPU, low memory |
+| **Matrix (CG)**      | Implicit Euler  | Conjugate Gradient     | Near-exact        | O(N) (stores A)   | Faster convergence, smaller problems |
+
+**Stencil-based solvers** (CPU + CUDA) apply a 7-point finite difference stencil directly on the temperature field and solve the implicit system using Jacobi iteration. These solvers have minimal memory overhead and are highly optimized for GPU execution (coalesced memory access and shared memory in CUDA).
+
+**Matrix-based solvers** (CPU + CUDA) explicitly assemble a sparse coefficient matrix using `sparseMatrix.hpp` and `heatMatrixBuilder.hpp`. The resulting linear system is solved using the **Conjugate Gradient** method, which generally converges faster than Jacobi iteration, especially for larger or more ill-conditioned systems.
+
+All solvers share a common interface defined in `solver.hpp`. Geometry is processed using a custom ray-tracing voxelizer that maps one main STL file plus three boundary patch files (inlet, outlet, wall) onto a Cartesian grid. Dirichlet and Neumann boundary conditions are applied by modifying stencil coefficients or matrix/right-hand-side entries at tagged boundary cells.
 
 **Boundary conditions** are applied as follows:
 - Each patch (inlet, outlet, wall) can independently be set to Dirichlet (fixed temperature) or Neumann (fixed heat flux) using command-line flags `--bcTypeInlet`/`--bcTypeOutlet`/`--bcTypeWall` (0 = Dirichlet, 1 = Neumann) and the corresponding `--bcValXXX` values.
@@ -75,10 +124,6 @@ Four solver backends are available, selected at runtime with the `--solver` flag
 All solvers share a common interface defined in `solver.hpp`. Results are exported in legacy VTK format for visualization in ParaView.
 
 The project builds with CMake. Helper scripts `build.sh` and `installDeps.sh` simplify compilation on Linux systems with optional CUDA support.
-
-# Quality control
-
-Correctness is ensured through unit tests, analytical verification cases, and convergence checks in the `tests/` directory. Tests validate STL voxelization accuracy, boundary patch labeling, correct application of mixed Dirichlet/Neumann conditions, and consistency of results across all four solver backends. Analytical solutions for 1D and 3D heat conduction problems are used to verify second-order spatial accuracy. The test suite can be executed with `ctest` after building.
 
 # Performance
 
