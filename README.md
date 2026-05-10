@@ -158,13 +158,13 @@ cd build
 | `--conductivity`  | Conductivity of the material           | 1.0 W/m.K                |
 | `--density`       | Density of the material                | 950.0 kg/m3               |
 | `--cp`            | Specific Heat of the material          | 1900.0 J/kg.K               |
-| `--bcTypeInlet`   | Inlet BC (0=Dirichlet, 1=Neumann)      | 1                        |
-| `--bcTypeOutlet`  | Outlet BC                              | 1                        |
+| `--bcTypeInlet`   | Inlet BC (0=Dirichlet, 1=Neumann)      | 0                        |
+| `--bcTypeOutlet`  | Outlet BC                              | 0                        |
 | `--bcTypeWall`    | Wall BC                                | 0                        |
 | `--bcValInlet`    | Inlet BC value                         | 100.0                    |
-| `--bcValOutlet`   | Outlet BC value                        | -100.0                   |
-| `--bcValWall`     | Wall BC value                          | 100.0                    |
-| `--stlPath`       | Base STL geometry file                 | ../stlFiles/cylinder/... |
+| `--bcValOutlet`   | Outlet BC value                        | 100.0                   |
+| `--bcValWall`     | Wall BC value                          | 10.0                    |
+| `--stlPath`       | Base STL geometry file                 | ../stlFiles/cube/cube.stl |
 |  `-h,--help`      | Print this summary                     | NA                       |
 
 ---
