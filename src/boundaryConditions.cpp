@@ -53,6 +53,6 @@ void BoundaryConditions::applyBCsToRhsMatrix(const Grid3D& grid, std::size_t nx,
         const std::vector<NeighbourType> solidNeighbors = grid.findSolidNeighbours(i, j, k);       
         int faceNum = static_cast<int>(grid.faceType(i,j,k))-1;
 
-        for (NeighbourType neighbour :solidNeighbors) applyBC(faceNum, row);
+        for (std::size_t idx = 0; idx < solidNeighbors.size(); ++idx)  applyBC(faceNum, row);
     }
 }
