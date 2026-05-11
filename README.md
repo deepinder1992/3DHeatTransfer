@@ -234,7 +234,18 @@ After filtering, you can visualize temperature or other fields as usual.
 
 ---
 ## Sample Output
-Here the geometries simulated by the solver will be displayed
+![Cube](images/Cube.png)
+
+**Figure 3**(Cube): Temperature distribution with Neumann boundary condition (heat flux) is applied on the four lateral faces, while Dirichlet conditions (fixed temperature) are imposed on the inlet and outlet faces located opposite to each other. (a) Cross-section parallel to the inlet–outlet direction. (b) Cross-section perpendicular to the inlet–outlet direction at the mid-plane.
+
+![Cylinder](images/Cylinder.png)
+
+**Figure 4**(Cylinder): Temperature field with Dirichlet conditions (100°C) at inlet and outlet, and Neumann heat flux on the curved wall. (a) Plane parallel to cylinder axis. (b) Plane perpendicular to the cylinder axis at the center height.
+
+![SemiCylinder](images/SemiCylinder.png)
+
+**Figure 6** (L-shaped channel): Temperature field with Dirichlet conditions imposed at the inlet on the upper horizontal face and at the outlet on the lower vertical face, while all remaining faces are treated as Neumann walls. (a) Plane through the L-shaped channel parallel to the primary flow path. (b) Plane perpendicular to the channel at center height.
+
 
 ## Contributing
 
