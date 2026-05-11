@@ -17,7 +17,9 @@ authors:
 affiliations:
   - name: Queen's University, Kingston, Canada
     index: 1
-date: 20 April 2026
+date: 10 May 2026
+version: 1.0.0
+bibliography: paper.bib
 bibliography: paper.bib
 ---
 
