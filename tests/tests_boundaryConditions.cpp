@@ -14,12 +14,12 @@ TEST(CPUBoundaryConditionsTest, BasicTest) {
     std::array<BCType,3> types_ = bc.types();
     std::array<double,3> values_ = bc.values();
     
-    EXPECT_EQ(types_[0], BCType::Neumann);
-    EXPECT_EQ(types_[1], BCType::Neumann);
-    EXPECT_EQ(types_[2], BCType::Dirichlet );
+    EXPECT_EQ(types_[0], BCType::Dirichlet);
+    EXPECT_EQ(types_[1], BCType::Dirichlet);
+    EXPECT_EQ(types_[2], BCType::Neumann );
 
-    EXPECT_EQ(values_[0], 500.0);
-    EXPECT_EQ(values_[1], -500.0);
+    EXPECT_EQ(values_[0], 100.0);
+    EXPECT_EQ(values_[1], 100.0);
     EXPECT_EQ(values_[2], 100.0);
 
 }
@@ -27,6 +27,14 @@ TEST(CPUBoundaryConditionsTest, BasicTest) {
 TEST(CPUBoundaryConditionsTest, ApplyBCToStencil) {
 
     SimulationGlobals globs;
+
+    globs.types = { BCType::Neumann, BCType::Neumann, BCType::Dirichlet};  
+
+    std::array<double,3> values = { 500.0, -500.0, 100.0};
+    globs.k = 385;
+    globs.cp = 385;
+    globs.density = 8960;
+    globs.alpha = globs.k/(globs.cp*globs.density);
     BoundaryConditions bc = BoundaryConditions(globs.types, globs.values);
 
     Grid3D grid(50, 50, 50);
@@ -39,18 +47,22 @@ TEST(CPUBoundaryConditionsTest, ApplyBCToStencil) {
     EXPECT_NEAR(grid(5,6,3), 0, 1e-3);
     EXPECT_NEAR(grid(0,6,3), 100, 1e-3);
     EXPECT_NEAR(grid(5,0,3), 100, 1e-3);
-    EXPECT_NEAR(grid(5,6,0), -0.1, 1e-3);
-
-    EXPECT_NEAR(grid(0,0,0), -0.1, 1e-3);
-    EXPECT_NEAR(grid(49,0,0), -0.1333333, 1e-3);
-    EXPECT_NEAR(grid(0,49,0), -0.1333333, 1e-3);
-    EXPECT_NEAR(grid(0,49,49), 50.1333, 1e-3);
+    EXPECT_NEAR(grid(5,6,0), 0.02, 1e-3);
+    EXPECT_NEAR(grid(0,0,0), 0.02, 1e-3);
+    EXPECT_NEAR(grid(49,0,0), 0.0266667, 1e-3);
+    EXPECT_NEAR(grid(0,49,0), 0.0266667, 1e-3);
+    EXPECT_NEAR(grid(0,49,49), 50.0266667, 1e-3);
 }
 
 
 TEST(CPUBoundaryConditionsTest, ApplyBCToRHS) {
 
     SimulationGlobals globs;
+
+    globs.types = { BCType::Neumann, BCType::Neumann, BCType::Dirichlet};  
+
+    std::array<double,3> values = { 500.0, -500.0, 100.0};
+
     BoundaryConditions bc = BoundaryConditions(globs.types, globs.values);
 
     Grid3D grid(50, 50, 50);
@@ -64,7 +76,7 @@ TEST(CPUBoundaryConditionsTest, ApplyBCToRHS) {
     }
     bc.applyBCsToRhsMatrix(grid,grid.nx(), grid.ny(), 0.1, 385, 100, b);
 
-    EXPECT_NEAR(b[0], -1155, 1e-3);
+    EXPECT_NEAR(b[0], 231, 1e-3);
     EXPECT_NEAR(b[10000], 154010, 1e-3);
     EXPECT_NEAR(b[30000], 154030, 1e-3);
     EXPECT_NEAR(b[40000], 154040, 1e-3);

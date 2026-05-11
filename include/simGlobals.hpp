@@ -73,7 +73,7 @@ struct SimulationGlobals {
     double density = 2200; //kg/m3
     double cp = 800; //J/kg.K
     //We calculate following during intialization
-    double alpha = std::numeric_limits<double>::quiet_NaN();
+    double alpha = k/(density*cp);
 
     mutable int maxIters = 50;
     double tol = 1e-6;
