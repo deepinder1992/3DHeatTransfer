@@ -9,9 +9,14 @@
 
 ## Summary
 
-`HeatTransfer3D` is a high-performance solver for steady-state and transient heat conduction in three-dimensional domains on structured Cartesian grids. The software imports geometries defined via STL files and maps them onto the computational grid using a voxelization procedure, where grid cells are classified into internal, external, and boundary regions.
+`HeatTransfer3D` is a lightweight, high-performance C++17 solver for steady-state and transient 3D heat conduction on structured Cartesian grids. 
 
-The solver supports mixed Dirichlet and Neumann boundary conditions and provides both CPU and GPU implementations of iterative solvers. It is written in C++17 with optional CUDA acceleration and is designed for reproducibility and extensibility in heat conduction simulations.
+The software offers a **streamlined and easy integration** from STL files to simulation by using a custom ray-tracing voxelization method that directly imports complex geometries and automatically classifies internal, external, and boundary regions. It supports mixed Dirichlet and Neumann boundary conditions on different patches.
+
+A key feature is its **four interchangeable solver backends**: stencil-based and matrix-based solvers, each available on both CPU (with OpenMP) and CUDA (GPU). This multi-backend design allows users to easily trade off between memory usage, convergence speed, and hardware availability. Simulation results are exported in VTK format for easy visualization in ParaView.
+
+HeatTransfer3D targets engineers and researchers in thermal management, electronics cooling, battery systems, additive manufacturing, and heat exchanger design who need fast, reproducible 3D heat conduction simulations with minimal setup overhead.
+
 
 ---
 
@@ -142,24 +147,24 @@ cd build
 | Option            | Description                            | Default Value            |
 | ----------------- | -------------------------------------- | ------------------------ |
 | `--solver`        | Solver type (1–4)                      | 3 (CUDA_STENCIL)         |
-| `--nx`            | Grid size (nx × nx × nx)               | 50                       |
+| `--nx`            | Grid size (nx × nx × nx)               | 100                       |
 | `--steps`         | Maximum number of time steps           | 10000                    |
 | `--dt`            | Time step size (seconds)               | 100                      |
 | `--jacobiTol`     | Jacobi iteration tolerance             | 1e-6                     |
 | `--globalTol`     | Global convergence tolerance           | 1e-8                     |
 | `--verbosity`     | Verbosity level (1=low, 2=med, 4=high) | 1                        |
 | `--writeInterval` | Write VTK output every N steps         | 1000                     |
-| `--blockDim`      | CUDA block size                        | 216                      |
-| `--conductivity`  | Conductivity of the material           | 385 W/m.K                |
-| `--density`       | Density of the material                | 8960 kg/m3               |
-| `--cp`            | Specific Heat of the material          | 385 J/kg.K               |
-| `--bcTypeInlet`   | Inlet BC (0=Dirichlet, 1=Neumann)      | 1                        |
-| `--bcTypeOutlet`  | Outlet BC                              | 1                        |
-| `--bcTypeWall`    | Wall BC                                | 0                        |
+| `--blockDim`      | CUDA block size                        | 512                      |
+| `--conductivity`  | Conductivity of the material           | 10.0 W/m.K                |
+| `--density`       | Density of the material                | 2200.0 kg/m3               |
+| `--cp`            | Specific Heat of the material          | 800.0 J/kg.K               |
+| `--bcTypeInlet`   | Inlet BC (0=Dirichlet, 1=Neumann)      | 0                        |
+| `--bcTypeOutlet`  | Outlet BC                              | 0                        |
+| `--bcTypeWall`    | Wall BC                                | 1                        |
 | `--bcValInlet`    | Inlet BC value                         | 100.0                    |
-| `--bcValOutlet`   | Outlet BC value                        | -100.0                   |
+| `--bcValOutlet`   | Outlet BC value                        | 100.0                   |
 | `--bcValWall`     | Wall BC value                          | 100.0                    |
-| `--stlPath`       | Base STL geometry file                 | ../stlFiles/cylinder/... |
+| `--stlPath`       | Base STL geometry file                 | ../stlFiles/cube/cube.stl |
 |  `-h,--help`      | Print this summary                     | NA                       |
 
 ---
