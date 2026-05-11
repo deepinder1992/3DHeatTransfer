@@ -94,7 +94,34 @@ Two iterative approaches are implemented:
 CUDA implementations accelerate both approaches on GPUs.
 
 ---
+## Project Structure
 
+The main components are organized as follows:
+
+- **`src/`**: Contains the core implementation
+  - `main.cpp` — Command-line argument parsing and simulation workflow
+  - `grid.cpp`, `voxelReader.cpp` — Grid management and STL voxelization
+  - `boundaryConditions.cpp` — Boundary condition handling
+  - `solverCPU.cpp`, `linearAlgebraCPU.cpp` — CPU solver implementations
+  - **`cudaSrc/`** — All CUDA-specific code:
+    - `solverCUDAStencil.cu`, `solverCUDAMatrix.cu`
+    - `kernel.cu`, `linearAlgebraGPU.cu`, `boundaryConditions.cu`
+
+- **`include/`**: Public headers and interfaces
+  - Core abstractions: `solver.hpp`, `solverFactory.hpp`, `grid.hpp`, `voxelReader.hpp`
+  - CPU-specific: `solverCPU.hpp`
+  - CUDA-specific: `cudaHeaders/` directory containing `.cuh` files
+  - Supporting classes: `sparseMatrix.hpp`, `heatMatrixBuilder.hpp`, `linearAlgebra.hpp`
+
+- **`tests/`**: Comprehensive test suite that uses **GoogleTest (GTest)** and contains **30 tests** covering both CPU and GPU implementations. Key test files include:
+  - `tests_analytical.cpp` — Analytical verification cases
+  - `tests_grid.cpp`, `tests_VoxelReader.cpp` — Grid and voxelization tests
+  - `tests_boundaryConditions.cpp` — Boundary condition validation
+  - `tests_cpuLinearAlgebra.cpp`, `tests_cudaLinAlgebra.cu` — Linear algebra on both backends
+  - `tests_sparseMatrix.cpp`
+  - `test_stencilFulltest.cpp`, `test_matrixFulltest.cpp` — Full solver tests
+  - `tests_vtkWriter.cpp` — Output writer validation
+---
 ## Installation
 
 ### Requirements
