@@ -140,7 +140,7 @@ Tests were performed on an Intel Core i5-11400H CPU and NVIDIA GeForce RTX 3050 
 
 The software has been tested on multiple sample geometries included in the `stlFiles/` directory (cube, cylinder, L-shaped channel, and semi-cylinder). These examples validate the STL voxelization process and mixed boundary condition handling. 
 
-A representative simulation uses a thermal conductivity of 1 W/(m·K), density of 950 kg/m³, and specific heat of 1900 J/(kg·K), with Dirichlet conditions (100°C) at the inlet and outlet, and a Neumann condition (10 W/m² heat flux) at the walls. The resulting temperature fields are visualized as follows.
+A representative simulation uses a thermal conductivity of 10 W/(m·K), density of 2200 kg/m³, and specific heat of 800 J/(kg·K), with Dirichlet conditions (100°C) at the inlet and outlet, and a Neumann condition (100 W/m² heat flux) at the walls. The resulting temperature fields are visualized as follows.
 
 ![Cube](images/Cube.png)
 
