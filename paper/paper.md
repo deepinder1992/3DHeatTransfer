@@ -45,8 +45,6 @@ Existing open-source tools for heat conduction can be broadly grouped into gener
 
 Heavyweight frameworks such as OpenFOAM [@weller2007openfoam; @jasak2007openfoam], FEniCS [@logg2012automated], and OpenSBLI [@howell2016opensbli] offer great flexibility for coupled physics but come with significant overhead in meshing and configuration, which is often excessive for pure heat conduction. Lightweight finite-difference codes on Cartesian grids are computationally efficient [@leveque2007finite; @patankar1980numerical] but generally lack integrated support for importing complex STL geometries and flexible boundary condition handling.
 
-Several GPU-accelerated finite-difference solvers have been developed, primarily targeting performance on structured grids. However, most either require pre-discretized geometry, are limited to 2D domains, or are tied to specific research applications without providing modular, interchangeable solver backends.
-
 Meshless methods such as RBF-FD [@fornberg2015solving] offer geometric flexibility but increase implementation complexity and are rarely GPU-accelerated. Educational tools tend to prioritize simplicity for teaching rather than performance or engineering usability.
 
 `HeatTransfer3D` occupies a distinct middle ground by integrating:
