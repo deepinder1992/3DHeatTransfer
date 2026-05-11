@@ -27,7 +27,7 @@ bibliography: paper.bib
 
 `HeatTransfer3D` is a lightweight, high-performance C++17 solver for steady-state and transient 3D heat conduction on structured Cartesian grids. 
 
-The software offers a **streamlined and easy integration** from STL files to simulation by using a custom ray-tracing voxelization method that directly imports complex geometries and automatically classifies internal, external, and boundary regions. It supports mixed Dirichlet and Neumann boundary conditions on different patches.
+The software offers streamlined integration from STL files to simulation using a voxelization method based on ray-triangle intersection [@moller1997fast] and triangle-AABB overlap testing [@akenine2001fast] with ray parity counting [@orourke1998computational] that directly imports complex geometries and automatically classifies internal, external, and boundary regions. It supports mixed Dirichlet and Neumann boundary conditions on different patches.
 
 A key feature is its **four interchangeable solver backends**: stencil-based and matrix-based solvers, each available on both CPU (with OpenMP) and CUDA (GPU). This multi-backend design allows users to easily trade off between memory usage, convergence speed, and hardware availability. Simulation results are exported in VTK format for easy visualization in ParaView.
 
