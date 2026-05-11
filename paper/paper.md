@@ -62,36 +62,6 @@ This combination is relatively uncommon and makes the software particularly suit
 
 `HeatTransfer3D` is written in modern **C++17** with optional **CUDA** support for GPU acceleration. The codebase follows a modular, extensible design that clearly separates CPU and GPU implementations while maintaining a unified high-level interface.
 
-## Project Structure
-
-The main components are organized as follows:
-
-- **`src/`**: Contains the core implementation
-  - `main.cpp` — Command-line argument parsing and simulation workflow
-  - `grid.cpp`, `voxelReader.cpp` — Grid management and STL voxelization
-  - `boundaryConditions.cpp` — Boundary condition handling
-  - `solverCPU.cpp`, `linearAlgebraCPU.cpp` — CPU solver implementations
-  - **`cudaSrc/`** — All CUDA-specific code:
-    - `solverCUDAStencil.cu`, `solverCUDAMatrix.cu`
-    - `kernel.cu`, `linearAlgebraGPU.cu`, `boundaryConditions.cu`
-
-- **`include/`**: Public headers and interfaces
-  - Core abstractions: `solver.hpp`, `solverFactory.hpp`, `grid.hpp`, `voxelReader.hpp`
-  - CPU-specific: `solverCPU.hpp`
-  - CUDA-specific: `cudaHeaders/` directory containing `.cuh` files
-  - Supporting classes: `sparseMatrix.hpp`, `heatMatrixBuilder.hpp`, `linearAlgebra.hpp`
-
-- **`tests/`**: Comprehensive test suite that uses **GoogleTest (GTest)** and contains **30 tests** covering both CPU and GPU implementations. Key test files include:
-  - `tests_analytical.cpp` — Analytical verification cases
-  - `tests_grid.cpp`, `tests_VoxelReader.cpp` — Grid and voxelization tests
-  - `tests_boundaryConditions.cpp` — Boundary condition validation
-  - `tests_cpuLinearAlgebra.cpp`, `tests_cudaLinAlgebra.cu` — Linear algebra on both backends
-  - `tests_sparseMatrix.cpp`
-  - `test_stencilFulltest.cpp`, `test_matrixFulltest.cpp` — Full solver tests
-  - `tests_vtkWriter.cpp` — Output writer validation
-
-#### Architecture Highlights
-
 The software uses a **factory pattern** (`solverFactory.hpp`) to instantiate one of four solver backends at runtime: 1. CPU Stencil, 2. CPU Matrix 3. GPU Stencil 4. GPU Matrix. This allows users to choose between performance and memory trade-offs. All backends are based on the **Implicit Euler** time discretization scheme (for both steady-state and transient simulations), which is unconditionally stable.
 
 The four backends are:
@@ -124,7 +94,7 @@ The project builds with CMake. Helper scripts `build.sh` and `installDeps.sh` si
 
 `HeatTransfer3D` offers four solver backends to balance speed and memory usage depending on hardware and problem size.
 
-Performance was evaluated on a cube geometry with a residual tolerance of \(10^{-6}\).
+Performance was evaluated on a cube geometry with a residual tolerance of \(10^{-6}\), thermal conductivity of 385 W/(m·K), density of 8960 kg/m³, and specific heat of 385 J/(kg·K).
 
 ![Execution time comparison](images/timing_bars.png)
 
