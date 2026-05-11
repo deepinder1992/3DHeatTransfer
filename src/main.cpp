@@ -96,6 +96,7 @@ int main(int argc, char** argv) {
 
     // Select solver based on CLI input
     std::unique_ptr<HeatSolver> solver = CreateSolver(globs.solver, globs.alpha, current, globs.dt, globs.k, globs.maxIters, bc);
+    
     runSimulation(solver, current, next, globs, bc);
 
     std::cout << "Simulation completed in " << globs.t+1 << " iterations!" << std::endl;
@@ -170,6 +171,7 @@ void parseCLI(int argc, char** argv, SimulationGlobals& globs) {
     // enforce uniform grid
     globs.ny = globs.nx;
     globs.nz = globs.nx;
+    globs.alpha = globs.k/(globs.density*globs.cp);
     for (auto& t : globs.types) {
     t = static_cast<BCType>(static_cast<int>(t));}
     globs.stlFileloc = std::filesystem::path(globs.stlFilePathStr);

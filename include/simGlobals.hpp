@@ -65,26 +65,27 @@ struct SimulationGlobals {
 
     double dt = 100;
 
-    std::size_t nx = 50;
+    std::size_t nx = 100;
     std::size_t ny = nx;
     std::size_t nz = nx;
     
-    double k = 385; // W/m.K 
-    double density = 8960; //kg/m3
-    double cp = 385; //J/kg.K
-    double alpha = k/(density*cp);
+    double k = 10; // W/m.K 
+    double density = 2200; //kg/m3
+    double cp = 800; //J/kg.K
+    //We calculate following during intialization
+    double alpha = std::numeric_limits<double>::quiet_NaN();
 
     mutable int maxIters = 50;
     double tol = 1e-6;
 
     std::array<BCType,3> types = {
-                    BCType::Neumann, //inlet
-                    BCType::Neumann,    //outlet
-                    BCType::Dirichlet       //wall
+                    BCType::Dirichlet, //inlet
+                    BCType::Dirichlet,    //outlet
+                    BCType::Neumann       //wall
                 };  
 
-    std::array<double,3> values = { 500.0, //inlet
-                                    -500.0, //outlet
+    std::array<double,3> values = { 100.0, //inlet
+                                    100.0, //outlet
                                     100.0}; //wall
     // make sure blockdims are power of 2 _best practice
 
