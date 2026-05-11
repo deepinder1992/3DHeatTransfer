@@ -147,23 +147,23 @@ cd build
 | Option            | Description                            | Default Value            |
 | ----------------- | -------------------------------------- | ------------------------ |
 | `--solver`        | Solver type (1–4)                      | 3 (CUDA_STENCIL)         |
-| `--nx`            | Grid size (nx × nx × nx)               | 50                       |
+| `--nx`            | Grid size (nx × nx × nx)               | 100                       |
 | `--steps`         | Maximum number of time steps           | 10000                    |
 | `--dt`            | Time step size (seconds)               | 100                      |
 | `--jacobiTol`     | Jacobi iteration tolerance             | 1e-6                     |
 | `--globalTol`     | Global convergence tolerance           | 1e-8                     |
 | `--verbosity`     | Verbosity level (1=low, 2=med, 4=high) | 1                        |
 | `--writeInterval` | Write VTK output every N steps         | 1000                     |
-| `--blockDim`      | CUDA block size                        | 216                      |
-| `--conductivity`  | Conductivity of the material           | 1.0 W/m.K                |
-| `--density`       | Density of the material                | 950.0 kg/m3               |
-| `--cp`            | Specific Heat of the material          | 1900.0 J/kg.K               |
+| `--blockDim`      | CUDA block size                        | 512                      |
+| `--conductivity`  | Conductivity of the material           | 10.0 W/m.K                |
+| `--density`       | Density of the material                | 2200.0 kg/m3               |
+| `--cp`            | Specific Heat of the material          | 800.0 J/kg.K               |
 | `--bcTypeInlet`   | Inlet BC (0=Dirichlet, 1=Neumann)      | 0                        |
 | `--bcTypeOutlet`  | Outlet BC                              | 0                        |
-| `--bcTypeWall`    | Wall BC                                | 0                        |
+| `--bcTypeWall`    | Wall BC                                | 1                        |
 | `--bcValInlet`    | Inlet BC value                         | 100.0                    |
 | `--bcValOutlet`   | Outlet BC value                        | 100.0                   |
-| `--bcValWall`     | Wall BC value                          | 10.0                    |
+| `--bcValWall`     | Wall BC value                          | 100.0                    |
 | `--stlPath`       | Base STL geometry file                 | ../stlFiles/cube/cube.stl |
 |  `-h,--help`      | Print this summary                     | NA                       |
 
