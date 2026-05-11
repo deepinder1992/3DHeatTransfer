@@ -94,7 +94,7 @@ The project builds with CMake. Helper scripts `build.sh` and `installDeps.sh` si
 
 `HeatTransfer3D` offers four solver backends to balance speed and memory usage depending on hardware and problem size.
 
-Performance was evaluated on a cube geometry with a residual tolerance of \(10^{-6}\), thermal conductivity of 10 W/(m·K), density of 2200 kg/m³, and specific heat of 800 J/(kg·K).
+Performance was evaluated on a cube geometry with a residual tolerance of \(10^{-6}\), thermal conductivity of 385 W/(m·K), density of 8960 kg/m³, and specific heat of 385 J/(kg·K).
 
 ![Execution time comparison](images/timing_bars.png)
 
