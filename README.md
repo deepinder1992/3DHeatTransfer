@@ -43,15 +43,15 @@ All solvers are based on the **Implicit Euler** time discretization scheme (unco
 
 #### Solver Comparison
 
-| Backend              | Time Scheme     | Linear Solver          | Solve Quality     | Memory Usage         | Best For                              |
-|----------------------|-----------------|------------------------|-------------------|----------------------|---------------------------------------|
-| **Stencil (Jacobi)** | Implicit Euler  | Jacobi iteration       | Approximate       | Very Low `O(1)`      | Large grids, GPU, memory-constrained runs |
-| **Matrix (CG)**      | Implicit Euler  | Conjugate Gradient     | Near-exact        | Higher `O(N)`        | Faster convergence, smaller to medium problems |
+| Backend              | Time Scheme     | Linear Solver          | Solve Quality     | Memory Usage         |
+|----------------------|-----------------|------------------------|-------------------|----------------------|
+| **Stencil (Jacobi)** | Implicit Euler  | Jacobi iteration       | Approximate       | Very Low `O(1)`      |
+| **Matrix (CG)**      | Implicit Euler  | Conjugate Gradient     | Near-exact        | Higher `O(N)`        |
 
 #### Detailed Description
 
 **Stencil-based Solvers (CPU + CUDA)**  
-Apply a 7-point finite difference stencil directly on the temperature field and solve the implicit system using **Jacobi iteration**.  
+Apply a 7-point finite-difference stencil directly to the temperature field and solve the implicit system using **Jacobi iteration**.  
 - Extremely memory efficient  
 - Highly optimized for GPU (coalesced memory access + shared memory)  
 - Ideal for very large grids
@@ -89,7 +89,7 @@ Two iterative approaches are implemented:
   Jacobi iterations are performed directly on the grid without explicit matrix assembly, minimizing memory overhead.
 
 - **Matrix-based solvers**  
-  The discretized system is explicitly assembled and solved using Jacobi iterations, enabling more explicit control at the cost of higher memory usage.
+  The discretized system is explicitly assembled and solved using conjugate gradient, enabling more explicit control at the cost of higher memory usage.
 
 CUDA implementations accelerate both approaches on GPUs.
 
