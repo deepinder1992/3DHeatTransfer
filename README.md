@@ -52,15 +52,10 @@ All solvers are based on the **Implicit Euler** time discretization scheme (unco
 
 **Stencil-based Solvers (CPU + CUDA)**  
 Apply a 7-point finite-difference stencil directly to the temperature field and solve the implicit system using **Jacobi iteration**.  
-- Extremely memory efficient  
-- Highly optimized for GPU (coalesced memory access + shared memory)  
-- Ideal for very large grids
 
 **Matrix-based Solvers (CPU + CUDA)**  
-Explicitly assemble a sparse coefficient matrix and solve the linear system using the **Conjugate Gradient** method.  
-- Usually converges in fewer iterations than Jacobi  
-- Higher memory usage (stores the matrix)  
-- Better for cases where faster convergence is desired
+Explicitly assemble a sparse coefficient matrix and solve the linear system using the **Conjugate Gradient** method.   
+
 
 
 ### Geometry Handling
