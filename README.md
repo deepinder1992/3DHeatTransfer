@@ -121,6 +121,8 @@ The main components are organized as follows:
   - `tests_sparseMatrix.cpp`
   - `test_stencilFulltest.cpp`, `test_matrixFulltest.cpp` — Full solver tests
   - `tests_vtkWriter.cpp` — Output writer validation
+  
+  ![Architecture](paper/images/architecture.png)
 ---
 ## Installation
 
