@@ -235,9 +235,10 @@ After filtering, you can visualize temperature or other fields as usual.
 ---
 ## Sample Output
 
-![Cylinder](paper/images/Cylinder.png)
+![Cylinder](paper/images/SemiCylinder.png)
 
-**Figure 4**(Cylinder): Temperature field with Dirichlet conditions (100°C) at inlet and outlet, and Neumann heat flux on the curved wall. (a) Plane parallel to cylinder axis. (b) Plane perpendicular to the cylinder axis at the center height.
+**Figure 4**(Cylinder): (Semi-cylinder): Temperature field with Neumann condition applied on the flat rectangular wall. (a) Plane parallel to axis cutting through the rectangular wall. (b) Plane perpendicular to axis at mid-height.
+
 
 ![LChanner](paper/images/LChannel.png)
 
