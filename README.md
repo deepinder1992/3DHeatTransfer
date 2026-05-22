@@ -28,7 +28,7 @@ Accurate simulation of heat conduction in complex geometries is essential in app
 - A lightweight structured-grid heat conduction solver
 - STL-based geometry handling via voxelization onto Cartesian grids
 - Mixed boundary condition support (Dirichlet and Neumann)
-- Multiple interchangeable solver backends (CPU/GPU, stencil-based and matrix-based Jacobi iterations)
+- Multiple interchangeable solver backends (CPU/GPU, stencil-based and matrix-based iterations)
 
 This design enables efficient simulation workflows while maintaining a simple and reproducible setup for research and engineering applications.
 
