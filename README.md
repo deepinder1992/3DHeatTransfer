@@ -74,21 +74,6 @@ Explicitly assemble a sparse coefficient matrix and solve the linear system usin
 
 ---
 
-## Implementation
-
-The solver is based on a structured Cartesian grid discretization of the heat equation.
-
-Two iterative approaches are implemented:
-
-- **Stencil-based solvers**  
-  Jacobi iterations are performed directly on the grid without explicit matrix assembly, minimizing memory overhead.
-
-- **Matrix-based solvers**  
-  The discretized system is explicitly assembled and solved using conjugate gradient, enabling more explicit control at the cost of higher memory usage.
-
-CUDA implementations accelerate both approaches on GPUs.
-
----
 ## Project Structure
 
 The main components are organized as follows:
