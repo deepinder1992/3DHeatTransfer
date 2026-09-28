@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "HeatTransfer3D"
+abstract: >-
+  A multi-backend C++ solver for 3D heat conduction
+  with STL voxelisation, supporting CPU and GPU backends.
+authors:
+  - family-names: Aulakh
+    given-names: Deepinder Jot Singh
+    orcid: "https://orcid.org/0000-0002-5140-2064"
+version: "1.0.0"
+date-released: "2026-01-01"
+license: MIT
+repository-code: "https://github.com/deepinder1992/3DHeatTransfer"
+doi: "10.5281/zenodo.20349724"
+keywords:
+  - heat conduction
+  - CUDA
+  - GPU acceleration
+  - STL voxelisation
+  - finite difference
+  - conjugate gradient
+  - structured grid

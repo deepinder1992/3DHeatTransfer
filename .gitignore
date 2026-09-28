@@ -1,0 +1,47 @@
+# Build directories
+build/
+cmake-build-*/
+Testing/Temporary/
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Compiled objects
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+
+# Executables
+*.exe
+*.out
+heat3d
+
+# CUDA compiled
+*.cubin
+*.fatbin
+*.ptx
+
+# VTK output files
+*.vti
+*.vtk
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# CMake generated
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
