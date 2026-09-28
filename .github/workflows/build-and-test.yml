@@ -39,7 +39,7 @@ jobs:
 
       - name: Test Debug Coverage
         working-directory: build
-        run: ctest
+        run: ctest --output-on-failure
 
       - name: Coverage
         working-directory: build
