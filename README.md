@@ -28,7 +28,7 @@ Accurate simulation of heat conduction in complex geometries is essential in app
 - A lightweight structured-grid heat conduction solver
 - STL-based geometry handling via voxelization onto Cartesian grids
 - Mixed boundary condition support (Dirichlet and Neumann)
-- Multiple interchangeable solver backends (CPU/GPU, stencil-based and matrix-based Jacobi iterations)
+- Multiple interchangeable solver backends (CPU/GPU, stencil-based and matrix-based iterations)
 
 This design enables efficient simulation workflows while maintaining a simple and reproducible setup for research and engineering applications.
 
@@ -43,24 +43,19 @@ All solvers are based on the **Implicit Euler** time discretization scheme (unco
 
 #### Solver Comparison
 
-| Backend              | Time Scheme     | Linear Solver          | Solve Quality     | Memory Usage         | Best For                              |
-|----------------------|-----------------|------------------------|-------------------|----------------------|---------------------------------------|
-| **Stencil (Jacobi)** | Implicit Euler  | Jacobi iteration       | Approximate       | Very Low `O(1)`      | Large grids, GPU, memory-constrained runs |
-| **Matrix (CG)**      | Implicit Euler  | Conjugate Gradient     | Near-exact        | Higher `O(N)`        | Faster convergence, smaller to medium problems |
+| Backend              | Time Scheme     | Linear Solver          | Solve Quality     | Memory Usage         |
+|----------------------|-----------------|------------------------|-------------------|----------------------|
+| **Stencil (Jacobi)** | Implicit Euler  | Jacobi iteration       | Approximate       | Very Low `O(1)`      |
+| **Matrix (CG)**      | Implicit Euler  | Conjugate Gradient     | Near-exact        | Higher `O(N)`        |
 
 #### Detailed Description
 
 **Stencil-based Solvers (CPU + CUDA)**  
-Apply a 7-point finite difference stencil directly on the temperature field and solve the implicit system using **Jacobi iteration**.  
-- Extremely memory efficient  
-- Highly optimized for GPU (coalesced memory access + shared memory)  
-- Ideal for very large grids
+Apply a 7-point finite-difference stencil directly to the temperature field and solve the implicit system using **Jacobi iteration**.  
 
 **Matrix-based Solvers (CPU + CUDA)**  
-Explicitly assemble a sparse coefficient matrix and solve the linear system using the **Conjugate Gradient** method.  
-- Usually converges in fewer iterations than Jacobi  
-- Higher memory usage (stores the matrix)  
-- Better for cases where faster convergence is desired
+Explicitly assemble a sparse coefficient matrix and solve the linear system using the **Conjugate Gradient** method.   
+
 
 
 ### Geometry Handling
@@ -79,21 +74,6 @@ Explicitly assemble a sparse coefficient matrix and solve the linear system usin
 
 ---
 
-## Implementation
-
-The solver is based on a structured Cartesian grid discretization of the heat equation.
-
-Two iterative approaches are implemented:
-
-- **Stencil-based solvers**  
-  Jacobi iterations are performed directly on the grid without explicit matrix assembly, minimizing memory overhead.
-
-- **Matrix-based solvers**  
-  The discretized system is explicitly assembled and solved using Jacobi iterations, enabling more explicit control at the cost of higher memory usage.
-
-CUDA implementations accelerate both approaches on GPUs.
-
----
 ## Project Structure
 
 The main components are organized as follows:
@@ -121,6 +101,8 @@ The main components are organized as follows:
   - `tests_sparseMatrix.cpp`
   - `test_stencilFulltest.cpp`, `test_matrixFulltest.cpp` — Full solver tests
   - `tests_vtkWriter.cpp` — Output writer validation
+  
+  ![Architecture](paper/images/architecture.png)
 ---
 ## Installation
 
