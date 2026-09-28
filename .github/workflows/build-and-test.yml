@@ -47,7 +47,7 @@ jobs:
       
       - name: Publish Coverage
         working-directory: build-coverage 
-        run: lcov --remove coverage.info     '/usr/*'     '*/tests/*'     '*/googletest/*'     '*/cli11/*'     '*/build/_deps/*' --output-file coverage.info --ignore-errors mismatch    --output-file coverage_filtered.info
+        run: lcov --remove coverage.info     '/usr/*'     '*/tests/*'     '*/googletest/*'     '*/cli11/*'     '*/build/_deps/*' --output-file coverage.info --ignore-errors mismatch,unused    --output-file coverage_filtered.info
 
 
 
