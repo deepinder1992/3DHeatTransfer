@@ -32,7 +32,7 @@ jobs:
         run: ctest
       
       - name: Configure CMake Coverage
-        run: cmake -B build-coverage -S . -DCMAKE_BUILD_TYPE=Release -DENABLE_CUDA=OFF -DENABLE_COVERAGE=ON
+        run: cmake -B build-coverage -S . -DCMAKE_BUILD_TYPE=Debug -DENABLE_CUDA=OFF -DENABLE_COVERAGE=ON
 
       - name: Build Coverage
         run: cmake --build build-coverage
