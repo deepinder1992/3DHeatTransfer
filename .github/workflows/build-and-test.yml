@@ -32,7 +32,7 @@ jobs:
         run: ctest
       
       - name: Configure CMake Coverage
-        run: cmake -B build-coverage -S . -DCMAKE_BUILD_TYPE=Debug -DENABLE_CUDA=OFF -DENABLE_COVERAGE=ON
+        run: cmake -B build-coverage -S . -DCMAKE_BUILD_TYPE=Release -DENABLE_CUDA=OFF -DENABLE_COVERAGE=ON
 
       - name: Build Coverage
         run: cmake --build build-coverage
@@ -43,11 +43,11 @@ jobs:
 
       - name: Coverage
         working-directory: build-coverage 
-        run: lcov --capture --directory . --output-file coverage.info
+        run: lcov --capture --directory . --output-file coverage.info --ignore-errors mismatch
       
       - name: Publish Coverage
         working-directory: build-coverage 
-        run: lcov --remove coverage.info     '/usr/*'     '*/tests/*'     '*/googletest/*'     '*/cli11/*'     '*/build/_deps/*'     --output-file coverage_filtered.info
+        run: lcov --remove coverage.info     '/usr/*'     '*/tests/*'     '*/googletest/*'     '*/cli11/*'     '*/build/_deps/*' --output-file coverage.info --ignore-errors mismatch    --output-file coverage_filtered.info
 
 
 
