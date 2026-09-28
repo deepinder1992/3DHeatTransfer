@@ -27,6 +27,28 @@ jobs:
       - name: Build
         run: cmake --build build --config Release -j2
 
-      - name: Test
+      - name: Test Release
         working-directory: build
-        run: ctest 
+        run: ctest
+      
+      - name: Configure CMake Coverage
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DENABLE_CUDA=OFF
+
+      - name: Build Coverage
+        run: cmake --build build
+
+      - name: Test Debug Coverage
+        working-directory: build
+        run: ctest
+
+      - name: Coverage
+        working-directory: build
+        run: lcov --capture --directory . --output-file coverage.info
+      
+      - name: Publish Coverage
+        working-directory: build
+        run: lcov --remove coverage.info     '/usr/*'     '*/tests/*'     '*/googletest/*'     '*/cli11/*'     '*/build/_deps/*'     --output-file coverage_filtered.info
+
+
+
+

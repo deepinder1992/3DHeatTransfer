@@ -14,7 +14,8 @@ sudo apt-get install -y \
     cmake \
     git \
     libomp-dev \
-    libcli11-dev
+    libcli11-dev \
+    lcov
 
 echo ""
 echo "NOTE:"

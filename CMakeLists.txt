@@ -13,6 +13,13 @@ else()
     message(STATUS "CUDA disabled - building CPU-only version")
 endif()
 
+#code coverage
+option(ENABLE_COVERAGE "Enable Coverage" OFF)
+if (ENABLE_COVERAGE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+endif()
+
 # C++ Standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
